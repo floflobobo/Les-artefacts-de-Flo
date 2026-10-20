@@ -1,0 +1,1506 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Génétique Fernandez-Vidal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout : fiche de labo de cytogénétique. Colonne de lecture + widgets "paillasse" ; couleurs FISH (DAPI bleu = paternel, Cy3 magenta = maternel, FITC vert = repère) */
+:root{
+  --bg:#eef2f6; --surface:#ffffff; --surface-2:#f6f8fb; --ink:#141f2c; --muted:#56657a; --line:#d4dce6;
+  --pat:#2c56d8; --pat-soft:#dbe4ff; --mat:#cf2f6e; --mat-soft:#ffdbe8;
+  --fitc:#11905a; --fitc-soft:#d5f3e4; --amber:#b86e00; --amber-soft:#fff0d6; --bad:#c2341f; --bad-soft:#fde2dc;
+  --chr:#8f9aab; --chr-dark:#3c4656; --cen:#141f2c;
+  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#090e1b; --surface:#111a2d; --surface-2:#0d1526; --ink:#e5ebf5; --muted:#93a2b8; --line:#25324b;
+  --pat:#7e9bff; --pat-soft:#1c2a55; --mat:#ff6fa3; --mat-soft:#4a1830;
+  --fitc:#3fdc8d; --fitc-soft:#0f3a28; --amber:#f2b44c; --amber-soft:#3d2c0c; --bad:#ff7d68; --bad-soft:#47180f;
+  --chr:#5d6b82; --chr-dark:#b9c4d6; --cen:#e5ebf5; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#090e1b; --surface:#111a2d; --surface-2:#0d1526; --ink:#e5ebf5; --muted:#93a2b8; --line:#25324b;
+  --pat:#7e9bff; --pat-soft:#1c2a55; --mat:#ff6fa3; --mat-soft:#4a1830;
+  --fitc:#3fdc8d; --fitc-soft:#0f3a28; --amber:#f2b44c; --amber-soft:#3d2c0c; --bad:#ff7d68; --bad-soft:#47180f;
+  --chr:#5d6b82; --chr-dark:#b9c4d6; --cen:#e5ebf5; color-scheme:dark;}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16.5px;line-height:1.6;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.6rem,3.6vw,2.3rem);font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.25rem;font-weight:700;margin-top:28px}
+h4{font-size:1.02rem;font-weight:700}
+p{margin:.5em 0}
+.prose{max-width:68ch}
+a{color:var(--pat)}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+.karyo-f{font-family:var(--f-mono);font-weight:600;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;white-space:nowrap}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pat{color:var(--pat);font-weight:700}.mat{color:var(--mat);font-weight:700}
+strong{font-weight:700}
+mark{background:var(--amber-soft);color:inherit;padding:0 3px;border-radius:3px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--pat);outline-offset:2px;border-radius:4px}
+
+/* NAV */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:12px;padding-block:8px}
+.nav-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;overscroll-behavior-x:contain}
+.nav-chips::-webkit-scrollbar{display:none}
+.nav-chips a{flex:none;text-decoration:none;color:var(--muted);font-size:.86rem;padding:5px 10px;border-radius:99px;border:1px solid transparent;white-space:nowrap}
+.nav-chips a:hover{color:var(--ink);border-color:var(--line)}
+.nav-chips a.on{color:var(--ink);background:var(--surface-2);border-color:var(--line)}
+.nav-chips a.done::after{content:" ✓";color:var(--fitc);font-weight:700}
+.prog{flex:none;display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.prog-bar{width:70px;height:6px;border-radius:9px;background:var(--line);overflow:hidden}
+.prog-bar i{display:block;height:100%;width:0;background:var(--fitc);transition:width .4s}
+
+/* HERO */
+.hero{padding-block:36px 26px}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:22px}
+.hero h1{font-size:clamp(2.2rem,6.2vw,4rem);font-weight:800;letter-spacing:-.02em}
+.hero h1 em{font-style:normal;color:var(--mat)}
+.hero .lede{font-size:1.1rem;color:var(--muted);max-width:60ch}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.88rem;color:var(--muted)}
+.karyo{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.karyo-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.karyo-formula{font-family:var(--f-mono);font-weight:600;font-size:1.25rem}
+.karyo-note{font-size:.9rem;color:var(--muted);min-height:1.5em}
+.karyo-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px 4px;align-items:end}
+.kpair{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.kpair .bars{display:flex;gap:2px;align-items:flex-end;height:100px}
+.kchr{width:6px;border-radius:3px;position:relative;background:repeating-linear-gradient(to bottom,var(--chr) 0 5px,var(--chr-dark) 5px 7px,var(--chr) 7px 11px);transition:opacity .4s,transform .4s}
+.kchr::after{content:"";position:absolute;left:-1px;right:-1px;height:3px;top:var(--cen-at);background:var(--bg);border-radius:2px}
+.kchr.extra{background:repeating-linear-gradient(to bottom,var(--mat) 0 5px,var(--mat-soft) 5px 7px,var(--mat) 7px 11px);animation:pop .6s ease}
+.kpair.acro .kchr{background:repeating-linear-gradient(to bottom,var(--fitc) 0 5px,var(--fitc-soft) 5px 7px,var(--fitc) 7px 11px)}
+.kpair .lab{font-family:var(--f-mono);font-size:.68rem;color:var(--muted)}
+.kchr.missing{opacity:.12}
+@keyframes pop{0%{transform:scaleY(.2)}70%{transform:scaleY(1.08)}100%{transform:scaleY(1)}}
+
+/* chips / buttons */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface-2);border-radius:99px;padding:5px 12px;font-size:.86rem;font-family:var(--f-mono)}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:8px;padding:8px 16px;font-weight:700;font-size:.93rem}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:disabled{opacity:.35;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* SECTIONS */
+section.chap{padding-block:40px;border-top:1px solid var(--line)}
+.chap-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+.chap-head .num{font-family:var(--f-mono);color:var(--mat);font-weight:600;font-size:.9rem}
+.master{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 14px;font-size:.88rem}
+.master[aria-pressed="true"]{border-color:var(--fitc);background:var(--fitc-soft);color:var(--ink)}
+.master .box{width:16px;height:16px;border-radius:4px;border:2px solid var(--muted);display:grid;place-items:center;font-size:11px;line-height:1}
+.master[aria-pressed="true"] .box{background:var(--fitc);border-color:var(--fitc);color:var(--bg)}
+.two{display:grid;grid-template-columns:1fr;gap:20px}
+.two>*{min-width:0}
+.lab-panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:16px}
+.lab-panel>h4{margin-bottom:4px}
+.lab-panel .sub{font-size:.9rem;color:var(--muted);margin:0 0 12px}
+.callout{border-left:4px solid var(--amber);background:var(--amber-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:.95rem}
+.callout.trap{border-color:var(--bad);background:var(--bad-soft)}
+.callout.ok{border-color:var(--fitc);background:var(--fitc-soft)}
+.callout b.k{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:2px}
+.src{font-size:.8rem;color:var(--muted);font-style:italic}
+ul.tight{margin:.4em 0;padding-left:1.2em}
+ul.tight li{margin:.2em 0}
+.tbl-wrap{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:.72rem;padding:1px 7px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.tag.eq{color:var(--fitc)}.tag.deq{color:var(--bad)}.tag.n{color:var(--amber)}
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0}
+.tl{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.tl .y{font-family:var(--f-mono);font-weight:600;color:var(--pat)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px}
+.stat .v{font-family:var(--f-display);font-weight:800;font-size:1.7rem;font-variant-numeric:tabular-nums}
+.stat .l{font-size:.86rem;color:var(--muted);line-height:1.35}
+
+/* cycle diagram */
+.cycle{display:grid;grid-template-columns:1fr;gap:14px;align-items:center}
+.cycle svg{width:100%;max-width:360px;height:auto;display:block;margin:0 auto}
+.cycle .spin{transform-origin:150px 150px;animation:spin 14s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* division stage */
+.stage{position:relative;height:330px;background:var(--surface-2);border:1px dashed var(--line);border-radius:8px;overflow:hidden}
+.cell{position:absolute;border:2px solid var(--muted);border-radius:50%;opacity:.55;transition:all .7s ease}
+.plate{position:absolute;top:8px;bottom:8px;left:50%;border-left:2px dashed var(--fitc);transition:opacity .4s}
+.ctd{position:absolute;width:17px;display:flex;flex-direction:column;border-radius:8px;overflow:hidden;transition:left .8s cubic-bezier(.5,0,.25,1),top .8s cubic-bezier(.5,0,.25,1),opacity .5s;box-shadow:0 0 0 1.5px var(--surface-2)}
+.ctd .g{flex:1;display:grid;place-items:center;font-family:var(--f-mono);font-weight:700;font-size:11px;color:#fff;transition:background .6s}
+.ctd .g.P{background:var(--pat)}.ctd .g.M{background:var(--mat)}
+.ctd .cn{height:5px;background:var(--cen);flex:none}
+.stage-cap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline;margin-top:10px}
+.stage-cap .ploidy{font-family:var(--f-mono);font-weight:600;font-size:1.1rem;color:var(--mat)}
+.stepdots{display:flex;gap:5px}
+.stepdots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.stepdots i.on{background:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.84rem;color:var(--muted);margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+
+/* allele quiz */
+.allele-q{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px}
+.agene{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:10px;text-align:center}
+.agene .pair{font-family:var(--f-mono);font-size:1.15rem;font-weight:600}
+.agene .opts{display:flex;gap:4px;justify-content:center;margin-top:6px}
+.agene .opts button{font-size:.75rem;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:3px 7px}
+.agene.right{border-color:var(--fitc);background:var(--fitc-soft)}
+.agene.wrong{border-color:var(--bad);background:var(--bad-soft)}
+
+/* non-disjunction */
+.ndj{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+.gam{text-align:center}
+.gam .c{aspect-ratio:1;max-width:96px;margin:0 auto;border-radius:50%;border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;gap:4px;background:var(--surface-2);transition:all .5s}
+.gam .c i{width:7px;height:34px;border-radius:4px;display:block;animation:fadein .5s ease both}
+.gam .c i.o{background:var(--pat);height:46px}.gam .c i.r{background:var(--mat)}
+.gam .arr{font-family:var(--f-mono);color:var(--muted);font-size:.8rem;margin:4px 0}
+.gam .res{font-family:var(--f-mono);font-weight:700;font-size:.92rem;padding:2px 8px;border-radius:99px;display:inline-block}
+.res.T{background:var(--mat-soft);color:var(--mat)}.res.M{background:var(--amber-soft);color:var(--amber)}.res.N{background:var(--fitc-soft);color:var(--fitc)}
+@keyframes fadein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* bars chart */
+.hbars{display:grid;gap:8px;margin-top:10px}
+.hb{display:grid;grid-template-columns:62px 1fr 92px;gap:10px;align-items:center;font-size:.9rem}
+.hb .t{height:22px;background:var(--surface-2);border-radius:5px;overflow:hidden}
+.hb .t i{display:block;height:100%;background:var(--mat);border-radius:5px;width:0;transition:width 1s ease}
+.hb .v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--muted);font-size:.82rem}
+
+/* flow */
+.flow{display:grid;gap:10px;margin-top:10px}
+.fstep{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.fstep b{font-family:var(--f-display)}
+.fbranch{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.fbranch .fstep{border-top:4px solid var(--c)}
+.fdown{text-align:center;color:var(--muted);font-family:var(--f-mono);line-height:1}
+
+/* structure animator */
+.sa-stage{position:relative;height:250px;background:var(--surface-2);border:1px dashed var(--line);border-radius:8px;overflow:hidden}
+.seg{position:absolute;width:34px;height:24px;border-radius:5px;display:grid;place-items:center;font-family:var(--f-mono);font-size:11px;font-weight:700;color:#fff;transition:left .9s cubic-bezier(.5,0,.25,1),top .9s cubic-bezier(.5,0,.25,1),opacity .6s,transform .9s}
+.seg.cen{height:10px;width:22px;background:var(--cen)!important;border-radius:99px}
+.seg.sat{height:14px;opacity:.85}
+.seg.A{background:var(--pat)}.seg.B{background:var(--mat)}
+.seg .lbl{transition:transform .9s;display:inline-block}
+.seg.flip .lbl{transform:rotate(180deg)}
+.sa-info{display:grid;gap:6px;margin-top:12px}
+.sa-info .nom{font-family:var(--f-mono);font-weight:600}
+
+/* triplets */
+.scale{position:relative;height:30px;border-radius:6px;overflow:hidden;display:flex;margin-top:30px}
+.scale .z{height:100%;font-size:.7rem;font-family:var(--f-mono);display:flex;align-items:center;justify-content:center;color:var(--ink);white-space:nowrap;overflow:hidden}
+.scale-wrap{position:relative}
+.marker{position:absolute;top:-26px;transform:translateX(-50%);transition:left 1s cubic-bezier(.5,0,.25,1);font-family:var(--f-mono);font-size:.78rem;font-weight:700;white-space:nowrap}
+.marker::after{content:"";position:absolute;left:50%;top:20px;height:40px;border-left:2px solid var(--ink)}
+.ticks{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.7rem;color:var(--muted);margin-top:4px}
+.repeats{display:flex;flex-wrap:wrap;gap:3px;margin-top:14px;min-height:48px;align-content:flex-start}
+.repeats span{font-family:var(--f-mono);font-size:.68rem;padding:1px 4px;border-radius:3px;background:var(--pat-soft);color:var(--pat);animation:fadein .3s ease both}
+.repeats span.hot{background:var(--mat-soft);color:var(--mat)}
+.gens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.gen{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface-2);text-align:left;font-size:.86rem}
+.gen[aria-pressed="true"]{border-color:var(--ink);background:var(--surface)}
+.gen b{display:block;font-family:var(--f-display)}
+
+/* UPD */
+.upd{display:grid;grid-template-columns:1fr;gap:16px;align-items:center;margin-top:12px}
+.c15s{display:flex;gap:30px;justify-content:center;align-items:flex-end;min-height:220px}
+.c15{display:flex;flex-direction:column;align-items:center;gap:6px}
+.c15 .body{width:34px;height:180px;border-radius:17px;position:relative;transition:background .5s}
+.c15 .body.P{background:var(--pat-soft);border:2px solid var(--pat)}.c15 .body.M{background:var(--mat-soft);border:2px solid var(--mat)}
+.c15 .cn15{position:absolute;left:-3px;right:-3px;top:22px;height:6px;background:var(--bg);border-radius:3px}
+.c15 .reg{position:absolute;left:3px;right:3px;top:44px;height:58px;border-radius:6px;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;transition:opacity .5s}
+.c15 .reg.gone{opacity:.08}
+.c15 .dot{font-family:var(--f-mono);font-size:.62rem;font-weight:700;padding:1px 3px;border-radius:4px;border:1px solid var(--muted);color:var(--muted);background:var(--surface)}
+.c15 .dot.on{background:var(--amber);border-color:var(--amber);color:#1b1100;box-shadow:0 0 10px var(--amber)}
+.c15 .who{font-family:var(--f-mono);font-size:.78rem}
+.verdict{font-family:var(--f-display);font-weight:800;font-size:1.4rem}
+.upd-table{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.updm{border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface-2);font-size:.88rem}
+.updm .vis{display:flex;gap:5px;justify-content:center;margin:8px 0;align-items:center;font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.updm .vis i{width:7px;height:30px;border-radius:4px;display:inline-block}
+.vis i.g{background:var(--chr)}.vis i.k{background:var(--chr-dark)}
+
+/* decoder */
+.dec-in{display:flex;gap:8px;flex-wrap:wrap}
+.dec-in input{flex:1;min-width:0;font-family:var(--f-mono);font-size:1rem;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);color:var(--ink)}
+.dec-out{margin-top:12px;display:grid;gap:8px}
+.dec-line{display:grid;grid-template-columns:minmax(90px,auto) 1fr;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);font-size:.92rem}
+.dec-line>*{min-width:0}
+.dec-line .k{font-family:var(--f-mono);font-weight:600;color:var(--mat);overflow-wrap:anywhere}
+
+/* REVIEW */
+.review{background:var(--surface);border-top:1px solid var(--line)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}
+.tab{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 14px;font-weight:700}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qcard{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:18px;max-width:760px}
+.qtop{display:flex;justify-content:space-between;gap:10px;font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.qtext{font-family:var(--f-display);font-weight:700;font-size:1.18rem;margin:10px 0 14px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start}
+.opt .l{font-family:var(--f-mono);font-weight:600;color:var(--muted)}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.good{border-color:var(--fitc);background:var(--fitc-soft)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.qexp{margin-top:12px;font-size:.95rem}
+.qexp b.v{font-family:var(--f-display)}
+.qnav{display:flex;justify-content:space-between;gap:10px;margin-top:14px;flex-wrap:wrap}
+.flash-wrap{perspective:1200px;max-width:560px}
+.flash{position:relative;height:230px;transition:transform .6s;transform-style:preserve-3d;cursor:pointer}
+.flash.flipped{transform:rotateY(180deg)}
+.flash .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;justify-content:center;background:var(--surface-2);overflow:auto}
+.flash .back{transform:rotateY(180deg);background:var(--surface)}
+.flash .face .eyebrow{margin-bottom:6px}
+.flash .front .q{font-family:var(--f-display);font-weight:700;font-size:1.25rem}
+.traps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.trap{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--surface-2);font-size:.93rem}
+.trap .x{color:var(--bad);font-weight:700;text-decoration:line-through;text-decoration-thickness:1.5px}
+.trap .v{color:var(--fitc);font-weight:700}
+footer{padding-block:30px;color:var(--muted);font-size:.85rem}
+
+@media (min-width:820px){
+  .hero-grid{grid-template-columns:1.05fr 1fr;align-items:center}
+  .two{grid-template-columns:1fr 1fr}
+  .cycle{grid-template-columns:300px 1fr}
+  .upd{grid-template-columns:260px 1fr}
+}
+@media (max-width:560px){
+  .karyo-grid{grid-template-columns:repeat(8,minmax(0,1fr))}
+  .gens{grid-template-columns:1fr}
+  .hb{grid-template-columns:52px 1fr 80px}
+  body{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+
+<nav class="nav" aria-label="Chapitres">
+  <div class="wrap">
+    <div class="nav-chips" id="navChips">
+      <a href="#heredite">I.1–2 Espèce &amp; reproduction</a>
+      <a href="#divisions">I.3 Mitose / méiose</a>
+      <a href="#alleles">I.4–5 Génotype &amp; allèles</a>
+      <a href="#mutations">I.6 Mutations</a>
+      <a href="#caryotype">II.1 Caryotype</a>
+      <a href="#nombre">II.2 Nombre</a>
+      <a href="#structure">II.3 Structure</a>
+      <a href="#triplets">Triplets</a>
+      <a href="#disomies">II.4 Disomies &amp; empreinte</a>
+      <a href="#reviser">Réviser</a>
+    </div>
+    <div class="prog" title="Chapitres marqués « maîtrisé »"><span id="progTxt">0/9</span><span class="prog-bar"><i id="progBar"></i></span></div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">UE 3.7 · Génome &amp; génétique médicale · Mme Fernandez-Vidal</div>
+      <h1 style="margin:10px 0 12px">Introduction à la <em>génétique</em></h1>
+      <p class="lede">Tout le cours en une page : méiose, allèles, caryotype, anomalies de nombre et de structure, expansions de triplets, disomies uniparentales. Chaque schéma se manipule, chaque chapitre se coche, et la fin de page te fait réviser.</p>
+      <div class="meta-row">
+        <span>Sources : diapos 2026 + ronéos du 20/10 et du 04/11/2025</span>
+        <span>Au CC : feuille de coche, avec tout Génome</span>
+      </div>
+    </div>
+    <div class="karyo" aria-label="Caryotype interactif">
+      <div class="karyo-head">
+        <span class="karyo-formula" id="kForm">46,XY</span>
+        <div class="chips" id="kChips" role="group" aria-label="Choisir un caryotype">
+          <button class="chip" aria-pressed="true" data-k="46XY">46,XY</button>
+          <button class="chip" aria-pressed="false" data-k="T21">47,XY,+21</button>
+          <button class="chip" aria-pressed="false" data-k="TUR">45,X</button>
+          <button class="chip" aria-pressed="false" data-k="KLI">47,XXY</button>
+          <button class="chip" aria-pressed="false" data-k="ACRO">acrocentriques</button>
+        </div>
+      </div>
+      <div class="karyo-grid" id="kGrid"></div>
+      <p class="karyo-note" id="kNote">Caryotype masculin normal : 22 paires d'autosomes + 1 paire de gonosomes, classés par taille et position du centromère.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ============ I.1-2 ============ -->
+<section class="chap" id="heredite">
+<div class="wrap">
+  <div class="chap-head">
+    <div><div class="num">I · 1–2</div><h2>Science de l'hérédité, espèce, reproduction</h2></div>
+    <button class="master" data-m="heredite" aria-pressed="false"><span class="box"></span>Maîtrisé</button>
+  </div>
+  <div class="prose">
+    <p>La génétique couvre le support de l'information génétique, le séquençage et l'analyse génomique (bioinformatique), la régulation des gènes, la transmission des caractères, la <strong>transgenèse</strong> (gène étranger ajouté au patrimoine génétique d'un être vivant), la thérapie génique, les prédispositions aux maladies et aux effets toxiques des médicaments, le conseil génétique et la bioéthique.</p>
+  </div>
+  <div class="two">
+    <div>
+      <h3>1) Définition biologique de l'espèce</h3>
+      <p>Ensemble de populations naturelles <mark>interfécondes</mark>, produisant des descendants <mark>eux-mêmes féconds</mark>, <mark>isolées sur le plan reproductif</mark> et occupant une <mark>niche écologique</mark> particulière.</p>
+      <div class="callout"><b class="k">Exemple du cours</b>Âne × jument = mulet stérile : la jument a 64 chromosomes, l'âne 62, ce qui pose problème en méiose. Ils ne sont donc pas de la même espèce.</div>
+      <p>Grande diversité au sein d'une espèce, <strong>sauf</strong> : lignées pures obtenues par croisement, clones, jumeaux.</p>
+      <p><strong>Organismes modèles</strong> : unicellulaires faciles à manipuler (bactéries, levures, champignons) et pluricellulaires (drosophile, souris, pois de Mendel).</p>
+    </div>
+    <div>
+      <h3>2) La reproduction</h3>
+      <ul class="tight">
+        <li><strong>Asexuée</strong> : 1 seul parent → mitose → <strong>clones</strong> (bactéries…).</li>
+        <li><strong>Sexuée</strong> : 2 sexes différents → alternance phase haploïde (n) / diploïde (2n). Méiose (2n → n), fécondation (n + n → 2n).</li>
+      </ul>
+      <div class="tbl-wrap"><table>
+        <tr><th>Cycle</th><th>Phase dominante</th><th>Exemple</th></tr>
+        <tr><td>Haplobiontique</td><td>haploïde &gt; diploïde</td><td>Protistes, algues</td></tr>
+        <tr><td>Haplo-diplobiontique</td><td>haploïde = diploïde</td><td>Levure à bourgeonnement</td></tr>
+        <tr><td>Diplobiontique</td><td>haploïde &lt; diploïde</td><td>Métazoaires (droso, Homme), plantes supérieures</td></tr>
+      </table></div>
+    </div>
+  </div>
+  <div class="lab-panel cycle">
+    <svg viewBox="0 0 300 300" role="img" aria-label="Cycle de vie : méiose, haploïde, fécondation, diploïde, mitose dans chaque phase">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+      <circle cx="150" cy="150" r="104" fill="none" stroke="var(--line)" stroke-width="14"/>
+      <g class="spin"><circle cx="150" cy="46" r="7" fill="var(--mat)"/></g>
+      <path d="M210 66 A104 104 0 0 1 250 186" fill="none" stroke="var(--muted)" stroke-width="2" marker-end="url(#ah)"/>
+      <path d="M90 234 A104 104 0 0 1 50 114" fill="none" stroke="var(--muted)" stroke-width="2" marker-end="url(#ah)"/>
+      <rect x="100" y="20" width="100" height="44" rx="10" fill="var(--pat-soft)" stroke="var(--pat)"/>
+      <text x="150" y="40" text-anchor="middle" font-family="var(--f-display)" font-weight="700" font-size="14" fill="var(--ink)">Haploïde</text>
+      <text x="150" y="56" text-anchor="middle" font-family="var(--f-mono)" font-size="12" fill="var(--ink)">n</text>
+      <rect x="100" y="236" width="100" height="44" rx="10" fill="var(--mat-soft)" stroke="var(--mat)"/>
+      <text x="150" y="256" text-anchor="middle" font-family="var(--f-display)" font-weight="700" font-size="14" fill="var(--ink)">Diploïde</text>
+      <text x="150" y="272" text-anchor="middle" font-family="var(--f-mono)" font-size="12" fill="var(--ink)">2n</text>
+      <text x="268" y="130" text-anchor="middle" font-family="var(--f-display)" font-size="13" font-weight="700" fill="var(--fitc)">Fécon-</text>
+      <text x="268" y="145" text-anchor="middle" font-family="var(--f-display)" font-size="13" font-weight="700" fill="var(--fitc)">dation</text>
+      <text x="32" y="160" text-anchor="middle" font-family="var(--f-display)" font-size="13" font-weight="700" fill="var(--amber)">Méiose</text>
+      <text x="150" y="104" text-anchor="middle" font-family="var(--f-body)" font-size="12" fill="var(--muted)">mitose : n → n</text>
+      <text x="150" y="204" text-anchor="middle" font-family="var(--f-body)" font-size="12" fill="var(--muted)">mitose : 2n → 2n</text>
+      <text x="150" y="155" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--muted)">métazoaires :</text>
+      <text x="150" y="170" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--muted)">diplobiontique</text>
+    </svg>
+    <div>
+      <h4>Les trois flèches à ne jamais mélanger</h4>
+      <ul class="tight">
+        <li><strong>Fécondation</strong> : 2 gamètes haploïdes de parents de sexe différent fusionnent → zygote diploïde (1 chromosome maternel + 1 paternel par paire).</li>
+        <li><strong>Méiose</strong> : seul moyen de repasser de 2n à n (cellules germinales → gamètes).</li>
+        <li><strong>Mitose</strong> : conserve la ploïdie. Une cellule 2n donne 2 cellules 2n, une cellule n donne 2 cellules n.</li>
+      </ul>
+      <div class="callout trap"><b class="k">Piège</b>La mitose ne fait jamais passer de n à 2n, ni l'inverse.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ I.3 ============ -->
+<section class="chap" id="divisions">
+<div class="wrap">
+  <div class="chap-head">
+    <div><div class="num">I · 3</div><h2>Mitose et méiose : à ne pas confondre</h2></div>
+    <button class="master" data-m="divisions" aria-pressed="false"><span class="box"></span>Maîtrisé</button>
+  </div>
+  <div class="prose">
+    <p>Exemple du cours : 2 paires de chromosomes homologues, 5 gènes. Une lettre = un gène ; majuscule et minuscule = deux allèles. Chromosome <span class="pat">paternel</span> : A, B, c et d, e. Chromosome <span class="mat">maternel</span> : A, b, c et D, E.</p>
+    <p>Notation : <code>n</code> = nombre de jeux de chromosomes, <code>C</code> = nombre de chromatides par chromosome (quantité d'ADN). En G1 : <span class="karyo-f">2n 1C</span>. Après la phase S (réplication), en G2 : <span class="karyo-f">2n 2C</span>.</p>
+  </div>
+
+  <div class="lab-panel">
+    <div class="row" style="justify-content:space-between">
+      <div><h4>Paillasse : suis les chromatides</h4><p class="sub" style="margin:0">Choisis la division, puis avance étape par étape.</p></div>
+      <div class="chips" role="group" aria-label="Type de division">
+        <button class="chip" id="modeMit" aria-pressed="true">Mitose (somatique)</button>
+        <button class="chip" id="modeMei" aria-pressed="false">Méiose (germinale)</button>
+      </div>
+    </div>
+    <div class="stage" id="stage" style="margin-top:12px"></div>
+    <div class="stage-cap">
+      <div><span class="ploidy" id="stPloidy">2n 1C</span> · <strong id="stName">G1</strong></div>
+      <div class="stepdots" id="stDots"></div>
+    </div>
+    <p id="stText" style="min-height:3.2em;margin-top:6px"></p>
+    <div class="row">
+      <button class="btn ghost" id="stPrev">← Étape précédente</button>
+      <button class="btn" id="stNext">Étape suivante →</button>
+      <label class="row" style="gap:6px;font-size:.9rem" id="coWrap" hidden><input type="checkbox" id="coChk" checked> crossing-over</label>
+      <button class="btn ghost" id="stShuffle" hidden>Tirer l'orientation au hasard</button>
+    </div>
+    <div class="legend"><span style="--c:var(--pat)">origine paternelle</span><span style="--c:var(--mat)">origine maternelle</span><span style="--c:var(--cen)">centromère</span><span style="--c:var(--fitc)">plaque équatoriale</span></div>
+  </div>
+
+  <div class="two" style="margin-top:8px">
+    <div>
+      <h3>La méiose</h3>
+      <p>Processus aboutissant aux gamètes : cellules haploïdes (n) contenant <strong>un chromosome de chaque paire, à une chromatide</strong>.</p>
+      <ul class="tight">
+        <li><strong>M1 réductionnelle</strong> : séparation des <strong>chromosomes homologues</strong> appariés. 2n 2C → n 2C.</li>
+        <li><strong>M2 équationnelle</strong> : séparation des <strong>chromatides sœurs</strong>. n 2C → n 1C. 4 cellules filles toutes différentes.</li>
+      </ul>
+      <div class="callout ok"><b class="k">Quiz du cours</b>La méiose peut-elle être définie comme 2 mitoses successives ? <strong>Non.</strong> En mitose on ne sépare jamais les homologues ; c'est exactement ce que fait la 1<sup>re</sup> division de méiose.</div>
+    </div>
+    <div>
+      <h3>Deux brassages, tous deux en méiose I</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th></th><th>Intrachromosomique</th><th>Interchromosomique</th></tr>
+        <tr><td>Gènes</td><td><strong>liés</strong> (même chromosome)</td><td><strong>indépendants</strong> (chromosomes différents)</td></tr>
+        <tr><td>Mécanisme</td><td>crossing-over = recombinaison homologue entre chromatides des homologues</td><td>répartition aléatoire des paires d'homologues</td></tr>
+        <tr><td>Exemple</td><td>A et B</td><td>A et C, B et C (cours) ; ici A/B et d/e</td></tr>
+        <tr><td>Fréquence</td><td>dépend de la distance : plus les gènes sont éloignés, plus un c.o. entre eux est probable</td><td>combinaisons équiprobables</td></tr>
+      </table></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ I.4-5 ============ -->
+<section class="chap" id="alleles">
+<div class="wrap">
+  <div class="chap-head">
+    <div><div class="num">I · 4–5</div><h2>Génotype, phénotype et allèles</h2></div>
+    <button class="master" data-m="alleles" aria-pressed="false"><span class="box"></span>Maîtrisé</button>
+  </div>
+  <div class="two">
+    <div>
+      <h3>4) Génotype / phénotype</h3>
+      <p><strong>Génotype</strong> : l'information portée par le génome, présente dans chaque cellule. Code génétique : alphabet de 4 lettres, séquence spécifique de l'espèce.</p>
+      <p><strong>Phénotype</strong> : manifestation apparente de la constitution du génome (traits morphologiques, maladie, variation qualitative ou quantitative du produit d'un gène). Ce sont les propriétés <strong>mesurables</strong>, morphologiques ou fonctionnelles.</p>
+      <p>Le phénotype naît de trois influences : <strong>génétique</strong> (SNP, mutations), <strong>épigénétique</strong> (méthylation des CpG, modifications des histones, miARN / ARNnc) et <strong>environnement</strong> (nutrition, toxines, médicaments, pathogènes).</p>
+      <div class="callout"><b class="k">Épigénétique = interrupteur</b>Acétylation des histones (HAT / HDAC) → chromatine ouverte, transcription active. Méthylation des histones (H3K27…) et de l'ADN (DNMT, sur les cytosines) → chromatine compacte, transcription éteinte.</div>
+      <p class="src">Exemple : des patients atteints de mucoviscidose avec la même mutation n'ont pas le même phénotype.</p>
+    </div>
+    <div>
+      <h3>5) Allèle</h3>
+      <ul class="tight">
+        <li>Un gène existe sous différentes formes : les <strong>allèles</strong>. Toute modification de séquence, qu'elle altère ou non la protéine, est un allèle.</li>
+        <li>Allèles identiques → <strong>homozygote</strong> ; différents → <strong>hétérozygote</strong>.</li>
+        <li>Loci du chromosome X chez l'homme : <strong>hémizygote</strong>.</li>
+        <li>Dans une population : jusqu'à plusieurs centaines d'allèles (<strong>polymorphisme</strong>), mais un individu n'en porte que 2.</li>
+        <li><strong>Fréquence allélique</strong> = proportion de chaque allèle dans la population.</li>
+      </ul>
+      <div class="callout trap"><b class="k">À retenir absolument</b>Les allèles sont portés par les <strong>chromosomes homologues</strong> (paternel / maternel). Les <strong>chromatides sœurs</strong> portent la même version (réplication fidèle), sauf après un crossing-over en méiose.</div>
+    </div>
+  </div>
+  <div class="lab-panel">
+    <h4>Quiz du cours : classe chaque gène</h4>
+    <p class="sub">Individu de la diapo, en G2 (2n 2C). Paternel : A A / B B / c c / d d / e e. Maternel : A A / b b / c c / D D / E E.</p>
+    <div class="allele-q" id="alleleQ"></div>
+    <p id="alleleRes" style="margin-top:10px;font-weight:700"></p>
+  </div>
+</div>
+</section>
+
+<!-- ============ I.6 ============ -->
+<section class="chap" id="mutations">
+<div class="wrap">
+  <div class="chap-head">
+    <div><div class="num">I · 6</div><h2>Mutations et maladies génétiques</h2></div>
+    <button class="master" data-m="mutations" aria-pressed="false"><span class="box"></span>Maîtrisé</button>
+  </div>
+  <div class="two">
+    <div>
+      <p>Mutation = modification <strong>irréversible</strong> et <strong>héréditaire</strong> (aux cellules filles) de l'information génétique. Elle peut toucher un nucléotide (ponctuelle) ou un large segment d'ADN.</p>
+      <ul class="tight">
+        <li><strong>WT (wild type)</strong> : allèle normal, majoritaire dans la population.</li>
+        <li><strong>Mutant</strong> : allèle modifié, de fonction différente du sauvage.</li>
+      </ul>
+      <p>Chez un diploïde hétérozygote, la mutation doit être <strong>dominante</strong> pour se manifester. <strong>Récessive</strong> : il faut une 2<sup>e</sup> mutation (homozygote), sauf pour l'X chez le mâle (hémizygote).</p>
+    </div>
+    <div class="tbl-wrap" style="margin-top:0"><table>
+      <tr><th></th><th>Mutation somatique</th><th>Mutation germinale</th></tr>
+      <tr><td>Cellules</td><td>une cellule du corps (ex. sein)</td><td>cellules reproductrices</td></tr>
+      <tr><td>Cellules filles</td><td>oui, par mitose</td><td>oui</td></tr>
+      <tr><td>Enfants</td><td><strong>non</strong></td><td><strong>oui, possible</strong></td></tr>
+    </table></div>
+  </div>
+  <div class="callout trap"><b class="k">Piège de vocabulaire</b>« Héréditaire » au niveau cellulaire veut dire transmis aux cellules filles, pas forcément à la descendance de l'individu.</div>
+  <h3>Les 4 familles de maladies génétiques</h3>
+  <p class="prose">Létales avant la naissance, congénitales (présentes à la naissance) ou à déclaration tardive.</p>
+  <div class="stat-row">
+    <div class="stat"><div class="v" style="color:var(--pat)">Mendéliennes</div><div class="l">monogéniques : la mutation d'un seul gène conditionne la maladie</div></div>
+    <div class="stat"><div class="v" style="color:var(--amber)">Oligo / polygéniques</div><div class="l">combinaisons d'allèles de plusieurs gènes sur des loci différents, aucun indispensable seul</div></div>
+    <div class="stat"><div class="v" style="color:var(--mat)">Aberrations chromosomiques</div><div class="l">anomalie de nombre ou de structure des chromosomes</div></div>
+    <div class="stat"><div class="v" style="color:var(--fitc)">Mitochondriales</div><div class="l">mutation du génome mitochondrial</div></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ II.1 ============ -->
+<section class="chap" id="caryotype">
+<div class="wrap">
+  <div class="chap-head">
+    <div><div class="num">II · 1</div><h2>Les chromosomes et le caryotype</h2></div>
+    <button class="master" data-m="caryotype" aria-pressed="false"><span class="box"></span>Maîtrisé</button>
+  </div>
+  <div class="timeline">
+    <div class="tl"><div class="y">Mendel (1822–1884)</div>Pois : caractères cachés dominant / récessif, transmissibles, présents chez les parents. Sans connaître les gènes.</div>
+    <div class="tl"><div class="y">Flemming, 1879</div>Observe la mitose, sans connaître les chromosomes.</div>
+    <div class="tl"><div class="y">Waldeyer, 1888</div>Visualise les chromosomes : l'ADN se condense.</div>
+    <div class="tl"><div class="y">Morgan, 1915</div>Drosophile : traits liés au sexe. Les gènes sont sur les chromosomes.</div>
+  </div>
+  <h3>Épidémiologie des anomalies chromosomiques</h3>
+  <div class="stat-row">
+    <div class="stat"><div class="v">1/160</div><div class="l">nouveau-nés vivants (0,6 %)</div></div>
+    <div class="stat"><div class="v">50–60 %</div><div class="l">des fausses couches précoces</div></div>
+    <div class="stat"><div class="v">20 %</div><div class="l">des fausses couches tardives</div></div>
+    <div class="stat"><div class="v">1<sup>re</sup> cause</div><div class="l">de retard mental (RM) et d'avortement spontané</div></div>
+  </div>
+  <div class="two">
+    <div>
+      <p>Avortements aneuploïdes du 1<sup>er</sup> trimestre (50 % du total) : ½ trisomies autosomiques, ⅕ monosomie X, ⅓ polyploïdie. Trisomies les plus fréquentes : <strong>+16 (32 %)</strong>, +21 (13 %), +15 (10 %), +22 (10 %).</p>
+      <p>La cellule supporte mieux un excès de matériel génétique qu'un manque. Conséquences : RM, morts fœtales et néonatales, malformations, anomalies de croissance, de fertilité, de différenciation sexuelle. Étude des chromosomes = <strong>cytogénétique</strong>.</p>
+    </div>
+    <div>
+      <h4>Faire un caryotype (cf. cours B. Couderc)</h4>
+      <ol class="tight">
+        <li>Bloquer les cellules en pré-métaphase avec un inhibiteur du fuseau (le point de contrôle mitotique arrête la division) : chromosomes condensés.</li>
+        <li>Tampon hypotonique pour fragiliser les membranes, goutte sur lame : la cellule éclate et les chromosomes s'étalent (plus d'enveloppe nucléaire).</li>
+        <li>Coloration puis classement par <strong>taille</strong> (1 grand → 22 petit) et <strong>position du centromère</strong>.</li>
+      </ol>
+      <p>Écriture : <span class="karyo-f">46,XX</span> ou <span class="karyo-f">46,XY</span> = 22 paires d'autosomes + 1 paire de gonosomes.</p>
+    </div>
+  </div>
+
+  <h3>Position du centromère</h3>
+  <div class="lab-panel" style="margin-top:10px">
+    <svg viewBox="0 0 640 190" style="width:100%;height:auto;max-height:220px" role="img" aria-label="Quatre types de chromosomes selon la position du centromère">
+      <g font-family="var(--f-display)" font-size="14" font-weight="700" text-anchor="middle" fill="var(--ink)">
+        <g transform="translate(80,0)"><rect x="-14" y="20" width="12" height="130" rx="6" fill="var(--chr)"/><rect x="2" y="20" width="12" height="130" rx="6" fill="var(--chr)"/><circle cx="0" cy="22" r="7" fill="var(--cen)"/><text y="174">Télocentrique</text><text y="188" font-size="11" font-weight="400" fill="var(--muted)">absent chez l'Homme</text></g>
+        <g transform="translate(240,0)"><rect x="-14" y="20" width="12" height="130" rx="6" fill="var(--fitc)"/><rect x="2" y="20" width="12" height="130" rx="6" fill="var(--fitc)"/><circle cx="0" cy="40" r="7" fill="var(--cen)"/><text y="174">Acrocentrique</text><text y="188" font-size="11" font-weight="400" fill="var(--muted)">13, 14, 15, 21, 22</text></g>
+        <g transform="translate(400,0)"><rect x="-14" y="20" width="12" height="130" rx="6" fill="var(--chr)"/><rect x="2" y="20" width="12" height="130" rx="6" fill="var(--chr)"/><circle cx="0" cy="62" r="7" fill="var(--cen)"/><text x="34" y="44" font-family="var(--f-mono)" font-size="12" fill="var(--pat)">p</text><text x="34" y="110" font-family="var(--f-mono)" font-size="12" fill="var(--mat)">q</text><text y="174">Submétacentrique</text><text y="188" font-size="11" font-weight="400" fill="var(--muted)">p court, q long</text></g>
+        <g transform="translate(560,0)"><rect x="-14" y="20" width="12" height="130" rx="6" fill="var(--chr)"/><rect x="2" y="20" width="12" height="130" rx="6" fill="var(--chr)"/><circle cx="0" cy="85" r="7" fill="var(--cen)"/><text y="174">Métacentrique</text><text y="188" font-size="11" font-weight="400" fill="var(--muted)">bras égaux</text></g>
+      </g>
+    </svg>
+    <p style="margin-top:8px">Anomalies du centromère : <strong>acentrique</strong> (perte du centromère), <strong>dicentrique</strong> (2 centromères).</p>
+  </div>
+
+  <h3>Écrire la position d'une bande</h3>
+  <p class="prose"><span class="karyo-f">1q25</span> = chromosome <strong>1</strong>, bras long <strong>q</strong>, région <strong>2</strong>, bande <strong>5</strong>. Ordre : <strong>chromosome, bras, région, bande</strong> (puis sous-bande après le point). On numérote toujours <strong>à partir du centromère</strong> : 1 = proche, 6 = loin.</p>
+  <div class="lab-panel" id="decoder">
+    <h4>Décodeur de nomenclature</h4>
+    <p class="sub">Tape une bande (<code>1q25</code>) ou une formule ISCN du cours. Le décodeur détaille chaque élément.</p>
+    <div class="dec-in">
+      <label for="decIn" class="eyebrow" style="width:100%">Formule</label>
+      <input id="decIn" value="45,XY,rob(14;21)(q10;q10)" autocomplete="off" spellcheck="false">
+      <button class="btn" id="decGo">Décoder</button>
+    </div>
+    <div class="chips" style="margin-top:10px" id="decEx"></div>
+    <div class="dec-out" id="decOut"></div>
+  </div>
+
+  <h3>Indications du caryotype</h3>
+  <div class="two">
+    <div>
+      <h4>Prénatal (fœtal, pris en charge par la SS)</h4>
+      <ul class="tight">
+        <li>Remaniement chromosomique équilibré chez un parent</li>
+        <li>Anomalie chromosomique dans la fratrie ou grossesse antérieure</li>
+        <li>Diagnostic de sexe pour une maladie liée à l'X (DPNI préalable)</li>
+        <li>Signe d'appel échographique : malformation, RCIU, anomalie du volume de liquide amniotique</li>
+        <li>Risque de T21 &gt; <strong>1/250</strong> (marqueurs sériques + âge maternel + nuque)</li>
+        <li>Âge maternel &gt; 37 ans sans dépistage par marqueurs sériques</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Postnatal</h4>
+      <ul class="tight">
+        <li>Retard de croissance, syndrome polymalformatif, dysmorphie</li>
+        <li>Ambiguïté sexuelle, anomalie du développement pubertaire</li>
+        <li>RM, troubles du comportement, retard des acquisitions</li>
+        <li>Étude familiale d'un patient avec remaniement</li>
+        <li>Hypofertilité, fausses couches à répétition, morts fœtales in utero</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Classer une anomalie chromosomique</h3>
+  <div class="two">
+    <div>
+      <ul class="tight">
+        <li><strong>Constitutionnelle</strong> : avant la fécondation ou lors des 1<sup>res</sup> divisions du zygote.</li>
+        <li><strong>Acquise</strong> : au cours de la vie, ne touche qu'un organe.</li>
+      </ul>
+      <div class="callout trap"><b class="k">Deux pièges</b>Une trisomie n'est pas une polyploïdie. Ne pas confondre <strong>trisomie</strong> (47) et <strong>triploïdie</strong> (69).</div>
+    </div>
+    <div class="tbl-wrap" style="margin-top:0"><table>
+      <tr><th>Type</th><th>Part</th><th>Détail</th></tr>
+      <tr><td><strong>Nombre</strong></td><td>60 %</td><td>Aneuploïdie : 2n ± 1, 2, 3 (2n+1 trisomie, 2n−1 monosomie). Polyploïdie : 3n = 69, 4n = 92, <strong>jamais viable</strong>.</td></tr>
+      <tr><td><strong>Structure</strong></td><td>40 %</td><td>Équilibrées (⅔) : translocation, inversion. Déséquilibrées (⅓) : délétion, duplication, translocation déséquilibrée, anneau…</td></tr>
+    </table></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ II.2 ============ -->
+<section class="chap" id="nombre">
+<div class="wrap">
+  <div class="chap-head">
+    <div><div class="num">II · 2</div><h2>Anomalies de nombre</h2></div>
+    <button class="master" data-m="nombre" aria-pressed="false"><span class="box"></span>Maîtrisé</button>
+  </div>
+  <p class="prose">Mécanisme : <strong>non-disjonction</strong> en 1<sup>re</sup> ou 2<sup>e</sup> division de méiose. Résultat : une anomalie <strong>homogène</strong> (toutes les cellules). Schéma à savoir refaire (cf. TD).</p>
+  <div class="lab-panel">
+    <div class="row" style="justify-content:space-between">
+      <div><h4>Simulateur de non-disjonction du chromosome 21</h4><p class="sub" style="margin:0">Gamètes produits, puis zygote après fécondation par un gamète normal.</p></div>
+      <div class="chips" role="group" aria-label="Scénario" id="ndjChips">
+        <button class="chip" aria-pressed="true" data-n="ok">Méiose normale</button>
+        <button class="chip" aria-pressed="false" data-n="m1">Non-disjonction M1</button>
+        <button class="chip" aria-pressed="false" data-n="m2">Non-disjonction M2</button>
+      </div>
+    </div>
+    <div class="ndj" id="ndj"></div>
+    <p id="ndjTxt" style="margin-top:12px"></p>
+    <div class="legend"><span style="--c:var(--mat)">chromosome 21</span><span style="--c:var(--pat)">autre chromosome</span></div>
+  </div>
+  <div class="two" style="margin-top:6px">
+    <div>
+      <h3>A) Mosaïque (≠ homogène)</h3>
+      <ul class="tight">
+        <li>Au moins 2 populations cellulaires de caryotypes différents, issues du <strong>même zygote</strong> (anomalie dans un tissu et pas un autre).</li>
+        <li>Mécanisme : non-disjonction <strong>mitotique post-zygotique</strong>.</li>
+        <li>Un clone doit être vu dans <strong>≥ 2 %</strong> des cellules analysées.</li>
+        <li>Ex : <span class="karyo-f">46,XY/47,XY,+21</span></li>
+      </ul>
+      <div class="callout"><b class="k">Chimère ≠ mosaïque</b>Le sommaire cite les chimériques, non détaillés en cours : une chimère vient de deux zygotes différents, une mosaïque d'un seul.</div>
+    </div>
+    <div>
+      <h3>Trisomies et monosomies viables</h3>
+      <ul class="tight">
+        <li>Trisomies viables : <strong>T13, T18, T21</strong> et gonosomiques <strong>XYY, XXY, XXX</strong>. 0,3 % des nouveau-nés.</li>
+        <li>Seule monosomie viable : <span class="karyo-f">45,X</span> (Turner). Monosomie autosomique complète : incompatible avec la vie.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>B) Dysgonosomies</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Caryotype</th><th>Nom</th><th>Fréquence</th><th>Phénotype</th></tr>
+    <tr><td><span class="karyo-f">47,XYY</span></td><td>Double Y</td><td>1/1000 garçons</td><td>Grande taille, agressivité / difficultés d'adaptation sociale, pas de RM, fertilité réduite</td></tr>
+    <tr><td><span class="karyo-f">47,XXY</span></td><td>Klinefelter</td><td>2/1000 garçons</td><td>Pas de RM, stérilité, longiligne, grande taille, développement masculin incomplet. Un Y suffit à faire un homme.</td></tr>
+    <tr><td><span class="karyo-f">47,XXX</span></td><td>Triple X</td><td>1/1200 filles</td><td>Souvent normal, plutôt grande, parfois baisse de QI (sans RM), fertilité réduite</td></tr>
+    <tr><td><span class="karyo-f">45,X</span></td><td>Turner</td><td>1/2500 filles</td><td>Petite taille, stérilité (ovaires rudimentaires), pas de RM (légère baisse de QI) ; parfois dysmorphie faciale, cou large, anomalies cardiaques, rénales</td></tr>
+  </table></div>
+  <div class="two">
+    <div>
+      <h4>Turner en détail</h4>
+      <ul class="tight">
+        <li>Perte de l'<strong>X paternel</strong> dans 60 à 80 % des cas.</li>
+        <li><span class="karyo-f">45,X</span> homogène complet : ~60 %.</li>
+        <li>Variantes (35–40 %) : mosaïques <span class="karyo-f">45,X/46,XX</span> (30–40 %), ou <span class="karyo-f">45,X/46,XY</span> ; anomalies de structure = monosomie partielle (10–20 %) : <span class="karyo-f">46,X,i(Xq)</span>, del Xp / del Xq, <span class="karyo-f">46,X,r(X)</span>.</li>
+      </ul>
+      <p class="src">FISH Klinefelter : X en vert (centromère), Y en rouge → 2 signaux verts + 1 rouge.</p>
+    </div>
+    <div>
+      <h4>Zygotes selon les gamètes (diapo)</h4>
+      <div class="tbl-wrap" id="gonoTbl"></div>
+      <p class="src">Case vide = pas d'embryon viable (aucun X). ✓ = zygote normal issu de gamètes normaux ; ★ = zygote normal par compensation de deux gamètes anormaux.</p>
+    </div>
+  </div>
+
+  <h3>C) Autosomes</h3>
+  <div class="two">
+    <div>
+      <ul class="tight">
+        <li>Trisomie <strong>libre</strong> (47 chromosomes) : 92,5 %</li>
+        <li>Par <strong>translocation</strong> : 5 %, ex. t(21;14)</li>
+        <li>En <strong>mosaïque</strong> : 2,8 %, ex. T8, T12 (rares et mal tolérées à l'état homogène)</li>
+      </ul>
+      <div class="tbl-wrap"><table>
+        <tr><th>Trisomie</th><th>Syndrome</th><th>Fréquence</th><th>Survie</th></tr>
+        <tr><td>T21</td><td>Down</td><td>1/700 → 1/2000</td><td>30 % de décès la 1<sup>re</sup> année</td></tr>
+        <tr><td>T13</td><td>Patau</td><td>1/10 000</td><td>80–90 % décès in utero, 50 % meurent dans les 3 mois</td></tr>
+        <tr><td>T18</td><td>Edwards</td><td>1/6000</td><td>décès in utero avant 6 mois surtout, sinon quelques semaines après la naissance</td></tr>
+      </table></div>
+      <p class="src">La ronéo parle de 95 % de décès in utero pour T13/T18 ; la diapo donne 80–90 % pour T13. Retiens la diapo.</p>
+      <p>Retentissement commun : retard des acquisitions et RM, retard staturo-pondéral, polymalformations (face, squelette, viscères).</p>
+    </div>
+    <div>
+      <h4>Trisomie 21</h4>
+      <ul class="tight">
+        <li>1/700 conceptions théoriques ; ~1/2000 naissances grâce au dépistage prénatal.</li>
+        <li><strong>95 %</strong> libre homogène, par non-disjonction en <strong>M1 maternelle</strong> ; 2–3 % mosaïque ; 2–3 % translocation.</li>
+        <li>Dysmorphie faciale, membres courts, hypotonie, RM, anomalies cardiaques, digestives, neurosensorielles.</li>
+      </ul>
+      <div class="lab-panel" style="margin-top:8px">
+        <h4>Risque selon l'âge maternel</h4>
+        <p class="sub">Converti en cas pour 10 000 grossesses à partir des chiffres de la diapo.</p>
+        <div class="hbars" id="ageBars"></div>
+      </div>
+    </div>
+  </div>
+  <h3>Dépistage puis diagnostic de la T21</h3>
+  <div class="flow">
+    <div class="fstep"><b>Dépistage = évaluation du risque.</b> Échographie T1 (11–14 SA) : clarté nucale (&gt; 3 mm = risque, surtout si os nasal non visible), associée à la longueur cranio-caudale. Prise de sang : marqueurs sériques.</div>
+    <div class="fdown">↓ risque calculé</div>
+    <div class="fbranch">
+      <div class="fstep" style="--c:var(--fitc)"><b>Risque &lt; 1/1000</b><br>Pas d'examen supplémentaire.</div>
+      <div class="fstep" style="--c:var(--amber)"><b>1/1000 &gt; risque &gt; 1/51</b><br>DPNI : ADN libre circulant dans le plasma maternel, séquencé. Fiabilité ~99 %.</div>
+      <div class="fstep" style="--c:var(--bad)"><b>Risque ≥ 1/50</b><br>Amniocentèse → caryotype fœtal.</div>
+    </div>
+    <div class="fdown">↓</div>
+    <div class="fstep"><b>Diagnostic</b> (caryotype) et conseil génétique.</div>
+  </div>
+</div>
+</section>
+
+<!-- ============ II.3 ============ -->
+<section class="chap" id="structure">
+<div class="wrap">
+  <div class="chap-head">
+    <div><div class="num">II · 3</div><h2>Anomalies de structure</h2></div>
+    <button class="master" data-m="structure" aria-pressed="false"><span class="box"></span>Maîtrisé</button>
+  </div>
+  <div class="prose">
+    <p>Une ou plusieurs <strong>cassures</strong> chromosomiques suivies d'une reconstitution anormale (anomalie de la réparation). Spontanées ou induites (agents <strong>clastogènes</strong>, ex. radiations). Impliquent 1 ou 2 chromosomes. <strong>1/200</strong> naissances vivantes.</p>
+  </div>
+  <div class="callout trap"><b class="k">Ne pas confondre</b><strong>Génétiquement équilibré</strong> : ni perte ni excès de matériel, mais un phénotype reste possible (ex. BCR-ABL → LMC).<br><strong>Phénotypiquement équilibré</strong> : pas de phénotype, mais du matériel peut être modifié (ex. translocation robertsonienne, qui perd des bras courts).</div>
+
+  <div class="lab-panel">
+    <h4>Animateur de remaniements</h4>
+    <p class="sub">Choisis une anomalie, puis lance la cassure et la réparation.</p>
+    <div class="chips" id="saChips" role="group" aria-label="Type d'anomalie"></div>
+    <div class="sa-stage" id="saStage" style="margin-top:12px"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="saPlay">Casser et réparer</button>
+      <button class="btn ghost" id="saReset">Revenir avant</button>
+    </div>
+    <div class="sa-info" id="saInfo"></div>
+  </div>
+
+  <div class="two" style="margin-top:6px">
+    <div>
+      <h3>A) Équilibrées</h3>
+      <h4>Translocation réciproque · <code>t</code></h4>
+      <ul class="tight">
+        <li>Anomalie de structure <strong>la plus fréquente</strong>. Cassure de 2 chromosomes <strong>non homologues</strong> + échange réciproque.</li>
+        <li>1/1000 naissances, souvent entre autosomes, <strong>46 chromosomes</strong>.</li>
+        <li>90 % phénotypiquement équilibrées, 10 % anormales (malformations, RM).</li>
+        <li>Risque pour la descendance : appariement en <strong>quadrivalent</strong> en méiose → gamètes déséquilibrés.</li>
+        <li><span class="karyo-f">46,XY,t(5;20)(q11.2;p13)</span> : cassure 5q11.2 et 20p13.</li>
+      </ul>
+      <h4 style="margin-top:14px">t(9;22) → BCR-ABL → LMC</h4>
+      <p>ABL (chr 9) fusionne avec BCR (chr 22) : le petit <strong>der(22)</strong> est le <strong>chromosome de Philadelphie</strong>. La protéine de fusion BCR-ABL est une kinase toujours active (oncogène). Génétiquement équilibrée, phénotypiquement pathologique. Traitement : inhibiteur spécifique pris à vie. Détection : caryotype, FISH (signal fusionné), RT-PCR.</p>
+      <p>Certaines anomalies chromosomiques ont donc une valeur diagnostique / pronostique, éclairent la tumorigenèse et désignent des cibles thérapeutiques.</p>
+    </div>
+    <div>
+      <h4 style="margin-top:28px">Translocation robertsonienne · <code>rob</code></h4>
+      <ul class="tight">
+        <li>Fusion de 2 <strong>acrocentriques</strong> (13, 14, 15, 21, 22).</li>
+        <li>1/1000 naissances, caryotype à <strong>45 chromosomes</strong>.</li>
+        <li><strong>Génétiquement déséquilibrée</strong> (bras courts perdus) mais <strong>phénotypiquement équilibrée</strong>.</li>
+        <li>Gamètes déséquilibrés → zygote trisomique ou monosomique possible (ex. T21 par translocation).</li>
+        <li><span class="karyo-f">45,XY,rob(14;21)(q10;q10)</span></li>
+      </ul>
+      <h4 style="margin-top:14px">Inversion · <code>inv</code></h4>
+      <ul class="tight">
+        <li>2 cassures sur le <strong>même chromosome</strong>, rotation de 180°. 0,1 à 0,3/1000.</li>
+        <li><strong>Paracentrique</strong> : 2 cassures sur le même bras (plus rare). <strong>Péricentrique</strong> : de part et d'autre du centromère.</li>
+        <li>Phénotypiquement équilibrée, risque pour la descendance (appariement).</li>
+        <li><span class="karyo-f">46,XY,inv(9)(p11,q13)</span> péricentrique ; <span class="karyo-f">46,XX,inv(14)(q13.2,q24.2)</span> paracentrique.</li>
+      </ul>
+      <h4 style="margin-top:14px">Insertion · <code>ins</code></h4>
+      <p>Un fragment cassé se réinsère ailleurs (même chromosome ou autre), régions flanquantes recollées. <strong>Directe</strong> (même orientation) ou <strong>inversée</strong>. Peut être équilibrée et stable, mais très instable en méiose.</p>
+    </div>
+  </div>
+  <div class="two">
+    <div>
+      <h3>B) Déséquilibrées</h3>
+      <h4>Duplication · <code>dup</code></h4>
+      <p>Doublement d'un segment, en <strong>tandem</strong> (même orientation) ou <strong>inversé</strong> → <strong>trisomie partielle</strong>. Phénotype selon la taille et le contenu génique.</p>
+      <h4>Délétion · <code>del</code></h4>
+      <p>Perte d'un segment → <strong>monosomie partielle</strong>. <strong>Terminale</strong> (1 cassure) ou <strong>interstitielle</strong> (2 cassures).</p>
+      <ul class="tight">
+        <li><span class="karyo-f">46,XY,del(5)(p15)</span> → syndrome du <strong>cri du chat</strong> (malformation du larynx).</li>
+        <li>Cancérologie : perte de gènes suppresseurs de tumeurs. <span class="karyo-f">46,XX,del(13)(q14.1q14.3)</span> → <strong>rétinoblastome</strong> (pRb).</li>
+      </ul>
+      <p>Autres : <strong>isochromosome</strong> <span class="karyo-f">46,X,i(Xq)</span>, <strong>anneau</strong> <span class="karyo-f">46,X,r(X)</span> (cassure des deux extrémités, fusion en cercle).</p>
+    </div>
+    <div>
+      <h3>Syndromes microdélétionnels</h3>
+      <ul class="tight">
+        <li>Délétion <strong>&lt; 5 Mb</strong> : invisible au caryotype.</li>
+        <li>Détection : <strong>FISH avec sondes spécifiques</strong> du syndrome, donc il faut savoir où chercher.</li>
+        <li>Signes cliniques caractéristiques.</li>
+      </ul>
+      <div class="tbl-wrap"><table>
+        <tr><th>Syndrome</th><th>Locus</th></tr>
+        <tr><td><strong>DiGeorge</strong></td><td>22q11.2 · ~3 Mb, ~40 gènes</td></tr>
+        <tr><td>Williams-Beuren</td><td>7q11.23</td></tr>
+        <tr><td>Miller-Dieker</td><td>17p13.3</td></tr>
+        <tr><td>Prader-Willi et Angelman</td><td>15q11-13</td></tr>
+      </table></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ Triplets ============ -->
+<section class="chap" id="triplets">
+<div class="wrap">
+  <div class="chap-head">
+    <div><div class="num">II · 3C</div><h2>Expansions de triplets</h2></div>
+    <button class="master" data-m="triplets" aria-pressed="false"><span class="box"></span>Maîtrisé</button>
+  </div>
+  <div class="two">
+    <div>
+      <ul class="tight">
+        <li>Répétition d'une séquence de 3 nt (CGG, GAC, CTG, GAA, CAG).</li>
+        <li>Mutation <strong>instable, dynamique</strong>. Au-delà d'un <strong>seuil</strong>, la fonction est affectée.</li>
+        <li>Régions codantes ou non : 5′ UTR (CGG, X fragile), 3′ non codant (CTG, Steinert), exon (CAG, Huntington), intron (GAA, ataxie de Friedreich).</li>
+        <li>~20 pathologies, surtout neurodégénératives.</li>
+        <li>Mécanisme : <strong>dérapage de l'ADN polymérase</strong> pendant la réplication, ou défaut de réparation.</li>
+        <li>Facteurs d'instabilité : longueur, pureté, structures secondaires stabilisantes, séquences voisines, environnement.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="callout"><b class="k">Anticipation</b>Au fil des générations, la maladie est <strong>de plus en plus précoce</strong> et <strong>de plus en plus grave</strong>, avec un risque qui augmente : c'est le <strong>paradoxe de Sherman</strong>.</div>
+      <div class="tbl-wrap"><table>
+        <tr><th>Maladie</th><th>Mode</th><th>Gène / locus</th><th>Triplet</th><th>Normal</th><th>Malade</th><th>Biais</th></tr>
+        <tr><td><strong>FRAXA</strong></td><td>lié X</td><td>FMR1 Xq27.3</td><td>CGG 5′</td><td>6–54</td><td>200–4000</td><td>mat.</td></tr>
+        <tr><td><strong>DM1</strong></td><td>AD</td><td>DMPK 19q13.3</td><td>CTG 3′</td><td>5–30</td><td>45–3000</td><td>mat. / pat.</td></tr>
+        <tr><td>AF</td><td>récessif</td><td>9q13</td><td>GAA intron</td><td>7–22</td><td>200–900</td><td>mat.</td></tr>
+        <tr><td>HD</td><td>AD</td><td>IT15 4p16.3</td><td>CAG codant</td><td>11–34</td><td>37–121</td><td>pat.</td></tr>
+      </table></div>
+      <p class="src">Les deux premières lignes sont encadrées dans la diapo. Le tableau écrit « GTG » pour DM, la diapo Steinert dit CTG : retiens CTG.</p>
+    </div>
+  </div>
+  <div class="lab-panel">
+    <div class="row" style="justify-content:space-between">
+      <div><h4>Une famille, trois générations</h4><p class="sub" style="margin:0">Clique sur une génération : le nombre de répétitions grandit. Valeurs illustratives, seuils du cours.</p></div>
+      <div class="chips" role="group" aria-label="Maladie" id="trChips">
+        <button class="chip" aria-pressed="true" data-t="dm1">Steinert (DM1)</button>
+        <button class="chip" aria-pressed="false" data-t="fraxa">X fragile</button>
+        <button class="chip" aria-pressed="false" data-t="hd">Huntington</button>
+      </div>
+    </div>
+    <div class="gens" id="trGens"></div>
+    <div class="scale-wrap" style="margin-top:6px">
+      <div class="scale" id="trScale"></div>
+      <div class="marker" id="trMarker">×0</div>
+      <div class="ticks"><span>1</span><span>10</span><span>100</span><span>1000</span><span>5000</span></div>
+    </div>
+    <div class="repeats" id="trRep" aria-hidden="true"></div>
+    <p id="trTxt" style="margin-top:8px"></p>
+  </div>
+  <div class="two">
+    <div>
+      <h3>Dystrophie myotonique de Steinert (DM1)</h3>
+      <ul class="tight">
+        <li>Autosomique dominante, 1/20 000.</li>
+        <li>Gène <strong>DMPK</strong> (myotonine) en 19q13, répétition <strong>CTG en 3′</strong>.</li>
+        <li>5–30 : normal ; 45–3000 : malade.</li>
+        <li>Myotonie, cataractes, atrophie testiculaire, arythmie cardiaque, démence, calvitie.</li>
+        <li>Arbre du cours : 55 ans → 48 et 50 ans → 40, 41, 42 ans.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>X fragile (FRAXA, Martin et Bell)</h3>
+      <ul class="tight">
+        <li>Lié à l'X, <strong>2<sup>e</sup> cause de RM</strong>. Constriction du bras long de l'X.</li>
+        <li>Gène <strong>FMR1</strong> Xq27.3, <strong>CGG en 5′</strong>. 6–54 normal ; 200–1000 malade (diapo).</li>
+        <li>Femme porteuse : 50 % affectées ; homme porteur : 20 % normaux (transmetteurs).</li>
+        <li>Se manifeste à la <strong>3<sup>e</sup> génération</strong>. Garçons plus atteints : 1/4000 hommes, 1/7000 femmes.</li>
+        <li>RM, retard de langage, hyperactivité, tendance autistique.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ II.4 ============ -->
+<section class="chap" id="disomies">
+<div class="wrap">
+  <div class="chap-head">
+    <div><div class="num">II · 4</div><h2>Disomies uniparentales et empreinte</h2></div>
+    <button class="master" data-m="disomies" aria-pressed="false"><span class="box"></span>Maîtrisé</button>
+  </div>
+  <p class="prose"><strong>Disomie uniparentale</strong> : présence chez un individu diploïde de <strong>2 chromosomes homologues hérités du même parent</strong>. Normalement, la disomie est biparentale.</p>
+  <div class="upd-table">
+    <div class="updm"><h4>Complémentation gamétique</h4><div class="vis"><i class="g"></i><i class="g"></i>+ ∅ →<i class="g"></i><i class="g"></i></div>Un gamète disomique rencontre un gamète nullisomique → disomie uniparentale.</div>
+    <div class="updm"><h4>Correction d'une trisomie</h4><div class="vis"><i class="g"></i><i class="g"></i><i class="k"></i>→ perte d'un</div>Non-disjonction mitotique : selon le chromosome perdu, disomie <strong>uni</strong> ou <strong>bi</strong>parentale.</div>
+    <div class="updm"><h4>Correction d'une monosomie</h4><div class="vis"><i class="g"></i>→ duplication →<i class="g"></i><i class="g"></i></div>Le chromosome unique est dupliqué → <strong>isodisomie</strong> uniparentale (deux copies identiques).</div>
+  </div>
+  <h3>Pourquoi c'est grave : l'empreinte parentale</h3>
+  <div class="two">
+    <div>
+      <ul class="tight">
+        <li>Modification <strong>épigénétique</strong> selon l'origine parentale : <strong>méthylation des C</strong> → inactivation transcriptionnelle.</li>
+        <li>→ expression <strong>monoallélique</strong> = <strong>hémizygotie fonctionnelle</strong>.</li>
+        <li>Gène soumis à <strong>empreinte maternelle</strong> = <mark>inactivé quand il est transmis par la mère</mark>. Empreinte paternelle = inactivé quand transmis par le père.</li>
+        <li>100 à 200 gènes chez l'Homme, souvent en <strong>clusters</strong>, rôle dans la croissance fœtale et le développement.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="callout"><b class="k">Chromosome 15 (15q11-13)</b>Délétion sur le 15 <span class="mat">maternel</span> → <strong>Angelman</strong>.<br>Délétion sur le 15 <span class="pat">paternel</span> → <strong>Prader-Willi</strong>.</div>
+      <p class="src">Moyen mnémotechnique (hors cours) : dans Prader-Willi, il manque la copie du Père.</p>
+    </div>
+  </div>
+  <div class="lab-panel upd">
+    <div class="c15s" id="c15s"></div>
+    <div>
+      <h4>Joue avec la paire de 15</h4>
+      <p class="sub">« PW » = gènes qui ne s'expriment que depuis la copie paternelle ; « AS » = gène qui ne s'exprime que depuis la copie maternelle. Allumé = exprimé.</p>
+      <div class="chips" id="updChips" role="group" aria-label="Scénario"></div>
+      <p class="verdict" id="updVerdict" style="margin-top:12px"></p>
+      <p id="updTxt"></p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ REVISION ============ -->
+<section class="chap review" id="reviser">
+<div class="wrap">
+  <div class="chap-head"><div><div class="num">Révision</div><h2>Teste-toi</h2></div></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="qcm">QCM</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="flash">Flashcards</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="traps">Pièges</button>
+  </div>
+  <div id="pane-qcm">
+    <div class="row" style="margin-bottom:10px">
+      <button class="chip" id="qAll" aria-pressed="true">Toutes les questions</button>
+      <button class="chip" id="qWrong" aria-pressed="false">Seulement mes erreurs</button>
+    </div>
+    <div class="qcard" id="qcard"></div>
+  </div>
+  <div id="pane-flash" hidden>
+    <div class="flash-wrap">
+      <div class="flash" id="flash" tabindex="0" role="button" aria-label="Retourner la carte">
+        <div class="face front"><div class="eyebrow" id="fcCount"></div><div class="q" id="fcQ"></div><p class="src" style="margin-top:12px">Clique ou Espace pour retourner</p></div>
+        <div class="face back"><div class="eyebrow">Réponse</div><div id="fcA"></div></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost" id="fcAgain">À revoir</button>
+        <button class="btn" id="fcKnow">Je savais</button>
+        <span class="mono" style="color:var(--muted);font-size:.85rem" id="fcStat"></span>
+      </div>
+    </div>
+  </div>
+  <div id="pane-traps" hidden>
+    <div class="traps" id="traps"></div>
+  </div>
+</div>
+</section>
+</main>
+
+<footer><div class="wrap">Construit à partir des diapos « Introduction à la génétique 2026 » (A. Fernandez-Vidal) et des ronéos Pharmasutra. Ta progression (chapitres cochés, erreurs de QCM) reste dans ce navigateur.</div></footer>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('gv_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('gv_'+k,JSON.stringify(v))}catch(e){}}};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- mastery + nav ---------- */
+const mastered=new Set(store.get('m',[]));
+function updProg(){
+  const all=$$('.master');
+  all.forEach(b=>{const on=mastered.has(b.dataset.m);b.setAttribute('aria-pressed',on);b.querySelector('.box').textContent=on?'✓':'';});
+  $$('#navChips a').forEach(a=>a.classList.toggle('done',mastered.has(a.getAttribute('href').slice(1))));
+  $('#progTxt').textContent=mastered.size+'/'+all.length;
+  $('#progBar').style.width=(mastered.size/all.length*100)+'%';
+}
+$$('.master').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.m;mastered.has(k)?mastered.delete(k):mastered.add(k);store.set('m',[...mastered]);updProg();}));
+updProg();
+const secs=$$('section.chap');
+const navBox=$('#navChips');
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;$$('#navChips a').forEach(a=>{const on=a.getAttribute('href')==='#'+id;a.classList.toggle('on',on);
+  if(on){const l=a.offsetLeft,r=l+a.offsetWidth;if(l<navBox.scrollLeft||r>navBox.scrollLeft+navBox.clientWidth)navBox.scrollLeft=l-16;}});}})},{rootMargin:'-40% 0px -55% 0px'});
+secs.forEach(s=>io.observe(s));
+
+/* ---------- hero karyotype ---------- */
+const CH=[['1',248,.5],['2',242,.39],['3',198,.46],['4',190,.27],['5',181,.27],['6',171,.35],['7',159,.38],['8',145,.31],['9',138,.33],['10',134,.3],['11',135,.39],['12',133,.27],['13',114,.13],['14',107,.13],['15',102,.14],['16',90,.41],['17',83,.3],['18',80,.23],['19',59,.45],['20',64,.45],['21',47,.22],['22',51,.22],['X',156,.39],['Y',57,.3]];
+const ACRO=['13','14','15','21','22'];
+const KARYO={
+  '46XY':{f:'46,XY',n:"Caryotype masculin normal : 22 paires d'autosomes + 1 paire de gonosomes, classés par taille et position du centromère.",sex:['X','Y']},
+  'T21':{f:'47,XY,+21',n:'Trisomie 21 libre : un chromosome 21 en plus (en magenta). 95 % des cas, par non-disjonction en M1 maternelle.',sex:['X','Y'],extra:'21'},
+  'TUR':{f:'45,X',n:"Syndrome de Turner : un seul X. C'est la seule monosomie viable.",sex:['X']},
+  'KLI':{f:'47,XXY',n:'Syndrome de Klinefelter : un X en plus chez un garçon. Le Y suffit à déterminer le sexe masculin.',sex:['X','X','Y'],extraSex:true},
+  'ACRO':{f:'46,XY',n:'Acrocentriques en vert : 13, 14, 15, 21, 22. Ce sont eux qui font les translocations robertsoniennes.',sex:['X','Y'],acro:true}
+};
+function drawKaryo(key){
+  const K=KARYO[key], g=$('#kGrid'); g.innerHTML='';
+  const maxH=96;
+  const mk=(len,cen,cls)=>{const d=document.createElement('i');d.className='kchr '+(cls||'');d.style.height=Math.max(16,len/248*maxH)+'px';d.style.setProperty('--cen-at',(cen*100)+'%');return d;};
+  CH.forEach(([n,len,cen])=>{
+    if(n==='X'||n==='Y')return;
+    const p=document.createElement('div');p.className='kpair'+(K.acro&&ACRO.includes(n)?' acro':'');
+    const bars=document.createElement('div');bars.className='bars';
+    bars.append(mk(len,cen),mk(len,cen));
+    if(K.extra===n)bars.append(mk(len,cen,'extra'));
+    const l=document.createElement('span');l.className='lab';l.textContent=n;
+    p.append(bars,l);g.append(p);
+  });
+  const p=document.createElement('div');p.className='kpair';p.style.gridColumn='span 2';
+  const bars=document.createElement('div');bars.className='bars';
+  K.sex.forEach((s,i)=>{const c=CH.find(x=>x[0]===s);bars.append(mk(c[1],c[2],(K.extraSex&&i===1)?'extra':''));});
+  if(key==='TUR')bars.append(mk(156,.39,'missing'));
+  const l=document.createElement('span');l.className='lab';l.textContent=K.sex.join('');
+  p.append(bars,l);g.append(p);
+  $('#kForm').textContent=K.f;$('#kNote').textContent=K.n;
+}
+$$('#kChips .chip').forEach(b=>b.addEventListener('click',()=>{$$('#kChips .chip').forEach(x=>x.setAttribute('aria-pressed',x===b));drawKaryo(b.dataset.k);}));
+drawKaryo('46XY');
+
+/* ---------- division stage ---------- */
+const stage=$('#stage');
+const CTD={
+  P1a:{big:1,o:'P',g:['A','B','c']},P1b:{big:1,o:'P',g:['A','B','c']},
+  M1a:{big:1,o:'M',g:['A','b','c']},M1b:{big:1,o:'M',g:['A','b','c']},
+  P2a:{big:0,o:'P',g:['d','e']},P2b:{big:0,o:'P',g:['d','e']},
+  M2a:{big:0,o:'M',g:['D','E']},M2b:{big:0,o:'M',g:['D','E']}
+};
+const els={};
+Object.entries(CTD).forEach(([id,c])=>{
+  const d=document.createElement('div');d.className='ctd';d.style.height=(c.big?84:54)+'px';
+  stage.append(d);els[id]=d;
+});
+function paintCtd(id,co){
+  const c=CTD[id],d=els[id];let genes=c.g.map(l=>({l,o:c.o}));
+  if(co&&id==='P1b')genes=[{l:'A',o:'M'},{l:'b',o:'M'},{l:'c',o:'P'}];
+  if(co&&id==='M1a')genes=[{l:'A',o:'P'},{l:'B',o:'P'},{l:'c',o:'M'}];
+  const h=genes.map(g=>`<span class="g ${g.o}">${g.l}</span>`);
+  h.splice(c.big?2:1,0,'<span class="cn"></span>');
+  d.innerHTML=h.join('');
+}
+const cellEls=[0,1,2,3].map(()=>{const c=document.createElement('div');c.className='cell';stage.prepend(c);return c;});
+const plate=document.createElement('div');plate.className='plate';stage.append(plate);
+let mode='mit',step=0,flipSmall=false,co=true;
+const BIG_Y_ROW=[12,104],SMALL_Y_ROW=[196,256];
+function pos(x,dx,y,op){return {x,dx,y,op:op==null?1:op};}
+function cellsFor(n,yTop,h){ // n cells evenly
+  if(n===1)return[[14,72,6,318]];
+  if(n===2)return[[3,44,30,270],[53,44,30,270]];
+  return[[1,23,30,270],[26,23,30,270],[51,23,30,270],[76,23,30,270]];
+}
+function layout(){
+  const L={};let cells=1,plateOn=false,name,pl,txt;
+  const g1={P1:[34,0,40],M1:[44,0,150],P2:[57,0,60],M2:[63,0,176]};
+  const setPair=(k,x,y,dxa,dxb,opb)=>{L[k+'a']=pos(x,dxa,y);L[k+'b']=pos(x,dxb,y,opb);};
+  if(step===0){for(const k in g1)setPair(k,g1[k][0],g1[k][2],0,0,0);name='G1';pl='2n 1C';txt='Phase G1 : 2 paires de chromosomes homologues, chacun à 1 chromatide. Les allèles sont portés par les homologues (paternel en bleu, maternel en magenta).';}
+  else if(step===1){for(const k in g1)setPair(k,g1[k][0],g1[k][2],-9,9);name='Phase S → G2';pl='2n 2C';txt="Réplication en phase S : chaque chromosome a maintenant 2 chromatides sœurs identiques. Une chromatide « a » ne peut pas porter A sur sa sœur : la réplication est fidèle.";}
+  else if(mode==='mit'){
+    const rows={P1:12,M1:104,P2:196,M2:258};
+    if(step===2){for(const k in rows)setPair(k,50,rows[k],-18,1);plateOn=true;name='Métaphase';pl='2n 2C';txt='Mitose : chaque chromosome s\'aligne seul sur la plaque équatoriale. Les homologues ne s\'apparient pas.';}
+    else{for(const k in rows){L[k+'a']=pos(25,-8,rows[k]);L[k+'b']=pos(75,-8,rows[k]);}cells=2;name='Anaphase → télophase';pl='2 × 2n 1C';txt='Les chromatides sœurs se séparent. Résultat : 2 cellules filles diploïdes, génétiquement identiques à la cellule mère.';}
+  } else {
+    const left=flipSmall?'M2':'P2', right=flipSmall?'P2':'M2';
+    if(step===2||step===3){
+      setPair('P1',50,40,-38,-20);setPair('M1',50,40,2,20);
+      setPair(left,50,190,-38,-20);setPair(right,50,190,2,20);
+      plateOn=step===3;
+      if(step===2){name='Prophase I';pl='2n 2C';txt=co?'Les homologues s\'apparient (bivalents). Crossing-over entre chromatides non sœurs : B et b changent de chromatide. C\'est le brassage intrachromosomique, entre gènes liés.':'Les homologues s\'apparient en bivalents. Sans crossing-over, les chromatides restent parentales.';}
+      else{name='Métaphase I';pl='2n 2C';txt='Les bivalents s\'alignent sur la plaque. L\'orientation de chaque paire est aléatoire : c\'est le brassage interchromosomique. Clique « Tirer l\'orientation au hasard ».';}
+    } else if(step===4){
+      setPair('P1',25,40,-17,1);setPair('M1',75,40,-17,1);
+      setPair(left,25,190,-17,1);setPair(right,75,190,-17,1);cells=2;name='Fin de méiose I';pl='2 × n 2C';txt='Méiose I réductionnelle : les homologues se séparent. Chaque cellule est haploïde mais ses chromosomes ont encore 2 chromatides.';
+    } else {
+      L.P1a=pos(12.5,-8,40);L.P1b=pos(37.5,-8,40);L.M1a=pos(62.5,-8,40);L.M1b=pos(87.5,-8,40);
+      L[left+'a']=pos(12.5,-8,190);L[left+'b']=pos(37.5,-8,190);L[right+'a']=pos(62.5,-8,190);L[right+'b']=pos(87.5,-8,190);
+      cells=4;name='Fin de méiose II';pl='4 × n 1C';txt='Méiose II équationnelle : les chromatides sœurs se séparent. 4 gamètes haploïdes, '+(co?'tous différents grâce au crossing-over et à l\'orientation aléatoire.':'différents selon l\'orientation des paires.');
+    }
+  }
+  return {L,cells,plateOn,name,pl,txt};
+}
+function renderStage(){
+  const S=layout();
+  for(const id in els){paintCtd(id,mode==='mei'&&co&&step>=2);const p=S.L[id];const e=els[id];e.style.left=`calc(${p.x}% + ${p.dx}px)`;e.style.top=p.y+'px';e.style.opacity=p.op;}
+  const cs=cellsFor(S.cells);
+  cellEls.forEach((c,i)=>{const d=cs[i];if(d){c.style.opacity='.55';c.style.left=d[0]+'%';c.style.width=d[1]+'%';c.style.top=d[2]+'px';c.style.height=d[3]+'px';}else{c.style.opacity='0';}});
+  if(S.cells===1){cellEls[0].style.top='6px';cellEls[0].style.height='318px';}
+  plate.style.opacity=S.plateOn?1:0;
+  $('#stName').textContent=S.name;$('#stPloidy').textContent=S.pl;$('#stText').textContent=S.txt;
+  const n=mode==='mit'?4:6;$('#stDots').innerHTML=Array.from({length:n},(_,i)=>`<i class="${i===step?'on':''}"></i>`).join('');
+  $('#stPrev').disabled=step===0;$('#stNext').disabled=step===n-1;
+  $('#coWrap').hidden=mode!=='mei';$('#stShuffle').hidden=!(mode==='mei'&&step>=3);
+}
+$('#stNext').onclick=()=>{step++;renderStage();};
+$('#stPrev').onclick=()=>{step--;renderStage();};
+$('#modeMit').onclick=()=>{mode='mit';step=0;$('#modeMit').setAttribute('aria-pressed',true);$('#modeMei').setAttribute('aria-pressed',false);renderStage();};
+$('#modeMei').onclick=()=>{mode='mei';step=0;$('#modeMei').setAttribute('aria-pressed',true);$('#modeMit').setAttribute('aria-pressed',false);renderStage();};
+$('#coChk').onchange=e=>{co=e.target.checked;renderStage();};
+$('#stShuffle').onclick=()=>{flipSmall=Math.random()<.5;renderStage();};
+renderStage();
+
+/* ---------- allele quiz ---------- */
+const AQ=[['A','A A','A A','homo'],['B','B B','b b','hetero'],['C','c c','c c','homo'],['D','d d','D D','hetero'],['E','e e','E E','hetero']];
+const aState={};
+function drawAQ(){
+  $('#alleleQ').innerHTML=AQ.map(([g,p,m,ans])=>{const s=aState[g];const cls=s?(s===ans?'right':'wrong'):'';
+    return `<div class="agene ${cls}"><div class="eyebrow">Gène ${g}</div><div class="pair"><span class="pat">${p.split(' ')[0]}</span> / <span class="mat">${m.split(' ')[0]}</span></div><div class="opts"><button data-g="${g}" data-v="homo">Homozygote</button><button data-g="${g}" data-v="hetero">Hétéro</button></div></div>`;}).join('');
+  $$('#alleleQ button').forEach(b=>b.onclick=()=>{aState[b.dataset.g]=b.dataset.v;drawAQ();});
+  const done=Object.keys(aState).length,ok=AQ.filter(a=>aState[a[0]]===a[3]).length;
+  $('#alleleRes').textContent=done<5?`${done}/5 classés`:(ok===5?'5/5. Homozygote pour A et C, hétérozygote pour B, D et E.':`${ok}/5. Regarde les allèles des homologues, pas des chromatides sœurs.`);
+}
+drawAQ();
+
+/* ---------- decoder ---------- */
+const EX=['1q25','46,XY,t(5;20)(q11.2;p13)','45,XY,rob(14;21)(q10;q10)','46,XY,inv(9)(p11,q13)','46,XX,inv(14)(q13.2,q24.2)','46,XY,del(5)(p15)','46,XX,del(13)(q14.1q14.3)','46,X,i(Xq)','46,X,r(X)','46,XY/47,XY,+21','45,X/46,XX'];
+$('#decEx').innerHTML=EX.map(e=>`<button class="chip">${e}</button>`).join('');
+$$('#decEx .chip').forEach(b=>b.onclick=()=>{$('#decIn').value=b.textContent;decode();});
+function band(b){
+  const m=b.match(/^([pq])(\d)(\d)?(?:\.(\d+))?$/);if(!m)return b;
+  const arm=m[1]==='p'?'bras court (p)':'bras long (q)';
+  if(m[2]==='1'&&m[3]==='0'&&!m[4])return `${arm}, au <strong>centromère</strong> (région 1, bande 0)`;
+  return `${arm}, région <strong>${m[2]}</strong>${m[3]?`, bande <strong>${m[3]}</strong>`:''}${m[4]?`, sous-bande <strong>${m[4]}</strong>`:''}`;
+}
+function splitTop(s){const out=[];let d=0,cur='';for(const ch of s){if(ch==='(')d++;if(ch===')')d--;if(ch===','&&d===0){out.push(cur.trim());cur='';}else cur+=ch;}if(cur.trim())out.push(cur.trim());return out;}
+const SEX={XX:'Femme',XY:'Homme',X:'Un seul X : syndrome de Turner (seule monosomie viable)',XXY:'Klinefelter (garçon : le Y fait le sexe masculin)',XYY:'Double Y',XXX:'Triple X'};
+const COUNT={46:'Nombre normal',47:'Un chromosome en plus (trisomie)',45:'Un chromosome en moins (monosomie, ou fusion robertsonienne)',69:'Triploïdie 3n : jamais viable',92:'Tétraploïdie 4n : jamais viable'};
+const TYPES={t:'Translocation réciproque',rob:'Translocation robertsonienne',inv:'Inversion',del:'Délétion',dup:'Duplication',ins:'Insertion',i:'Isochromosome',r:'Chromosome en anneau',der:'Chromosome dérivé'};
+function decAnom(tok){
+  let m=tok.match(/^([+-])(\d{1,2}|X|Y)$/);
+  if(m)return m[1]==='+'?`Chromosome ${m[2]} <strong>surnuméraire</strong> → trisomie ${m[2]}${m[2]==='21'?' (syndrome de Down)':m[2]==='13'?' (Patau)':m[2]==='18'?' (Edwards)':''}.`:`Chromosome ${m[2]} <strong>manquant</strong> → monosomie ${m[2]}.`;
+  m=tok.match(/^(t|rob|inv|del|dup|ins|i|r|der)\(([^)]+)\)(?:\(([^)]+)\))?$/);
+  if(!m)return null;
+  const type=m[1],chrs=m[2].split(';').map(s=>s.trim()),bands=m[3]?(m[3].match(/[pq]\d+(?:\.\d+)?/g)||[]):[];
+  let out=`<strong>${TYPES[type]}</strong>`;
+  if(type==='i'){const c=chrs[0].match(/^(\d+|X|Y)([pq])$/);return c?`${out} du chromosome ${c[1]} : deux bras ${c[2]==='q'?'longs':'courts'} identiques. Monosomie partielle de l'autre bras, trisomie partielle de ce bras.`:out;}
+  if(type==='r')return `${out} du chromosome ${chrs[0]} : cassures aux deux extrémités, recollées en cercle.`;
+  out+=` · chromosome${chrs.length>1?'s':''} ${chrs.join(' et ')}`;
+  if(type==='inv'&&bands.length===2){const peri=bands[0][0]!==bands[1][0];out+=` · <strong>${peri?'péricentrique':'paracentrique'}</strong> (${peri?'cassures de part et d\'autre du centromère':'2 cassures sur le même bras'})`;}
+  if(type==='del')out+=` · ${bands.length>=2?'<strong>interstitielle</strong> (2 cassures)':'<strong>terminale</strong> (1 cassure)'} → monosomie partielle`;
+  if(bands.length){out+='<ul class="tight">'+bands.map((b,i)=>`<li><code>${(chrs[i]||chrs[0])}${b}</code> : chromosome ${(chrs[i]||chrs[0])}, ${band(b)}</li>`).join('')+'</ul>';}
+  if(type==='rob')out+="Fusion de deux acrocentriques au centromère : bras courts perdus → 45 chromosomes, génétiquement déséquilibrée mais phénotypiquement équilibrée.";
+  if(type==='t')out+="Échange réciproque entre chromosomes non homologues : 46 chromosomes, génétiquement équilibrée.";
+  const k=chrs.join(';')+(bands[0]||'');
+  if(type==='t'&&chrs.join(';')==='9;22')out+=' <mark>BCR-ABL, chromosome de Philadelphie, LMC.</mark>';
+  if(type==='del'&&chrs[0]==='5'&&bands[0]&&bands[0].startsWith('p15'))out+=' <mark>Syndrome du cri du chat.</mark>';
+  if(type==='del'&&chrs[0]==='13'&&bands[0]&&bands[0].startsWith('q14'))out+=' <mark>Rétinoblastome (pRb).</mark>';
+  if(type==='rob'&&/21/.test(k))out+=' <mark>Risque de T21 par translocation chez l\'enfant.</mark>';
+  return out;
+}
+function decode(){
+  const raw=$('#decIn').value.replace(/\s+/g,'').trim(),out=$('#decOut');
+  if(!raw){out.innerHTML='';return;}
+  const bm=raw.match(/^(\d{1,2}|X|Y)([pq]\d+(?:\.\d+)?)$/);
+  if(bm){out.innerHTML=`<div class="dec-line"><span class="k">${raw}</span><span>Chromosome <strong>${bm[1]}</strong>, ${band(bm[2])}. On compte toujours à partir du centromère.</span></div>`;return;}
+  const lines=raw.split('/');let html='';
+  if(lines.length>1)html+=`<div class="dec-line"><span class="k">/</span><span><strong>Mosaïque</strong> : ${lines.length} lignées cellulaires issues du même zygote (non-disjonction mitotique post-zygotique).</span></div>`;
+  lines.forEach((ln,li)=>{
+    const parts=splitTop(ln);
+    if(lines.length>1)html+=`<div class="eyebrow" style="margin-top:4px">Lignée ${li+1} : ${ln}</div>`;
+    parts.forEach((p,i)=>{
+      let txt=null;
+      if(i===0&&/^\d+$/.test(p))txt=COUNT[p]?`${p} chromosomes : ${COUNT[p]}.`:`${p} chromosomes.`;
+      else if(i===1&&/^[XY]+$/.test(p))txt=SEX[p]||'Formule gonosomique';
+      else txt=decAnom(p);
+      html+=`<div class="dec-line"><span class="k">${p}</span><span>${txt||'Élément non reconnu. Vérifie les parenthèses et les points-virgules.'}</span></div>`;
+    });
+  });
+  out.innerHTML=html;
+}
+$('#decGo').onclick=decode;$('#decIn').addEventListener('keydown',e=>{if(e.key==='Enter')decode();});
+decode();
+
+/* ---------- NDJ ---------- */
+const NDJ={
+  ok:{g:[1,1,1,1],t:'Méiose normale : chaque gamète reçoit un seul chromosome 21. Après fécondation : 46 chromosomes, disomie normale.'},
+  m1:{g:[2,2,0,0],t:'Non-disjonction en méiose I : les deux homologues 21 partent dans la même cellule. Les 4 gamètes sont anormaux : 2 disomiques (→ T21) et 2 nullisomiques (→ M21, non viable). C\'est le mécanisme de 95 % des T21 (M1 maternelle).'},
+  m2:{g:[1,1,2,0],t:'Non-disjonction en méiose II, dans une seule des deux cellules : les chromatides sœurs ne se séparent pas. 2 gamètes normaux, 1 disomique (→ T21), 1 nullisomique (→ M21).'}
+};
+function drawNDJ(k){
+  const s=NDJ[k];
+  $('#ndj').innerHTML=s.g.map((n,i)=>{const z=n+1;const r=z===3?['T','T21 · 47']:z===1?['M','M21 · 45']:['N','normal · 46'];
+    const kind=n===2?['disomique','var(--mat)','2 × chr 21']:n===0?['nullisomique','var(--amber)','0 chr 21 (vide)']:['normal','var(--fitc)','1 chr 21'];
+    return `<div class="gam"><div class="eyebrow">Gamète ${i+1}</div><div style="font-family:var(--f-display);font-weight:700;color:${kind[1]}">${kind[0]}</div><div class="mono" style="font-size:.72rem;color:var(--muted);margin-bottom:4px">${kind[2]}</div><div class="c"${n===0?' style="border-style:dashed;border-color:var(--amber)"':''}><i class="o"></i>${Array.from({length:n},(_,j)=>`<i class="r" style="animation-delay:${(i*.12+j*.08).toFixed(2)}s"></i>`).join('')}</div><div class="arr">+ gamète normal ↓</div><span class="res ${r[0]}">${r[1]}</span></div>`;}).join('');
+  $('#ndjTxt').textContent=s.t;
+}
+$$('#ndjChips .chip').forEach(b=>b.onclick=()=>{$$('#ndjChips .chip').forEach(x=>x.setAttribute('aria-pressed',x===b));drawNDJ(b.dataset.n);});
+drawNDJ('ok');
+
+/* ---------- gonosome table ---------- */
+(function(){
+  const cols=['O','Y','X','XY','YY','XX','XYY','XXY','XXYY'];
+  const rows={O:{X:'X',XY:'XY★',XX:'XX★',XYY:'XYY',XXY:'XXY',XXYY:'XXYY'},
+    X:{O:'X',Y:'XY✓',X:'XX✓',XY:'XXY',YY:'XYY',XX:'XXX',XYY:'XXYY',XXY:'XXXY'},
+    XX:{O:'XX★',Y:'XXY',X:'XXX',XY:'XXXY',YY:'XXYY',XX:'XXXX',XXY:'XXXXY'},
+    XXX:{O:'XXX',Y:'XXXY',X:'XXXX',XY:'XXXXY',XX:'XXXXX'},
+    XXXX:{O:'XXXX',Y:'XXXXY',X:'XXXXX'}};
+  let h='<table><tr><th>♀ \\ ♂</th>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+  for(const r in rows)h+=`<tr><th>${r}</th>`+cols.map(c=>`<td class="mono">${rows[r][c]||''}</td>`).join('')+'</tr>';
+  $('#gonoTbl').innerHTML=h+'</table>';
+})();
+
+/* ---------- age bars ---------- */
+(function(){
+  const d=[[20,2000],[26,2500],[35,300],[40,100],[45,50]];const max=200;
+  $('#ageBars').innerHTML=d.map(([a,n])=>`<div class="hb"><span class="mono">${a} ans</span><span class="t"><i data-w="${(10000/n)/max*100}"></i></span><span class="v">1/${n} · ${(10000/n).toFixed(0)}</span></div>`).join('');
+  const go=()=>$$('#ageBars i').forEach(i=>i.style.width=i.dataset.w+'%');
+  const o=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){go();o.disconnect();}});o.observe($('#ageBars'));
+  setTimeout(go,2500);
+})();
+
+/* ---------- structure animator ---------- */
+const SA={
+  trcp:{name:'Translocation réciproque',tag:['eq','équilibrée'],
+    segs:{a1:'A',a2:'A',ac:'cen',a3:'A',a4:'A',a5:'A',b1:'B',bc:'cen',b2:'B',b3:'B',b4:'B'},
+    before:[['a1','a2','ac','a3','a4','a5'],['b1','bc','b2','b3','b4']],
+    after:[['a1','a2','ac','a3','b3','b4'],['b1','bc','b2','a4','a5']],
+    nom:'46,XY,t(5;20)(q11.2;p13)',txt:'2 chromosomes non homologues cassés, segments échangés. 46 chromosomes. Risque de gamètes déséquilibrés (quadrivalent).'},
+  rob:{name:'Robertsonienne',tag:['n','génét. déséquilibrée, phéno. équilibrée'],
+    segs:{as:'sat',ac:'cen',a1:'A',a2:'A',a3:'A',bs:'sat',bc:'cen',b1:'B',b2:'B',b3:'B'},
+    before:[['as','ac','a1','a2','a3'],['bs','bc','b1','b2','b3']],
+    after:[['a3','a2','a1','ac','b1','b2','b3']],gone:['as','bs','bc'],flip:['a1','a2','a3'],
+    nom:'45,XY,rob(14;21)(q10;q10)',txt:'Deux acrocentriques fusionnent par leurs bras longs ; les bras courts sont perdus. 45 chromosomes.'},
+  peri:{name:'Inversion péricentrique',tag:['eq','équilibrée'],
+    segs:{a1:'A',a2:'A',ac:'cen',a3:'A',a4:'A',a5:'A'},
+    before:[['a1','a2','ac','a3','a4','a5']],after:[['a1','a3','ac','a2','a4','a5']],flip:['a2','a3'],
+    nom:'46,XY,inv(9)(p11,q13)',txt:'Cassures de part et d\'autre du centromère : le segment qui contient le centromère tourne de 180°.'},
+  para:{name:'Inversion paracentrique',tag:['eq','équilibrée'],
+    segs:{a1:'A',a2:'A',ac:'cen',a3:'A',a4:'A',a5:'A'},
+    before:[['a1','a2','ac','a3','a4','a5']],after:[['a1','a2','ac','a4','a3','a5']],flip:['a3','a4'],
+    nom:'46,XX,inv(14)(q13.2,q24.2)',txt:'Les 2 cassures sont sur le même bras (plus rare). Le centromère ne bouge pas.'},
+  ins:{name:'Insertion',tag:['eq','équilibrée si rien perdu'],
+    segs:{a1:'A',a2:'A',ac:'cen',a3:'A',a4:'A',a5:'A',b1:'B',bc:'cen',b2:'B',b3:'B',b4:'B'},
+    before:[['a1','a2','ac','a3','a4','a5'],['b1','bc','b2','b3','b4']],
+    after:[['a1','a2','ac','a3','a5'],['b1','bc','b2','a4','b3','b4']],
+    nom:'ins (directe ou inversée)',txt:'Un fragment quitte son chromosome (les régions flanquantes se recollent) et s\'insère ailleurs. Stable, mais très instable en méiose.'},
+  dup:{name:'Duplication',tag:['deq','déséquilibrée'],
+    segs:{a1:'A',a2:'A',ac:'cen',a3:'A',a4:'A',a4d:'A',a5:'A'},
+    before:[['a1','a2','ac','a3','a4','a5']],after:[['a1','a2','ac','a3','a4','a4d','a5']],born:{a4d:'a4'},
+    nom:'dup (en tandem ici)',txt:'Le segment 4 est présent deux fois : trisomie partielle pour cette région.'},
+  delt:{name:'Délétion terminale',tag:['deq','déséquilibrée'],
+    segs:{a1:'A',a2:'A',ac:'cen',a3:'A',a4:'A',a5:'A'},
+    before:[['a1','a2','ac','a3','a4','a5']],after:[['a1','a2','ac','a3','a4']],gone:['a5'],
+    nom:'46,XY,del(5)(p15)',txt:'Une seule cassure, l\'extrémité est perdue : monosomie partielle (ex. cri du chat).'},
+  deli:{name:'Délétion interstitielle',tag:['deq','déséquilibrée'],
+    segs:{a1:'A',a2:'A',ac:'cen',a3:'A',a4:'A',a5:'A'},
+    before:[['a1','a2','ac','a3','a4','a5']],after:[['a1','a2','ac','a3','a5']],gone:['a4'],
+    nom:'46,XX,del(13)(q14.1q14.3)',txt:'Deux cassures, le segment interne est perdu et les bouts se recollent (ex. rétinoblastome).'},
+  iso:{name:'Isochromosome',tag:['deq','déséquilibrée'],
+    segs:{a1:'A',a2:'A',ac:'cen',a3:'A',a4:'A',a5:'A',a3d:'A',a4d:'A',a5d:'A'},
+    before:[['a1','a2','ac','a3','a4','a5']],after:[['a5d','a4d','a3d','ac','a3','a4','a5']],gone:['a1','a2'],born:{a3d:'a3',a4d:'a4',a5d:'a5'},flip:['a3d','a4d','a5d'],
+    nom:'46,X,i(Xq)',txt:'Le bras court est perdu, le bras long est dupliqué en miroir : monosomie partielle p + trisomie partielle q.'},
+  ring:{name:'Anneau',tag:['deq','déséquilibrée'],
+    segs:{a1:'A',a2:'A',ac:'cen',a3:'A',a4:'A',a5:'A'},
+    before:[['a1','a2','ac','a3','a4','a5']],after:[{ring:['a2','ac','a3','a4']}],gone:['a1','a5'],
+    nom:'46,X,r(X)',txt:'Cassures aux deux extrémités : la cellule recolle les bouts et forme un cercle.'}
+};
+const saStage=$('#saStage');let saKey='trcp',saEls={},saState='before';
+$('#saChips').innerHTML=Object.entries(SA).map(([k,v])=>`<button class="chip" aria-pressed="${k===saKey}" data-s="${k}">${v.name}</button>`).join('');
+$$('#saChips .chip').forEach(b=>b.onclick=()=>{$$('#saChips .chip').forEach(x=>x.setAttribute('aria-pressed',x===b));saKey=b.dataset.s;saBuild();});
+function saPositions(cols){
+  const W=saStage.clientWidth||600,P={},n=cols.length,gap=Math.min(130,W/(n+1));
+  cols.forEach((col,i)=>{
+    const cx=W/2+(i-(n-1)/2)*gap;
+    if(col.ring){const ids=col.ring,R=46;ids.forEach((id,j)=>{const a=-Math.PI/2+j*2*Math.PI/ids.length;P[id]={x:cx+R*Math.cos(a),y:120+R*Math.sin(a),rot:a*180/Math.PI+90};});return;}
+    let y=14;col.forEach(id=>{const t=SA[saKey].segs[id];const h=t==='cen'?10:t==='sat'?14:24;P[id]={x:cx,y:y+h/2,rot:0};y+=h+3;});
+  });
+  return P;
+}
+function saApply(P,state){
+  const S=SA[saKey],flip=new Set(state==='after'?(S.flip||[]):[]);
+  for(const id in saEls){
+    const e=saEls[id],p=P[id];
+    if(!p)continue;
+    const w=e.offsetWidth,h=e.offsetHeight;
+    e.style.left=(p.x-w/2)+'px';e.style.top=(p.y-h/2)+'px';
+    e.style.transform=`rotate(${p.rot||0}deg)`;
+    e.classList.toggle('flip',flip.has(id));
+  }
+}
+function saBuild(){
+  const S=SA[saKey];saStage.innerHTML='';saEls={};
+  Object.entries(S.segs).forEach(([id,t])=>{const e=document.createElement('div');e.className='seg '+(t==='cen'?'cen':t==='sat'?'sat '+id[0].toUpperCase():id[0].toUpperCase());
+    if(t!=='cen')e.innerHTML=`<span class="lbl">${t==='sat'?'p':id.replace(/[ab]/,'').replace('d','′')}</span>`;
+    saStage.append(e);saEls[id]=e;});
+  saReset(true);
+  $('#saInfo').innerHTML=`<div class="row"><strong style="font-family:var(--f-display);font-size:1.1rem">${S.name}</strong><span class="tag ${S.tag[0]}">${S.tag[1]}</span></div><div class="nom">${S.nom}</div><div>${S.txt}</div>`;
+}
+function saReset(instant){
+  const S=SA[saKey];const P=saPositions(S.before);
+  if(S.born)for(const id in S.born)P[id]={...P[S.born[id]]};
+  for(const id in saEls){const e=saEls[id];if(instant)e.style.transition='none';e.style.opacity=(S.born&&S.born[id])?0:1;}
+  saApply(P,'before');
+  if(instant){void saStage.offsetWidth;for(const id in saEls)saEls[id].style.transition='';}
+  saState='before';
+}
+function saPlay(){
+  const S=SA[saKey];
+  if(saState==='after'){saReset(true);requestAnimationFrame(()=>requestAnimationFrame(saPlay));return;}
+  const before=saPositions(S.before),P=saPositions(S.after);
+  (S.gone||[]).forEach(id=>{const b=before[id];P[id]={x:b.x+(b.x<(saStage.clientWidth/2)?-50:50),y:b.y+40,rot:30};});
+  for(const id in saEls){saEls[id].style.opacity=(S.gone||[]).includes(id)?0:1;}
+  saApply(P,'after');saState='after';
+}
+$('#saPlay').onclick=saPlay;$('#saReset').onclick=()=>saReset(false);
+saBuild();
+let lastW=innerWidth;
+addEventListener('resize',()=>{if(innerWidth===lastW)return;lastW=innerWidth;saState==='after'?saPlay():saReset(true);});
+
+/* ---------- triplets ---------- */
+const TR={
+  dm1:{motif:'CTG',zones:[[1,4,'—','var(--surface-2)'],[5,30,'normal','var(--fitc-soft)'],[31,44,'nd','var(--surface-2)'],[45,3000,'malade','var(--mat-soft)'],[3001,5000,'','var(--surface-2)']],
+    gens:[{w:'Grand-père',n:70,t:'malade vers 55 ans'},{w:'Ses enfants',n:180,t:'malades vers 48–50 ans'},{w:'Petits-enfants',n:600,t:'malades vers 40–42 ans'}],
+    txt:'DM1 (Steinert) : CTG en 3′ de DMPK, autosomique dominante. Au-delà de 45 répétitions, malade ; l\'expansion s\'aggrave à chaque génération.'},
+  fraxa:{motif:'CGG',zones:[[1,5,'—','var(--surface-2)'],[6,54,'normal','var(--fitc-soft)'],[55,199,'prémuté','var(--amber-soft)'],[200,4000,'malade','var(--mat-soft)'],[4001,5000,'','var(--surface-2)']],
+    gens:[{w:'Homme transmetteur',n:90,t:'prémuté, phénotype normal'},{w:'Sa fille',n:140,t:'conductrice prémutée, normale'},{w:'Petit-fils',n:700,t:'mutation complète : RM'}],
+    txt:'X fragile : CGG en 5′ UTR de FMR1. La prémutation grandit surtout en passant par la mère ; la maladie apparaît à la 3e génération.'},
+  hd:{motif:'CAG',zones:[[1,10,'—','var(--surface-2)'],[11,34,'normal','var(--fitc-soft)'],[35,36,'','var(--surface-2)'],[37,121,'malade','var(--mat-soft)'],[122,5000,'','var(--surface-2)']],
+    gens:[{w:'Grand-père',n:41,t:'début vers 55 ans'},{w:'Son fils',n:50,t:'début vers 45 ans'},{w:'Petite-fille',n:65,t:'début plus précoce, plus sévère'}],
+    txt:'Huntington : CAG dans un exon (région codante), autosomique dominante, biais de transmission paternel.'}
+};
+let trKey='dm1',trGen=0;
+const lg=n=>Math.log10(Math.max(1,n))/Math.log10(5000)*100;
+function drawTR(){
+  const T=TR[trKey];
+  $('#trScale').innerHTML=T.zones.map(([a,b,l,c])=>`<div class="z" style="width:${lg(b)-lg(a===1?1:a-1)}%;background:${c}">${l}</div>`).join('');
+  $('#trGens').innerHTML=T.gens.map((g,i)=>`<button class="gen" aria-pressed="${i===trGen}" data-g="${i}"><b>${g.w}</b>${T.motif}×${g.n} · ${g.t}</button>`).join('');
+  $$('#trGens .gen').forEach(b=>b.onclick=()=>{trGen=+b.dataset.g;drawTR();});
+  const n=T.gens[trGen].n;
+  $('#trMarker').style.left=lg(n)+'%';$('#trMarker').textContent=T.motif+'×'+n;
+  const shown=Math.min(n,60),thr=T.zones[1][1];
+  $('#trRep').innerHTML=Array.from({length:shown},(_,i)=>`<span class="${i>=thr?'hot':''}" style="animation-delay:${reduce?0:i*12}ms">${T.motif}</span>`).join('')+(n>shown?`<span class="hot">… +${n-shown}</span>`:'');
+  $('#trTxt').textContent=T.txt;
+}
+$$('#trChips .chip').forEach(b=>b.onclick=()=>{$$('#trChips .chip').forEach(x=>x.setAttribute('aria-pressed',x===b));trKey=b.dataset.t;trGen=0;drawTR();});
+drawTR();
+
+/* ---------- UPD ---------- */
+const UPD={
+  bi:{n:'Normal (biparental)',c:[['P',1],['M',1]],v:'Phénotype normal',t:'Un 15 du père (gènes PW actifs) et un 15 de la mère (gène AS actif) : chaque gène a sa copie exprimée.'},
+  dp:{n:'Délétion 15q11-13 paternelle',c:[['P',0],['M',1]],v:'Prader-Willi',t:'La seule copie qui pouvait exprimer PW (paternelle) est délétée. La copie maternelle est là mais éteinte par l\'empreinte.'},
+  dm:{n:'Délétion 15q11-13 maternelle',c:[['P',1],['M',0]],v:'Angelman',t:'La copie maternelle, seule à exprimer AS, est délétée. Retard mental sévère, convulsions, rires immotivés.'},
+  um:{n:'Disomie uniparentale maternelle',c:[['M',1],['M',1]],v:'Prader-Willi',t:'Deux 15 maternels : AS est exprimé, mais aucune copie paternelle pour PW. Même effet qu\'une délétion paternelle (déduction à partir du cours).'},
+  up:{n:'Disomie uniparentale paternelle',c:[['P',1],['P',1]],v:'Angelman',t:'Deux 15 paternels : PW exprimé, aucune copie maternelle pour AS. Même effet qu\'une délétion maternelle (déduction à partir du cours).'}
+};
+$('#updChips').innerHTML=Object.entries(UPD).map(([k,v])=>`<button class="chip" aria-pressed="${k==='bi'}" data-u="${k}">${v.n}</button>`).join('');
+$$('#updChips .chip').forEach(b=>b.onclick=()=>{$$('#updChips .chip').forEach(x=>x.setAttribute('aria-pressed',x===b));drawUPD(b.dataset.u);});
+function drawUPD(k){
+  const U=UPD[k];
+  $('#c15s').innerHTML=U.c.map(([o,present])=>`<div class="c15"><div class="body ${o}"><span class="cn15"></span><div class="reg ${present?'':'gone'}"><span class="dot ${o==='P'&&present?'on':''}">PW</span><span class="dot ${o==='M'&&present?'on':''}">AS</span></div></div><span class="who ${o==='P'?'pat':'mat'}">15 ${o==='P'?'paternel':'maternel'}</span></div>`).join('');
+  $('#updVerdict').textContent=U.v;$('#updVerdict').style.color=k==='bi'?'var(--fitc)':'var(--mat)';
+  $('#updTxt').textContent=U.t;
+}
+drawUPD('bi');
+
+/* ---------- QCM ---------- */
+const Q=[
+ ['La méiose peut-elle être définie comme 2 mitoses successives ?',['Oui, M1 et M2 sont deux mitoses','Non, car M1 sépare les chromosomes homologues','Non, car la mitose produit des cellules haploïdes','Oui, chez les cellules germinales seulement'],1,'La mitose ne sépare jamais les homologues ; la méiose I le fait.'],
+ ['Une cellule diploïde en G2 se note :',['2n 1C','n 2C','2n 2C','4n 2C'],2,'Après la réplication (phase S), chaque chromosome a 2 chromatides : 2n 2C.'],
+ ['Le brassage intrachromosomique :',['concerne des gènes indépendants','résulte d\'un crossing-over entre gènes liés en méiose I','a lieu en méiose II','est indépendant de la distance entre les gènes'],1,'Il concerne les gènes liés et sa probabilité augmente avec la distance entre eux.'],
+ ['Sur la diapo, l\'individu (A/A, B/b, c/c, d/D, e/E) est hétérozygote pour :',['A et C','B, D et E','A, B et C','tous les gènes'],1,'Homozygote pour A et C, hétérozygote pour B, D et E.'],
+ ['Deux chromatides sœurs d\'un même chromosome portent normalement :',['deux allèles différents','le même allèle','l\'allèle paternel et l\'allèle maternel','des allèles au hasard'],1,'Réplication fidèle. L\'exception passagère est le crossing-over en méiose.'],
+ ['Une mutation survenue dans une cellule du sein :',['est transmise aux enfants','est transmise aux cellules filles mais pas à la descendance','est réversible','n\'est jamais pathologique'],1,'Mutation somatique : héréditaire au niveau cellulaire seulement.'],
+ ['Les chromosomes acrocentriques humains sont :',['1, 3, 16, 19, 20','13, 14, 15, 21, 22','13, 18, 21, X, Y','tous les petits chromosomes'],1,'Ce sont eux qui forment les translocations robertsoniennes.'],
+ ['« 1q25 » signifie :',['chromosome 1, bras court, région 2, bande 5','chromosome 1, bras long, région 2, bande 5','chromosome 1, bras long, bande 25','chromosome 12, bras long, bande 5'],1,'Chromosome, bras, région, bande, numérotés depuis le centromère.'],
+ ['La triploïdie (69 chromosomes) :',['est la trisomie la plus fréquente','est une aneuploïdie','n\'est jamais viable','donne le syndrome de Patau'],2,'Polyploïdie 3n ou 4n : jamais viable. Ne pas confondre avec une trisomie.'],
+ ['La seule monosomie viable est :',['45,X','45,XY,-21','45,Y','45,XX,-13'],0,'Syndrome de Turner, 1/2500 filles, perte de l\'X paternel dans 60–80 % des cas.'],
+ ['Le syndrome de Klinefelter :',['47,XYY avec RM','47,XXY, stérilité, pas de RM','45,X, petite taille','47,XXX, phénotype souvent normal'],1,'2/1000 garçons, grande taille, développement masculin incomplet.'],
+ ['La T21 libre homogène (95 %) résulte surtout :',['d\'une non-disjonction en M1 maternelle','d\'une translocation 14;21','d\'une non-disjonction mitotique','d\'une non-disjonction en M2 paternelle'],0,'Le risque augmente avec l\'âge maternel.'],
+ ['Une anomalie en mosaïque :',['provient de deux zygotes différents','résulte d\'une non-disjonction mitotique post-zygotique','touche toutes les cellules','est toujours létale'],1,'Le clone doit être vu dans au moins 2 % des cellules analysées.'],
+ ['Une translocation robertsonienne :',['donne 46 chromosomes','est génétiquement équilibrée','est phénotypiquement équilibrée mais génétiquement déséquilibrée','concerne deux chromosomes métacentriques'],2,'Les bras courts sont perdus, 45 chromosomes, porteur sain mais gamètes déséquilibrés.'],
+ ['La t(9;22) de la LMC est :',['génétiquement déséquilibrée','génétiquement équilibrée mais pathologique','une translocation robertsonienne','une microdélétion'],1,'Elle crée BCR-ABL, kinase toujours active, sur le chromosome de Philadelphie (der 22).'],
+ ['Une inversion péricentrique :',['a ses 2 cassures sur le même bras','a ses cassures de part et d\'autre du centromère','implique 2 chromosomes','est déséquilibrée'],1,'Paracentrique = même bras (plus rare).'],
+ ['Pour détecter le syndrome de DiGeorge (22q11.2) on utilise :',['un caryotype standard','une FISH avec sonde spécifique','un Southern blot','un test de Guthrie'],1,'Microdélétion < 5 Mb (~3 Mb, ~40 gènes), invisible au caryotype.'],
+ ['46,XY,del(5)(p15) correspond à :',['DiGeorge','rétinoblastome','syndrome du cri du chat','Williams-Beuren'],2,'Délétion terminale du bras court du 5.'],
+ ['Le syndrome de l\'X fragile est dû à :',['une répétition CTG en 3′ de DMPK','une répétition CGG en 5′ de FMR1','une répétition CAG dans un exon','une délétion de Xp'],1,'FMR1 Xq27.3, 2e cause de retard mental.'],
+ ['La dystrophie myotonique de Steinert est :',['liée à l\'X','autosomique dominante, CTG en 3′ de DMPK (19q13)','autosomique récessive, GAA intronique','mitochondriale'],1,'5–30 répétitions normal, 45–3000 malade.'],
+ ['Le phénomène d\'anticipation (paradoxe de Sherman) désigne :',['une maladie de plus en plus tardive','une maladie de plus en plus précoce et grave au fil des générations','une expansion qui diminue','la perte d\'un chromosome'],1,'Typique des expansions de triplets.'],
+ ['Une délétion 15q11-13 sur le chromosome maternel donne :',['Prader-Willi','Angelman','Turner','DiGeorge'],1,'Délétion paternelle → Prader-Willi.'],
+ ['Un gène soumis à empreinte maternelle est :',['exprimé seulement quand il vient de la mère','inactivé quand il est transmis par la mère','toujours méthylé chez l\'homme','situé sur l\'X'],1,'Empreinte = méthylation des C, expression monoallélique.'],
+ ['Dans les avortements aneuploïdes du 1er trimestre, la trisomie la plus fréquente est :',['+21','+16','+18','+13'],1,'+16 = 32 %, +21 = 13 %, +15 et +22 = 10 %.'],
+ ['Pour un risque de T21 entre 1/1000 et 1/51, on propose :',['une amniocentèse d\'emblée','un DPNI sur ADN libre circulant','rien','un caryotype parental'],1,'Risque ≥ 1/50 → amniocentèse puis caryotype.'],
+ ['Les anomalies chromosomiques touchent environ :',['1/1000 nouveau-nés','1/160 nouveau-nés','1/20 nouveau-nés','1/10 000 nouveau-nés'],1,'Et 50–60 % des fausses couches précoces.'],
+ ['Âne × jument donne un mulet stérile parce que :',['l\'âne est haploïde','ils ont 62 et 64 chromosomes, ce qui gêne la méiose','le mulet est triploïde','les gamètes de jument sont diploïdes'],1,'Ils ne remplissent pas la définition de l\'espèce (descendants féconds).'],
+ ['La levure à bourgeonnement a un cycle :',['haplobiontique','haplo-diplobiontique','diplobiontique','asexué uniquement'],1,'Phase haploïde = phase diploïde.'],
+ ['Chez l\'homme, pour les loci de l\'X, on dit qu\'il est :',['homozygote','hétérozygote','hémizygote','nullizygote'],2,'Une seule copie de l\'X.'],
+ ['Une correction de monosomie par duplication donne :',['une disomie biparentale','une isodisomie uniparentale','une trisomie','une mosaïque obligatoire'],1,'Les deux copies sont identiques.']
+];
+let wrong=new Set(store.get('wrong',[])),qMode='all',qList=[],qi=0,qScore=0,qAnswered=false;
+function qStart(){qList=(qMode==='all'?Q.map((_,i)=>i):[...wrong]);for(let i=qList.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[qList[i],qList[j]]=[qList[j],qList[i]];}qi=0;qScore=0;qRender();}
+function qRender(){
+  const c=$('#qcard');
+  if(!qList.length){c.innerHTML='<div class="qtext">Aucune erreur enregistrée.</div><p>Fais d\'abord le QCM complet.</p>';return;}
+  if(qi>=qList.length){c.innerHTML=`<div class="qtext">Score : ${qScore}/${qList.length}</div><p>${qScore===qList.length?'Sans faute.':`${wrong.size} question(s) en mémoire dans « Seulement mes erreurs ».`}</p><div class="qnav"><button class="btn" id="qRe">Recommencer</button></div>`;$('#qRe').onclick=qStart;return;}
+  const [t,opts,ans,exp]=Q[qList[qi]];qAnswered=false;
+  c.innerHTML=`<div class="qtop"><span>Question ${qi+1}/${qList.length}</span><span>Score ${qScore}</span></div><div class="qtext">${t}</div><div class="opts">${opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="l">${'ABCD'[i]}</span><span>${o}</span></button>`).join('')}</div><div class="qexp" id="qexp"></div><div class="qnav"><span></span><button class="btn" id="qNext" disabled>Suivante →</button></div>`;
+  $$('#qcard .opt').forEach(b=>b.onclick=()=>{
+    if(qAnswered)return;qAnswered=true;const i=+b.dataset.i,id=qList[qi];
+    $$('#qcard .opt').forEach(x=>{x.disabled=true;if(+x.dataset.i===ans)x.classList.add('good');});
+    if(i===ans){qScore++;wrong.delete(id);$('#qexp').innerHTML=`<b class="v" style="color:var(--fitc)">Exact.</b> ${exp}`;}
+    else{b.classList.add('bad');wrong.add(id);$('#qexp').innerHTML=`<b class="v" style="color:var(--bad)">Non.</b> ${exp}`;}
+    store.set('wrong',[...wrong]);$('#qNext').disabled=false;$('#qNext').focus();
+  });
+  $('#qNext').onclick=()=>{qi++;qRender();};
+}
+$('#qAll').onclick=()=>{qMode='all';$('#qAll').setAttribute('aria-pressed',true);$('#qWrong').setAttribute('aria-pressed',false);qStart();};
+$('#qWrong').onclick=()=>{qMode='wrong';$('#qWrong').setAttribute('aria-pressed',true);$('#qAll').setAttribute('aria-pressed',false);qStart();};
+qStart();
+
+/* ---------- flashcards ---------- */
+const F=[
+ ['Définition biologique de l\'espèce','Populations naturelles interfécondes, descendants eux-mêmes féconds, isolées sur le plan reproductif, occupant une niche écologique particulière.'],
+ ['3 types de cycles de reproduction sexuée','Haplobiontique (protistes, algues), haplo-diplobiontique (levure à bourgeonnement), diplobiontique (métazoaires, plantes supérieures).'],
+ ['M1 vs M2','M1 réductionnelle : sépare les homologues (2n 2C → n 2C). M2 équationnelle : sépare les chromatides sœurs (n 2C → n 1C).'],
+ ['Brassage intra vs inter','Intra : crossing-over entre gènes liés. Inter : répartition aléatoire des paires d\'homologues, gènes indépendants. Les deux en méiose I.'],
+ ['Phénotype','Manifestation apparente de la constitution du génome : traits, maladie, variation du produit d\'un gène. Propriétés mesurables.'],
+ ['Hémizygote','Une seule copie d\'un locus : l\'homme pour les gènes de l\'X.'],
+ ['Mutation : 2 adjectifs','Irréversible et héréditaire (aux cellules filles).'],
+ ['4 familles de maladies génétiques','Mendéliennes (monogéniques), oligo/polygéniques, aberrations chromosomiques, mitochondriales.'],
+ ['Historique (4 dates)','Mendel (pois, 1865), Flemming 1879 (mitose), Waldeyer 1888 (chromosomes), Morgan 1915 (traits liés au sexe).'],
+ ['Épidémiologie des anomalies chromosomiques','1/160 nouveau-nés, 1re cause de RM et d\'avortement spontané, 50–60 % des FC précoces, 20 % des tardives.'],
+ ['Nombre vs structure','Nombre 60 % (aneuploïdie, polyploïdie jamais viable) ; structure 40 % (équilibrées ⅔, déséquilibrées ⅓).'],
+ ['Constitutionnelle vs acquise','Constitutionnelle : avant la fécondation ou premières divisions du zygote. Acquise : au cours de la vie, un seul organe.'],
+ ['Mosaïque','≥ 2 lignées de caryotypes différents issues d\'un même zygote ; non-disjonction mitotique post-zygotique ; clone ≥ 2 %.'],
+ ['Les 4 dysgonosomies','XYY 1/1000 ♂ · XXY Klinefelter 2/1000 ♂ · XXX 1/1200 ♀ · 45,X Turner 1/2500 ♀.'],
+ ['Trisomies autosomiques : répartition','Libre 92,5 % · translocation 5 % (t21;14) · mosaïque 2,8 % (T8, T12).'],
+ ['T13 et T18','T13 Patau 1/10 000 · T18 Edwards 1/6000 · décès précoces.'],
+ ['T21 : mécanismes','95 % libre homogène (NDJ M1 maternelle), 2–3 % mosaïque, 2–3 % translocation.'],
+ ['Translocation réciproque','La plus fréquente, 2 non-homologues, 1/1000, 46 chr, 90 % phéno équilibrées, quadrivalent en méiose.'],
+ ['Translocation robertsonienne','Acrocentriques 13,14,15,21,22, 1/1000, 45 chr, génétiquement déséquilibrée, phénotypiquement équilibrée.'],
+ ['Inversion para vs péri','Para : même bras (plus rare). Péri : de part et d\'autre du centromère. 0,1–0,3/1000.'],
+ ['Duplication / délétion','Dup → trisomie partielle (tandem ou inversée). Del → monosomie partielle (terminale 1 cassure, interstitielle 2).'],
+ ['4 syndromes microdélétionnels','DiGeorge 22q11.2 · Williams-Beuren 7q11.23 · Miller-Dieker 17p13.3 · Prader-Willi / Angelman 15q11-13. FISH, < 5 Mb.'],
+ ['Expansion de triplets : mécanisme','Dérapage de l\'ADN polymérase à la réplication ou défaut de réparation. Mutation instable et dynamique.'],
+ ['DM1 en 5 points','AD · 1/20 000 · DMPK 19q13 · CTG en 3′ · 5–30 normal, 45–3000 malade.'],
+ ['X fragile en 5 points','Lié X · 2e cause de RM · FMR1 Xq27.3 · CGG en 5′ · 6–54 normal, 200–1000 malade.'],
+ ['Disomie uniparentale','2 homologues hérités du même parent : complémentation gamétique, correction de trisomie, correction de monosomie (isodisomie).'],
+ ['Empreinte parentale','Méthylation des C selon l\'origine parentale → expression monoallélique (hémizygotie fonctionnelle). 100–200 gènes, clusters, croissance fœtale.']
+];
+let fDeck=[],fi=0,fKnow=0;
+function fShuffle(){fDeck=F.map((_,i)=>i).sort(()=>Math.random()-.5);fi=0;fKnow=0;fShow();}
+function fShow(){
+  $('#flash').classList.remove('flipped');
+  if(!fDeck.length){$('#fcQ').textContent='Paquet terminé.';$('#fcA').textContent='Clique « Je savais » pour remélanger.';$('#fcCount').textContent='';$('#fcStat').textContent=`${fKnow} sues`;return;}
+  const [q,a]=F[fDeck[0]];$('#fcQ').textContent=q;$('#fcA').textContent=a;$('#fcCount').textContent=`${fDeck.length} carte(s) restante(s)`;$('#fcStat').textContent=`${fKnow} sues`;
+}
+const flip=()=>$('#flash').classList.toggle('flipped');
+$('#flash').onclick=flip;$('#flash').onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();flip();}};
+$('#fcKnow').onclick=()=>{if(!fDeck.length){fShuffle();return;}fDeck.shift();fKnow++;fShow();};
+$('#fcAgain').onclick=()=>{if(!fDeck.length)return;fDeck.push(fDeck.shift());fShow();};
+fShuffle();
+
+/* ---------- traps ---------- */
+const TRAPS=[
+ ['La méiose = 2 mitoses successives.','M1 sépare les homologues, ce que la mitose ne fait jamais.'],
+ ['La mitose peut faire passer de n à 2n.','La mitose conserve la ploïdie. Seules la fécondation (n→2n) et la méiose (2n→n) la changent.'],
+ ['Les chromatides sœurs portent A et a.','Elles portent le même allèle ; ce sont les homologues qui portent A et a.'],
+ ['Une mutation héréditaire passe forcément aux enfants.','Héréditaire = aux cellules filles. Somatique : pas aux enfants.'],
+ ['Une trisomie est une polyploïdie.','Trisomie = 47 (aneuploïdie). Triploïdie = 69 (polyploïdie, jamais viable).'],
+ ['La robertsonienne a 46 chromosomes.','45 chromosomes : deux acrocentriques fusionnés.'],
+ ['Génétiquement équilibré = pas de phénotype.','t(9;22) est génétiquement équilibrée mais donne une LMC.'],
+ ['On numérote les bandes depuis le télomère.','Toujours à partir du centromère.'],
+ ['Une microdélétion se voit au caryotype.','< 5 Mb : invisible, il faut une FISH ciblée.'],
+ ['Télocentrique existe chez l\'Homme.','Non : seulement chez d\'autres espèces.'],
+ ['Turner : perte de l\'X maternel surtout.','Perte de l\'X paternel dans 60–80 % des cas.'],
+ ['Délétion 15 maternelle → Prader-Willi.','Maternelle → Angelman ; paternelle → Prader-Willi.'],
+ ['Empreinte maternelle = gène exprimé depuis la mère.','Empreinte maternelle = gène inactivé quand il vient de la mère.'],
+ ['Mosaïque = non-disjonction méiotique.','Mosaïque = non-disjonction mitotique post-zygotique.']
+];
+$('#traps').innerHTML=TRAPS.map(([x,v])=>`<div class="trap"><div class="x">${x}</div><div><span class="v">Correct :</span> ${v}</div></div>`).join('');
+
+/* ---------- tabs ---------- */
+$$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.setAttribute('aria-selected',x===t));['qcm','flash','traps'].forEach(p=>$('#pane-'+p).hidden=p!==t.dataset.tab);});
+})();
+</script>
+
+</body></html>

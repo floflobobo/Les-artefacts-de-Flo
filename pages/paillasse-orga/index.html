@@ -1,0 +1,895 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Paillasse Orga</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout : étagère de réactifs à gauche, paillasse (ballon + conditions) puis paillasse de résultats à droite. Papier quadrillé de cahier de labo. */
+:root{
+  --paper:#edf1ec; --grid:#dbe3dc; --card:#f9fbf8; --ink:#14221f; --muted:#5a6a65; --line:#c7d2cb;
+  --accent:#1c4fd0; --accent-ink:#fff; --arrow:#d23a2a;
+  --sn1:#c8661a; --sn2:#1c4fd0; --e1:#b02f78; --e2:#2a8740; --ae:#6d4fc9; --ox:#8a6a12;
+  --x:#b5481c; --nu:#1c4fd0; --h:#2a8740;
+  --glass:#bccbc4; --liquid:#9fc4e8; --ok:#2a8740; --warn:#b5481c;
+  --f-display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#0f1716; --grid:#18232120; --card:#152220; --ink:#e4ede9; --muted:#93a59f; --line:#2b3c38;
+  --accent:#7aa2ff; --accent-ink:#0b1430; --arrow:#ff7462;
+  --sn1:#f0974f; --sn2:#7aa2ff; --e1:#ee7bb8; --e2:#6fd08a; --ae:#a993f5; --ox:#e0bf5c;
+  --x:#f0874f; --nu:#7aa2ff; --h:#6fd08a; --glass:#4c5f59; --liquid:#3d6c9a; --ok:#6fd08a; --warn:#f0874f;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#0f1716; --grid:#18232120; --card:#152220; --ink:#e4ede9; --muted:#93a59f; --line:#2b3c38;
+  --accent:#7aa2ff; --accent-ink:#0b1430; --arrow:#ff7462;
+  --sn1:#f0974f; --sn2:#7aa2ff; --e1:#ee7bb8; --e2:#6fd08a; --ae:#a993f5; --ox:#e0bf5c;
+  --x:#f0874f; --nu:#7aa2ff; --h:#6fd08a; --glass:#4c5f59; --liquid:#3d6c9a; --ok:#6fd08a; --warn:#f0874f;
+  color-scheme:dark }
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px; color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:18px 40px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,4vw,40px);line-height:1;margin:0;letter-spacing:-.02em}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.modes{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px}
+.modes button{font:inherit;font-weight:700;border:0;background:transparent;color:var(--muted);padding:7px 14px;border-radius:7px;cursor:pointer}
+.modes button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+button:focus-visible,.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{display:grid;grid-template-columns:minmax(260px,310px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:880px){.app{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px}
+.label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+
+/* Étagère */
+.shelf{padding:12px;display:flex;flex-direction:column;gap:10px;position:sticky;top:max(12px, env(safe-area-inset-top, 0px))}
+@media (max-width:880px){.shelf{position:static}}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.tabs button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:transparent;color:var(--ink);padding:6px 4px;border-radius:7px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.shelf-list{display:flex;flex-direction:column;gap:6px;max-height:min(68vh,640px);overflow:auto;padding-right:2px}
+@media (max-width:880px){.shelf-list{max-height:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}}
+.group-h{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:8px 2px 0;grid-column:1/-1}
+.chip{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);cursor:grab;user-select:none;touch-action:none;text-align:left;font:inherit;color:inherit;width:100%}
+.chip:hover{border-color:var(--ink)}
+.chip.in{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.chip .fx{font-family:var(--f-mono);font-size:13px;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.chip .nm{grid-column:1/2;font-size:12px;color:var(--muted)}
+.chip .tg{grid-row:1/3;grid-column:2;font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.ghost{position:fixed;z-index:50;pointer-events:none;transform:translate(-50%,-60%) rotate(-3deg);background:var(--card);border:1px solid var(--ink);border-radius:8px;padding:6px 10px;font-family:var(--f-mono);font-weight:600;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+
+/* Paillasse */
+.main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.goal{padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-style:dashed;border-width:2px}
+.goal b{font-family:var(--f-display);font-size:18px}
+.goal .gtxt{min-width:0;flex:1 1 280px}
+.goal .gtxt p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.goal-nav{display:flex;gap:6px;align-items:center}
+.bench{padding:14px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:620px){.bench{grid-template-columns:minmax(0,1fr)}}
+.flask-zone{position:relative;border-radius:12px;transition:background .2s}
+.flask-zone.hover{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.flask-zone svg{display:block;width:100%;max-width:230px;margin:0 auto;height:auto}
+.drop-hint{text-align:center;font-size:12px;color:var(--muted);margin-top:2px}
+.slots{display:flex;flex-direction:column;gap:8px;min-width:0}
+.slot{display:grid;grid-template-columns:86px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 10px;border:1.5px dashed var(--line);border-radius:9px;min-height:50px}
+.slot.full{border-style:solid;border-color:var(--ink);background:var(--paper)}
+.slot.hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.slot .sv{min-width:0}
+.slot .sv .fx{font-family:var(--f-mono);font-weight:600;font-size:14px;overflow-wrap:anywhere}
+.slot .sv .nm{font-size:12.5px;color:var(--muted)}
+.slot .empty{font-size:13px;color:var(--muted)}
+.slot .x{border:0;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 6px;border-radius:6px}
+.temps{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.temps button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:7px 4px;border-radius:8px;cursor:pointer;line-height:1.2}
+.temps button small{display:block;color:var(--muted);font-size:11px}
+.temps button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.temps button[aria-pressed="true"] small{color:var(--paper);opacity:.75}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:700;border:1px solid var(--ink);background:transparent;color:var(--ink);padding:9px 16px;border-radius:9px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);flex:1 1 auto;font-family:var(--f-display);font-size:17px;letter-spacing:.01em}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Résultat */
+.result{padding:16px;display:flex;flex-direction:column;gap:16px}
+.verdict{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.mbadge{font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1;padding:10px 14px;border-radius:10px;color:#fff;background:var(--mc,var(--ink));min-width:84px;text-align:center}
+:root[data-theme="dark"] .mbadge{color:#0f1716}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mbadge{color:#0f1716}}
+.verdict h2{margin:0;font-family:var(--f-display);font-size:22px;line-height:1.15;text-wrap:balance}
+.verdict .eq{font-family:var(--f-mono);font-size:13px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
+.box{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar{display:grid;grid-template-columns:38px minmax(0,1fr) 56px;gap:8px;align-items:center;font-size:13px}
+.bar b{font-family:var(--f-mono)}
+.track{height:12px;border-radius:6px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
+.fill{height:100%;border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.bar span{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.factors{display:flex;flex-direction:column;gap:0;margin:0;padding:0;list-style:none}
+.factors li{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:13.5px}
+.factors li:first-child{border-top:0}
+.factors .k{font-weight:700}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;color:#fff;margin-left:4px;vertical-align:1px}
+:root[data-theme="dark"] .pill{color:#0f1716}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill{color:#0f1716}}
+.products{display:flex;flex-direction:column;gap:8px}
+.prod{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:start;padding:10px;border-radius:9px;background:var(--paper);border:1px solid var(--line)}
+.prod .role{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:6px;border:1px solid var(--ink);margin-top:2px}
+.prod.mino .role{border-color:var(--line);color:var(--muted)}
+.prod .fx{font-family:var(--f-mono);font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.prod .nm{font-size:13.5px}
+.prod .st{grid-column:2;font-size:12.5px;color:var(--muted)}
+.notes{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.nothing{display:flex;flex-direction:column;gap:6px}
+.nothing h2{margin:0;font-family:var(--f-display);font-size:22px}
+.nothing p{margin:0;max-width:65ch}
+
+/* Mécanisme */
+.mech{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.mech-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.stage{background:var(--paper);overflow-x:auto}
+.stage svg{display:block;width:100%;min-width:520px;height:auto}
+.mech-foot{display:flex;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.caption{flex:1 1 260px;min-width:0;font-size:14.5px}
+.caption b{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-right:6px}
+.dots{display:flex;gap:5px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--ink)}
+svg .atom{font-family:var(--f-mono);font-weight:600;font-size:17px;fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:7px;stroke-linejoin:round}
+svg .atom.x{fill:var(--x)} svg .atom.nu{fill:var(--nu)} svg .atom.h{fill:var(--h)} svg .atom.g{font-weight:400;font-size:15px}
+svg .chg{font-family:var(--f-mono);font-weight:700;font-size:15px;fill:var(--arrow)}
+svg .bond{stroke:var(--ink);stroke-width:2.2;stroke-linecap:round;fill:none}
+svg .wedge{fill:var(--ink)}
+svg .arw{stroke:var(--arrow);stroke-width:2.2;fill:none}
+svg .arwg{animation:arwIn .5s ease-out both}
+svg .arwg path{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .55s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes arwIn{from{opacity:0}to{opacity:1}}
+svg .extra{font-family:var(--f-display);font-weight:600;fill:var(--muted)}
+svg .ah{fill:var(--arrow)}
+
+/* Défis & carnet */
+.side2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media (max-width:760px){.side2{grid-template-columns:minmax(0,1fr)}}
+.list{padding:14px;display:flex;flex-direction:column;gap:8px}
+.list h3{margin:0;font-family:var(--f-display);font-size:18px}
+.dlist{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.dlist li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:start;font-size:13.5px;padding:6px 8px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+.dlist li:hover{border-color:var(--line)}
+.dlist li.cur{border-color:var(--ink)}
+.dlist .ck{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;margin-top:2px}
+.dlist .ck.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.log{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none;max-height:300px;overflow:auto}
+.log li{font-size:13px;padding:6px 8px;border-left:3px solid var(--mc,var(--line));background:var(--paper);border-radius:0 6px 6px 0}
+.log li .fx{font-family:var(--f-mono);font-size:12.5px}
+.log .empty{color:var(--muted);border:0;background:transparent;padding:0}
+.toast{position:fixed;left:50%;bottom:max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px));transform:translate(-50%,20px);opacity:0;background:var(--ok);color:#fff;font-weight:700;padding:10px 18px;border-radius:10px;transition:.35s;z-index:60;max-width:calc(100% - 32px);text-align:center}
+:root[data-theme="dark"] .toast{color:#0f1716}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .toast{color:#0f1716}}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@keyframes swirl{0%{transform:rotate(0)}50%{transform:rotate(4deg)}100%{transform:rotate(0)}}
+.swirl{animation:swirl .5s ease-in-out 2;transform-origin:115px 200px}
+@keyframes bub{0%{transform:translateY(0);opacity:.9}100%{transform:translateY(-60px);opacity:0}}
+.bubble{animation:bub 1.4s ease-in infinite}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Paillasse <span>Orga</span></h1>
+      <p>UE 3.2 · DFGSP2 · simulateur de mécanismes</p>
+    </div>
+    <div class="modes" role="group" aria-label="Mode de jeu">
+      <button id="mLabo" aria-pressed="true">Labo libre</button>
+      <button id="mDefis" aria-pressed="false">Défis <span id="defiCount"></span></button>
+    </div>
+  </header>
+
+  <div class="app">
+    <aside class="panel shelf" aria-label="Étagère">
+      <div class="label">Étagère · glisse vers le ballon ou touche pour ajouter</div>
+      <div class="tabs" role="group">
+        <button data-tab="sub" aria-pressed="true">Substrats</button>
+        <button data-tab="rea" aria-pressed="false">Réactifs</button>
+        <button data-tab="sol" aria-pressed="false">Solvants</button>
+      </div>
+      <div class="shelf-list" id="shelf"></div>
+    </aside>
+
+    <main class="main">
+      <section class="panel goal" id="goal" hidden></section>
+
+      <section class="panel bench" aria-label="Paillasse">
+        <div class="flask-zone" id="flaskZone">
+          <svg viewBox="0 0 230 270" id="flask" aria-hidden="true"></svg>
+          <div class="drop-hint">dépose ici</div>
+        </div>
+        <div class="slots">
+          <div class="slot" data-slot="sub"><span class="label">Substrat</span><div class="sv"></div><button class="x" title="Retirer" aria-label="Retirer le substrat">×</button></div>
+          <div class="slot" data-slot="rea"><span class="label">Réactif</span><div class="sv"></div><button class="x" title="Retirer" aria-label="Retirer le réactif">×</button></div>
+          <div class="slot" data-slot="sol"><span class="label">Solvant</span><div class="sv"></div><button class="x" title="Retirer" aria-label="Retirer le solvant">×</button></div>
+          <div class="temps" role="group" aria-label="Température">
+            <button data-t="froid">❄ Bain de glace<small>0 °C · à froid</small></button>
+            <button data-t="amb">Ambiante<small>25 °C</small></button>
+            <button data-t="chaud">Chauffage<small>reflux · Δ</small></button>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="run">Lancer la réaction</button>
+            <button class="btn" id="clear">Vider</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel result" id="result" aria-live="polite"></section>
+
+      <div class="side2">
+        <section class="panel list">
+          <h3>Défis</h3>
+          <ul class="dlist" id="dlist"></ul>
+        </section>
+        <section class="panel list">
+          <h3>Carnet de labo</h3>
+          <ul class="log" id="log"></ul>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= DONNÉES (tirées du poly UE 3.2) ================= */
+const SUBSTRATES = [
+  {id:'mebr', fam:'halo', n:'bromométhane', f:'CH₃–Br', X:'Br', cls:'méthyle', cplus:'instable', enc:0, betaH:false, chiral:false, g:['H','H','H'],
+   sub:{OH:['CH₃–OH','méthanol'], CN:['CH₃–C≡N','éthanenitrile'], OtBu:['CH₃–O–C(CH₃)₃','2-méthoxy-2-méthylpropane']}},
+  {id:'bub', fam:'halo', n:'1-bromobutane', f:'CH₃(CH₂)₃–Br', X:'Br', cls:'primaire', cplus:'instable', enc:1, betaH:true, chiral:false, g:['H','H','C₃H₇'],
+   sub:{OH:['CH₃(CH₂)₃–OH','butan-1-ol'], CN:['CH₃(CH₂)₃–C≡N','pentanenitrile'], OtBu:['CH₃(CH₂)₃–O–C(CH₃)₃','1-tert-butoxybutane']},
+   elim:{alpha:['H','H'], beta:['C₂H₅','H'], prods:[{f:'CH₂=CH–CH₂–CH₃', n:'but-1-ène', r:'unique', st:'Un seul H en β possible côté chaîne : pas de régio à discuter'}]}},
+  {id:'2bub', fam:'halo', n:'(R)-2-bromobutane', f:'CH₃–CHBr–CH₂–CH₃', X:'Br', cls:'secondaire', cplus:'moyen', enc:2, betaH:true, chiral:true, g:['H','CH₃','C₂H₅'],
+   sub:{OH:['CH₃–CH(OH)–CH₂–CH₃','butan-2-ol'], CN:['CH₃–CH(CN)–CH₂–CH₃','2-méthylbutanenitrile'], OtBu:['CH₃–CH(OtBu)–CH₂–CH₃','2-tert-butoxybutane']},
+   elim:{alpha:['CH₃','H'], beta:['CH₃','H'], prods:[{f:'CH₃–CH=CH–CH₃', n:'but-2-ène (E majo + Z)', r:'majo', st:'Zaïtsev : alcène le plus substitué'},{f:'CH₂=CH–CH₂–CH₃', n:'but-1-ène', r:'mino', st:'Alcène le moins substitué'}]}},
+  {id:'tbubr', fam:'halo', n:'2-bromo-2-méthylpropane', f:'(CH₃)₃C–Br', X:'Br', cls:'tertiaire', cplus:'stable', enc:3, betaH:true, chiral:false, g:['CH₃','CH₃','CH₃'],
+   sub:{OH:['(CH₃)₃C–OH','2-méthylpropan-2-ol'], CN:['(CH₃)₃C–C≡N','2,2-diméthylpropanenitrile'], OtBu:['(CH₃)₃C–O–C(CH₃)₃','2-tert-butoxy-2-méthylpropane']},
+   elim:{alpha:['CH₃','CH₃'], beta:['H','H'], prods:[{f:'CH₂=C(CH₃)₂', n:'2-méthylpropène', r:'unique', st:'Les 9 H en β sont équivalents'}]}},
+  {id:'tamcl', fam:'halo', n:'2-chloro-2-méthylbutane', f:'(CH₃)₂CCl–CH₂–CH₃', X:'Cl', cls:'tertiaire', cplus:'stable', enc:3, betaH:true, chiral:false, g:['CH₃','CH₃','C₂H₅'],
+   sub:{OH:['(CH₃)₂C(OH)–CH₂–CH₃','2-méthylbutan-2-ol'], CN:['(CH₃)₂C(CN)–CH₂–CH₃','2,2-diméthylbutanenitrile'], OtBu:['(CH₃)₂C(OtBu)–CH₂–CH₃','2-tert-butoxy-2-méthylbutane']},
+   elim:{alpha:['CH₃','CH₃'], beta:['CH₃','H'], prods:[{f:'(CH₃)₂C=CH–CH₃', n:'2-méthylbut-2-ène', r:'majo', st:'Zaïtsev : trisubstitué, le plus stable'},{f:'CH₂=C(CH₃)–CH₂–CH₃', n:'2-méthylbut-1-ène', r:'mino', st:'Disubstitué, moins stable'}]}},
+  {id:'pheb', fam:'halo', n:'(R)-(1-bromoéthyl)benzène', f:'C₆H₅–CHBr–CH₃', X:'Br', cls:'secondaire benzylique', cplus:'stable', enc:2, betaH:true, chiral:true, g:['H','CH₃','C₆H₅'],
+   sub:{OH:['C₆H₅–CH(OH)–CH₃','1-phényléthan-1-ol'], CN:['C₆H₅–CH(CN)–CH₃','2-phénylpropanenitrile'], OtBu:['C₆H₅–CH(OtBu)–CH₃','(1-tert-butoxyéthyl)benzène']},
+   elim:{alpha:['C₆H₅','H'], beta:['H','H'], prods:[{f:'C₆H₅–CH=CH₂', n:'éthénylbenzène (styrène)', r:'unique', st:'Double liaison conjuguée au cycle'}]}},
+
+  {id:'propene', fam:'ene', n:'propène', f:'CH₂=CH–CH₃', c1:['H','H'], c2:['CH₃','H'], tag:'monosubstitué'},
+  {id:'ibutene', fam:'ene', n:'2-méthylpropène', f:'CH₂=C(CH₃)₂', c1:['H','H'], c2:['CH₃','CH₃'], tag:'disubstitué'},
+  {id:'zbut', fam:'ene', n:'(Z)-but-2-ène', f:'CH₃–CH=CH–CH₃ (Z)', c1:['CH₃','H'], c2:['CH₃','H'], tag:'cis'},
+  {id:'ebut', fam:'ene', n:'(E)-but-2-ène', f:'CH₃–CH=CH–CH₃ (E)', c1:['CH₃','H'], c2:['H','CH₃'], tag:'trans'},
+
+  {id:'buol', fam:'alc', n:'butan-1-ol', f:'CH₃(CH₂)₃–OH', cls:'primaire', tag:'1aire'},
+  {id:'2buol', fam:'alc', n:'butan-2-ol', f:'CH₃–CH(OH)–CH₂–CH₃', cls:'secondaire', tag:'2aire'},
+  {id:'tbuol', fam:'alc', n:'2-méthylpropan-2-ol', f:'(CH₃)₃C–OH', cls:'tertiaire', tag:'3aire'},
+];
+const HALO_TAG = {méthyle:'CH₃–X', primaire:'1aire', secondaire:'2aire', tertiaire:'3aire', 'secondaire benzylique':'2aire stab.'};
+
+const REAGENTS = [
+  {id:'naohd', grp:'Nucléophiles & bases', f:'NaOH dilué', n:'Na⁺ HO⁻, dilué', kind:'nuc', nu:'OH', lab:'HO', tag:'Nu chargé'},
+  {id:'nacn', grp:'Nucléophiles & bases', f:'NaCN', n:'cyanure de sodium', kind:'nuc', nu:'CN', lab:'NC', tag:'Nu chargé'},
+  {id:'h2o', grp:'Nucléophiles & bases', f:'H₂O', n:'eau (Nu neutre)', kind:'weak', nu:'OH', lab:'H₂O', tag:'Nu faible'},
+  {id:'naohc', grp:'Nucléophiles & bases', f:'NaOH conc.', n:'soude concentrée', kind:'base', nu:'OH', lab:'HO', tag:'base forte'},
+  {id:'kohc', grp:'Nucléophiles & bases', f:'KOH conc.', n:'potasse concentrée', kind:'base', nu:'OH', lab:'HO', tag:'base forte'},
+  {id:'tbuok', grp:'Nucléophiles & bases', f:'tBuOK', n:'tert-butanolate de potassium', kind:'bulky', nu:'OtBu', lab:'tBuO', tag:'base encombrée'},
+  {id:'hbr', grp:'Électrophiles & acides', f:'HBr', n:'bromure d’hydrogène', kind:'hbr', tag:'H⁺ / Br⁻'},
+  {id:'hbrp', grp:'Électrophiles & acides', f:'HBr + (PhCOO)₂', n:'HBr + peroxyde de benzoyle', kind:'hbrp', tag:'radicalaire'},
+  {id:'br2', grp:'Électrophiles & acides', f:'Br₂', n:'dibrome', kind:'br2', tag:'X₂'},
+  {id:'h3o', grp:'Électrophiles & acides', f:'H₂O / H₂SO₄ cat.', n:'hydratation acide', kind:'h3o', tag:'H⁺ cat.'},
+  {id:'h2so4', grp:'Électrophiles & acides', f:'H₂SO₄ conc.', n:'acide sulfurique concentré', kind:'h2so4', tag:'acide fort'},
+  {id:'b2h6', grp:'Électrophiles & acides', f:'1) B₂H₆  2) H₂O₂/NaOH', n:'hydroboration-oxydation', kind:'b2h6', tag:'bore'},
+  {id:'kmnod', grp:'Oxydants', f:'KMnO₄ dilué', n:'permanganate dilué', kind:'kmnod', tag:'ox. douce'},
+  {id:'kmnoc', grp:'Oxydants', f:'KMnO₄ conc.', n:'permanganate concentré', kind:'kmnoc', tag:'ox. forte'},
+  {id:'o3', grp:'Oxydants', f:'1) O₃  2) Zn/H⁺', n:'ozonolyse avec réducteur', kind:'o3', tag:'coupure'},
+  {id:'k2cr', grp:'Oxydants', f:'K₂Cr₂O₇ / H⁺', n:'dichromate (oxydation forte)', kind:'k2cr', tag:'ox. forte'},
+  {id:'cu', grp:'Oxydants', f:'Cu, 300 °C', n:'déshydrogénation (ox. ménagée)', kind:'cu', tag:'ox. ménagée'},
+];
+const SOLVENTS = [
+  {id:'eau', grp:'Polaires protiques', f:'H₂O', n:'eau', type:'protique', col:'#9fc4e8'},
+  {id:'etoh', grp:'Polaires protiques', f:'EtOH', n:'éthanol', type:'protique', col:'#b9d6c4'},
+  {id:'acoh', grp:'Polaires protiques', f:'CH₃COOH', n:'acide acétique', type:'protique', col:'#e2d7a6'},
+  {id:'acet', grp:'Polaires aprotiques', f:'(CH₃)₂C=O', n:'acétone', type:'aprotique', col:'#d6c2e6'},
+  {id:'dmso', grp:'Polaires aprotiques', f:'DMSO', n:'diméthylsulfoxyde', type:'aprotique', col:'#c8cfe8'},
+  {id:'dmf', grp:'Polaires aprotiques', f:'DMF', n:'diméthylformamide', type:'aprotique', col:'#e6cfc2'},
+  {id:'ccl4', grp:'Apolaire', f:'CCl₄', n:'tétrachlorométhane', type:'apolaire', col:'#d9dcd7'},
+];
+const MECH = {
+  SN1:{c:'var(--sn1)', n:'Substitution nucléophile monomoléculaire', rate:'v = k[RX] · 2 étapes · intermédiaire C⁺'},
+  SN2:{c:'var(--sn2)', n:'Substitution nucléophile bimoléculaire', rate:'v = k[RX][Nu] · 1 étape concertée'},
+  E1:{c:'var(--e1)', n:'Élimination monomoléculaire', rate:'v = k[RX] · 2 étapes · intermédiaire C⁺'},
+  E2:{c:'var(--e2)', n:'Élimination bimoléculaire', rate:'v = k[RX][B] · 1 étape · H et X anti-périplanaires'},
+  AE:{c:'var(--ae)', n:'Addition électrophile (Markovnikov)', rate:'passage par le carbocation le plus stable'},
+  AR:{c:'var(--ae)', n:'Addition radicalaire · effet Kharasch', rate:'anti-Markovnikov · radical le plus stable'},
+  AX2:{c:'var(--ae)', n:'Dihalogénation · trans-addition', rate:'ion halogénium ponté · attaque anti'},
+  HB:{c:'var(--ae)', n:'Hydroboration-oxydation · cis-addition', rate:'concerté · bore sur le C le moins encombré'},
+  OX:{c:'var(--ox)', n:'Oxydation', rate:''},
+};
+const byId = (arr,id)=>arr.find(o=>o.id===id);
+
+/* ================= ÉTAT ================= */
+const S = {sub:'2bub', rea:'naohd', sol:'dmso', T:'froid', tab:'sub', mode:'labo', defi:0, done:{}, log:[]};
+try{ const p=JSON.parse(localStorage.getItem('paillasse-v1')||'{}'); if(p.done) S.done=p.done; if(Array.isArray(p.log)) S.log=p.log.slice(0,30);}catch(e){}
+function save(){ try{ localStorage.setItem('paillasse-v1', JSON.stringify({done:S.done, log:S.log})); }catch(e){} }
+
+/* ================= MOTEUR : dérivés halogénés ================= */
+const NEG = -99;
+function scoreHalo(s, r, sol, T){
+  const sc = {SN1:0, SN2:0, E1:0, E2:0}; const F = [];
+  // Substrat
+  if(s.cplus==='stable'){ sc.SN1+=3; sc.E1+=3; }
+  if(s.cplus==='instable'){ sc.SN1=NEG; sc.E1=NEG; }
+  if(s.enc===0) sc.SN2+=3; else if(s.enc===1){ sc.SN2+=2; sc.E2+=1; } else if(s.enc===2){ sc.E2+=.5; } else { sc.SN2=NEG; }
+  if(!s.betaH){ sc.E1=NEG; sc.E2=NEG; }
+  let sTxt = `${s.cls[0].toUpperCase()+s.cls.slice(1)} : carbocation ${s.cplus==='stable'?(s.cls.includes('benzyl')?'stabilisé par mésomérie':'tertiaire, stable'):s.cplus==='moyen'?'secondaire, moyennement stable':'trop instable'}.`;
+  let sFav = s.cplus==='stable' ? ['SN1','E1'] : s.cplus==='instable' ? ['SN2','E2'] : [];
+  if(s.enc===3) sTxt += ' C trop encombré : SN2 impossible.';
+  if(s.cplus==='moyen') sTxt += ' Cas ambigu : c’est le solvant qui tranche.';
+  if(!s.betaH) sTxt += ' Aucun H en β : élimination impossible.';
+  F.push({k:'Substrat', t:sTxt, fav:sFav});
+  // Réactif
+  const k = r.kind;
+  if(k==='nuc'){ sc.SN2+=2; sc.E2-=.5; sc.E1-=1; F.push({k:'Réactif', t:`${r.f} : nucléophile chargé, peu encombré, dilué.`, fav:['SN2']}); }
+  if(k==='base'){ sc.E2+=2.5; sc.E1+=1.5; sc.SN2+=.5; sc.SN1-=1; F.push({k:'Réactif', t:`${r.f} : base forte et concentrée.`, fav:['E1','E2']}); }
+  if(k==='bulky'){ sc.E2+=3.5; sc.E1+=1; sc.SN2-=3; sc.SN1-=2; F.push({k:'Réactif', t:'tBuO⁻ : base forte, encombrée donc peu nucléophile.', fav:['E2']}); }
+  if(k==='weak'){ sc.SN1+=1; sc.E1+=.5; sc.SN2-=2; sc.E2-=3; F.push({k:'Réactif', t:'H₂O : nucléophile neutre et faible. Il attend qu’un C⁺ se forme.', fav:['SN1']}); }
+  // Solvant
+  if(!sol){ F.push({k:'Solvant', t:'Pas de solvant choisi.', fav:[]}); }
+  else if(sol.type==='protique'){ sc.SN1+=2; sc.E1+=2; sc.SN2-=1; sc.E2-=1; F.push({k:'Solvant', t:`${sol.n} : polaire protique, stabilise le C⁺ et se lie à X⁻ par liaisons H.`, fav:['SN1','E1']}); }
+  else if(sol.type==='aprotique'){ sc.SN2+=2; sc.E2+=2; sc.SN1-=2; sc.E1-=2; F.push({k:'Solvant', t:`${sol.n} : polaire aprotique, ne solvate pas le Nu, qui reste réactif.`, fav:['SN2','E2']}); }
+  else { sc.SN1-=3; sc.E1-=3; sc.SN2-=1; sc.E2-=1; F.push({k:'Solvant', t:`${sol.n} : apolaire, les ions sont mal stabilisés. Tout est lent.`, fav:[]}); }
+  // Température
+  if(T==='froid'){ sc.SN1+=1; sc.SN2+=1; sc.E1-=1.5; sc.E2-=1.5; F.push({k:'Température', t:'À froid : les substitutions l’emportent.', fav:['SN1','SN2']}); }
+  else if(T==='chaud'){ sc.E1+=2; sc.E2+=2; sc.SN1-=1; sc.SN2-=1; F.push({k:'Température', t:'À chaud : les éliminations l’emportent.', fav:['E1','E2']}); }
+  else F.push({k:'Température', t:'Ambiante : ne tranche pas.', fav:[]});
+  // Nucléofuge
+  F.push({k:'Nucléofuge', t: s.X==='Cl' ? 'Cl⁻ : moins bon groupe partant (I > Br > Cl ≫ F), réaction plus lente.' : 'Br⁻ : bon groupe partant (I > Br > Cl ≫ F).', fav:[]});
+  if(s.X==='Cl'){ for(const m in sc) if(sc[m]>NEG) sc[m]-=.5; }
+  return {sc, F};
+}
+function probs(sc){
+  const e = {}; let tot=0;
+  for(const m in sc){ e[m] = sc[m]<=NEG/2 ? 0 : Math.exp(sc[m]/1.3); tot+=e[m]; }
+  for(const m in e) e[m] = tot ? e[m]/tot : 0;
+  return e;
+}
+function subProduct(s, r, mech, role){
+  const nu = r.nu; const [f,n] = s.sub[nu];
+  let name=n, st='';
+  if(s.chiral){
+    if(mech==='SN2'){ name = '(S)-'+n; st='Inversion de Walden : le (R) donne le (S), produit optiquement actif'; }
+    else { name = n+' racémique'; st='Carbocation plan attaqué des deux faces : 50 % R + 50 % S, optiquement inactif'; }
+  } else st = 'Pas de carbone asymétrique : rien à suivre côté stéréo';
+  if(r.kind==='weak') st += ' · H₂O s’est fixé puis a perdu un H⁺';
+  return {f, n:name, r:role, st};
+}
+function runHalo(s, r, sol, T){
+  if(!['nuc','base','bulky','weak'].includes(r.kind))
+    return nothing(`${s.n} + ${r.f} : rien ne se passe`, `Un dérivé halogéné a un carbone δ+ (électrophile). Il réagit avec un nucléophile ou une base. ${r.f} est ${r.kind==='hbr'||r.kind==='br2'||r.kind==='h3o'||r.kind==='h2so4'||r.kind==='hbrp'?'un électrophile / un acide':'un oxydant'} : il n’a rien à attaquer ici.`, 'Essaie NaOH, NaCN, H₂O, KOH ou tBuOK.');
+  if(!sol) return nothing('Il manque un solvant', 'Pour un dérivé halogéné, le solvant est souvent ce qui fait basculer entre SN1/E1 (protique) et SN2/E2 (aprotique). Ajoute-en un.', 'Onglet Solvants de l’étagère.');
+  const {sc, F} = scoreHalo(s, r, sol, T);
+  const p = probs(sc);
+  const order = Object.keys(p).sort((a,b)=>p[b]-p[a]);
+  const win = order[0];
+  const res = {kind:'halo', mech:win, scores:p, factors:F, products:[], notes:[], sub:s, rea:r, sol, T};
+  if(p[win]===0) return nothing('Aucun mécanisme possible', 'Toutes les voies sont bloquées avec ces conditions.', '');
+  const slow = sc[win] < .8;
+  if(win.startsWith('SN')) res.products.push(subProduct(s, r, win, 'majo'));
+  else res.products = s.elim.prods.map(x=>({...x, st: x.st + (win==='E1' && s.id==='2bub' && x.r==='majo' ? ' · E1 : mélange Z/E, E majoritaire (plus stable)' : '') + (win==='E2' && s.id==='2bub' && x.r==='majo' ? ' · E2 stéréospécifique : chaque conformation anti donne un seul isomère, le E est majoritaire' : '')}));
+  // produit minoritaire de la voie concurrente
+  const second = order.find(m => (m.startsWith('SN') !== win.startsWith('SN')) && p[m] >= .16);
+  if(second){
+    if(second.startsWith('SN')) res.products.push({...subProduct(s, r, second, 'mino'), st:`Voie ${second} concurrente (${Math.round(p[second]*100)} %)`});
+    else { const e=s.elim.prods[0]; res.products.push({f:e.f, n:e.n, r:'mino', st:`Voie ${second} concurrente (${Math.round(p[second]*100)} %)`}); }
+  }
+  if(slow) res.notes.push('Score faible : dans ces conditions la réaction est très lente. Change un paramètre pour l’accélérer.');
+  if(win==='SN1' && sol.type==='aprotique') res.notes.push('Le substrat impose la SN1, mais un solvant aprotique ne stabilise pas le C⁺ : c’est lent.');
+  if(win==='E2') res.notes.push('Condition indispensable : H et X coplanaires et en anti (trans-élimination).');
+  if(win==='E1'||win==='E2') res.notes.push('Régiosélectivité de Zaïtsev : l’alcène le plus substitué est majoritaire.');
+  if(win==='SN1'||win==='E1') res.notes.push('Étape lente = départ de X⁻ (cinétiquement déterminante).');
+  res.frames = framesHalo(s, r, win);
+  return res;
+}
+
+/* ================= MOTEUR : alcènes ================= */
+function runEne(s, r, sol, T){
+  const id=s.id; const k=r.kind;
+  const R = (mech, products, notes, frames)=>({kind:'ene', mech, products, notes, frames, sub:s, rea:r, sol, T});
+  const mk = (f,n,role,st)=>({f,n,r:role,st});
+  if(['nuc','base','bulky','weak','k2cr','cu'].includes(k))
+    return nothing(`${s.n} + ${r.f} : rien ne se passe`, 'La double liaison C=C est riche en électrons : c’est un site nucléophile. Elle réagit avec des électrophiles (H⁺, Br₂, BH₃) ou des oxydants, pas avec un nucléophile ou une base.', 'Essaie HBr, Br₂, H₂O/H₂SO₄ ou B₂H₆.');
+  if(k==='h2so4') return nothing('Choisis plutôt l’hydratation', 'H₂SO₄ concentré seul sert à déshydrater les alcools. Pour ajouter de l’eau sur l’alcène, prends H₂O / H₂SO₄ catalytique.', '');
+  const P = {
+    propene:{hbr:[mk('CH₃–CHBr–CH₃','2-bromopropane','majo','Markovnikov : passage par le C⁺ secondaire'),mk('CH₃–CH₂–CH₂Br','1-bromopropane','mino','C⁺ primaire, très instable')],
+      hbrp:[mk('CH₃–CH₂–CH₂Br','1-bromopropane','majo','Anti-Markovnikov : Br se fixe d’abord, le radical secondaire est le plus stable')],
+      h3o:[mk('CH₃–CH(OH)–CH₃','propan-2-ol','majo','Markovnikov : alcool le plus substitué'),mk('CH₃–CH₂–CH₂OH','propan-1-ol','mino','')],
+      b2h6:[mk('CH₃–CH₂–CH₂OH','propan-1-ol','majo','Anti-Markovnikov : alcool le moins substitué (gêne stérique du bore)')],
+      br2:[mk('CH₃–CHBr–CH₂Br','1,2-dibromopropane racémique','unique','Trans-addition ; C2 asymétrique attaqué des deux côtés du pont')],
+      kmnod:[mk('CH₃–CH(OH)–CH₂OH','propane-1,2-diol racémique','unique','Cis-addition : les deux OH du même côté')],
+      kmnoc:[mk('CH₃–COOH','acide acétique','majo','L’aldéhyde formé s’oxyde en acide'),mk('CO₂ + H₂O','dioxyde de carbone','majo','Le CH₂ terminal donne HCHO → HCOOH → CO₂')],
+      o3:[mk('CH₃–CHO','éthanal','majo','Zn/H⁺ neutralise H₂O₂ : les aldéhydes sont conservés'),mk('HCHO','méthanal','majo','')]},
+    ibutene:{hbr:[mk('(CH₃)₃C–Br','2-bromo-2-méthylpropane','majo','Markovnikov : passage par le C⁺ tertiaire'),mk('(CH₃)₂CH–CH₂Br','1-bromo-2-méthylpropane','mino','')],
+      hbrp:[mk('(CH₃)₂CH–CH₂Br','1-bromo-2-méthylpropane','majo','Anti-Markovnikov : radical tertiaire intermédiaire')],
+      h3o:[mk('(CH₃)₃C–OH','2-méthylpropan-2-ol','majo','Markovnikov : C⁺ tertiaire')],
+      b2h6:[mk('(CH₃)₂CH–CH₂OH','2-méthylpropan-1-ol','majo','Anti-Markovnikov : B sur le CH₂, le moins encombré')],
+      br2:[mk('(CH₃)₂CBr–CH₂Br','1,2-dibromo-2-méthylpropane','unique','Trans-addition (pas de C* ici)')],
+      kmnod:[mk('(CH₃)₂C(OH)–CH₂OH','2-méthylpropane-1,2-diol','unique','Cis-addition (pas de C* ici)')],
+      kmnoc:[mk('(CH₃)₂C=O','propanone','majo','Le côté disubstitué donne une cétone, qui ne s’oxyde plus'),mk('CO₂ + H₂O','dioxyde de carbone','majo','Le CH₂ part en CO₂')],
+      o3:[mk('(CH₃)₂C=O','propanone','majo',''),mk('HCHO','méthanal','majo','Conservé grâce au Zn')]},
+  };
+  const but = (Z)=>({hbr:[mk('CH₃–CHBr–CH₂–CH₃','2-bromobutane racémique','unique','Alcène symétrique : pas de régio. C⁺ plan → 50 % R + 50 % S')],
+      hbrp:[mk('CH₃–CHBr–CH₂–CH₃','2-bromobutane racémique','unique','Alcène symétrique : même produit qu’en ionique')],
+      h3o:[mk('CH₃–CH(OH)–CH₂–CH₃','butan-2-ol racémique','unique','C⁺ plan attaqué des deux faces')],
+      b2h6:[mk('CH₃–CH(OH)–CH₂–CH₃','butan-2-ol racémique','unique','Cis-addition, mais un seul C* créé : les deux faces de l’alcène donnent R et S')],
+      br2: Z ? [mk('CH₃–CHBr–CHBr–CH₃','(2R,3R) + (2S,3S)-2,3-dibromobutane','unique','Alcène Z + trans-addition → couple d’énantiomères (racémique)')]
+             : [mk('CH₃–CHBr–CHBr–CH₃','(2R,3S)-2,3-dibromobutane méso','unique','Alcène E + trans-addition → composé méso, achiral')],
+      kmnod: Z ? [mk('CH₃–CH(OH)–CH(OH)–CH₃','(2R,3S)-butane-2,3-diol méso','unique','Alcène Z + cis-addition → méso')]
+               : [mk('CH₃–CH(OH)–CH(OH)–CH₃','(2R,3R) + (2S,3S)-butane-2,3-diol','unique','Alcène E + cis-addition → racémique (thréo)')],
+      kmnoc:[mk('2 CH₃–COOH','acide acétique (×2)','unique','Coupure + oxydation complète des aldéhydes')],
+      o3:[mk('2 CH₃–CHO','éthanal (×2)','unique','Coupure, aldéhydes protégés par Zn/H⁺')]});
+  P.zbut = but(true); P.ebut = but(false);
+  let key = k;
+  const notes=[];
+  if(k==='kmnod' && T==='chaud'){ key='kmnoc'; notes.push('Attention : KMnO₄ à chaud coupe la double liaison. L’hydroxylation se fait dilué ET à froid.'); }
+  if(k==='kmnoc' && T==='froid') notes.push('Le poly fait la coupure à chaud (Δ). On l’accepte ici, mais en vrai, chauffe.');
+  const prods = P[id][key];
+  const mech = {hbr:'AE', h3o:'AE', hbrp:'AR', br2:'AX2', b2h6:'HB', kmnod:'OX', kmnoc:'OX', o3:'OX'}[key];
+  if(key==='hbr') notes.push('Règle de Markovnikov : H⁺ se fixe pour former le carbocation le plus stable. Non stéréospécifique.');
+  if(key==='hbrp') notes.push('En présence de peroxyde : initiation, propagation, arrêt. Régiosélective mais anti-Markovnikov.');
+  if(key==='h3o') notes.push('H₂SO₄ est catalyseur : il protone la C=C, puis H₂O attaque, puis perte de H⁺.');
+  if(key==='b2h6') notes.push('Hydratation par hydroboration = alcool le moins substitué ; hydratation acide = alcool le plus substitué.');
+  if(key==='br2') notes.push('Le Br⁺ ponte les deux carbones (charge répartie, pas de vrai C⁺). Br⁻ attaque par le côté opposé.');
+  if(key==='kmnod') notes.push('KMnO₄ dilué et à froid : α-diol par cis-addition, stéréospécifique.');
+  if(key==='kmnoc') notes.push('Oxydation forte : coupure de C=C. Un aldéhyde formé s’oxyde toujours en acide ; un =CH₂ part en CO₂.');
+  if(key==='o3') notes.push('Molozonide → ozonide → hydrolyse. Sans Zn, H₂O₂ oxyderait les aldéhydes en acides.');
+  if(sol && sol.type==='protique' && key==='br2') notes.push('Dans un solvant nucléophile (eau), le solvant pourrait concurrencer Br⁻. On travaille plutôt dans CCl₄.');
+  const MECHK = {kmnod:'Hydroxylation · cis-addition', kmnoc:'Coupure oxydante (oxydation forte)', o3:'Ozonolyse réductrice'};
+  const res = R(mech, prods, notes, framesEne(s, key));
+  if(MECHK[key]) res.title = MECHK[key];
+  return res;
+}
+
+/* ================= MOTEUR : alcools ================= */
+function runAlc(s, r, sol, T){
+  const k=r.kind; const mk=(f,n,role,st)=>({f,n,r:role,st});
+  const R=(mech, products, notes, frames, title)=>({kind:'alc', mech, products, notes, frames, title, sub:s, rea:r, sol, T});
+  if(['nuc','base','weak'].includes(k)) return nothing(`${s.n} + ${r.f} : pas de substitution`, 'OH⁻ est un très mauvais groupe partant : on ne peut pas le remplacer directement. Il faut d’abord le protoner (H⁺) pour en faire OH₂⁺, qui part sous forme d’eau.', 'Essaie HBr ou H₂SO₄ conc. à chaud.');
+  if(k==='bulky') return nothing('Simple réaction acide-base', 'Une base forte arrache le H de O–H : on forme un alcoolate. Pratique pour une synthèse de Williamson ensuite, mais pas de nouveau squelette ici.', '');
+  if(['br2','b2h6','kmnod','o3','hbrp','h3o'].includes(k)) return nothing(`${r.f} n’a rien à faire ici`, 'Ces réactifs attaquent une double liaison C=C. Un alcool n’en a pas.', 'Déshydrate d’abord l’alcool (H₂SO₄ conc., Δ), puis travaille sur l’alcène.');
+  const c = s.cls;
+  if(k==='h2so4'){
+    if(T!=='chaud') return nothing('Il faut chauffer', 'La déshydratation des alcools par H₂SO₄ se fait à chaud. À froid, il ne se passe rien d’utile ici.', 'Passe la température sur Chauffage.');
+    if(c==='primaire') return R('E2',[mk('CH₂=CH–CH₂–CH₃','but-1-ène','unique','Seul alcène possible')],['OH est protoné en OH₂⁺ (bon groupe partant), puis HSO₄⁻ arrache un H en α dans la même étape.','H₂SO₄ est régénéré : c’est un catalyseur.'], framesHaloLike(c,'E2'), 'Déshydratation · élimination');
+    if(c==='secondaire') return R('E1',[mk('CH₃–CH=CH–CH₃','but-2-ène (E majo + Z)','majo','Zaïtsev'),mk('CH₂=CH–CH₂–CH₃','but-1-ène','mino','')],['Protonation de OH, départ de H₂O, C⁺ secondaire, puis perte de H⁺.','Régiosélective selon Zaïtsev.'], framesHaloLike(c,'E1'), 'Déshydratation · élimination');
+    return R('E1',[mk('CH₂=C(CH₃)₂','2-méthylpropène','unique','')],['C⁺ tertiaire très stable : E1 rapide.','Les alcools tertiaires se déshydratent le plus facilement.'], framesHaloLike(c,'E1'), 'Déshydratation · élimination');
+  }
+  if(k==='hbr'){
+    if(c==='tertiaire') return R('SN1',[mk('(CH₃)₃C–Br','2-bromo-2-méthylpropane','unique','Pas de C* : rien à suivre')],['H⁺ protone O, H₂O part, C⁺ tertiaire, Br⁻ attaque.'], framesHaloLike(c,'SN1'), 'Formation d’un halogénure d’alkyle');
+    if(c==='secondaire') return R('SN1',[mk('CH₃–CHBr–CH₂–CH₃','2-bromobutane racémique','unique','C⁺ plan : 50 % R + 50 % S')],['Après protonation, l’eau part : C⁺ secondaire en milieu acide protique.'], framesHaloLike(c,'SN1'), 'Formation d’un halogénure d’alkyle');
+    return R('SN2',[mk('CH₃(CH₂)₃–Br','1-bromobutane','unique','')],['C⁺ primaire trop instable : Br⁻ attaque en même temps que l’eau part.'], framesHaloLike(c,'SN2'), 'Formation d’un halogénure d’alkyle');
+  }
+  if(k==='k2cr' || k==='kmnoc'){
+    if(c==='primaire') return R('OX',[mk('CH₃(CH₂)₂–COOH','acide butanoïque','unique','L’aldéhyde intermédiaire (butanal) s’oxyde aussitôt en acide')],['Oxydation forte d’un alcool primaire : aldéhyde puis acide carboxylique.'], framesOxAlc(c,true), 'Oxydation forte');
+    if(c==='secondaire') return R('OX',[mk('CH₃–CO–CH₂–CH₃','butanone','unique','Une cétone ne s’oxyde pas davantage')],['Alcool secondaire → cétone.'], framesOxAlc(c,true), 'Oxydation forte');
+    return nothing('Pas d’oxydation sur un alcool tertiaire', 'Le carbone fonctionnel ne porte aucun H à enlever. Le poly signale qu’une déshydratation peut se produire, puis l’alcène formé est coupé.', 'Compare avec le butan-2-ol.');
+  }
+  if(k==='cu'){
+    if(c==='primaire') return R('OX',[mk('CH₃(CH₂)₂–CHO','butanal','unique','Ménagée : l’aldéhyde ne s’oxyde pas en acide')],['Déshydrogénation sur cuivre à 300 °C : on enlève H₂.'], framesOxAlc(c,false), 'Oxydation ménagée');
+    if(c==='secondaire') return R('OX',[mk('CH₃–CO–CH₂–CH₃','butanone','unique','')],['Déshydrogénation sur cuivre : alcool secondaire → cétone.'], framesOxAlc(c,false), 'Oxydation ménagée');
+    return nothing('Pas de réaction', 'Oxydation ménagée impossible sur un alcool tertiaire : pas de H sur le carbone fonctionnel.', '');
+  }
+  if(k==='kmnod') return nothing('Rien d’utile', 'KMnO₄ dilué à froid est fait pour hydroxyler un alcène.', '');
+  return nothing('Rien ne se passe', '', '');
+}
+function nothing(title, why, tip){ return {kind:'none', title, why, tip}; }
+
+function simulate(){
+  const s=byId(SUBSTRATES,S.sub), r=byId(REAGENTS,S.rea), sol=byId(SOLVENTS,S.sol);
+  if(!s || !r) return nothing('Le ballon n’est pas prêt', 'Il faut au moins un substrat et un réactif.', 'Glisse-les depuis l’étagère.');
+  if(s.fam==='halo') return runHalo(s,r,sol,S.T);
+  if(s.fam==='ene') return runEne(s,r,sol,S.T);
+  return runAlc(s,r,sol,S.T);
+}
+
+/* ================= SCÈNES ANIMÉES ================= */
+const A=(id,x,y,t,o={})=>({id,x,y,t,...o});
+function clone(f){ return JSON.parse(JSON.stringify(f)); }
+function nuLabel(r){ return r.lab || 'Nu'; }
+
+function fSN2(g, X, Nu, nuCh, opt={}){
+  const xl = opt.xLeave || X, xch = opt.xCh==null ? '−' : opt.xCh;
+  return [
+    {cap:'Le nucléophile attaque le C du côté opposé au groupe partant (attaque dorsale).',
+     atoms:[A('C',330,150,'C'),A('X',425,150,X,{r:'x',ch:opt.xCh0||''}),A('a',290,85,g[0],{r:'g'}),A('b',250,178,g[1],{r:'g'}),A('c',308,222,g[2],{r:'g'}),A('N',105,140,Nu,{r:'nu',ch:nuCh})],
+     bonds:[['C','X','s'],['C','a','s'],['C','b','wedge'],['C','c','hash']],
+     arrows:[{f:'a:N',t:'a:C',b:-34},{f:'b:C-X',t:'a:X',b:-26}]},
+    {cap:'État de transition : Nu et X sont à moitié liés, les 3 groupes sont dans un plan.',
+     atoms:[A('C',330,150,'C'),A('X',440,150,X,{r:'x'}),A('a',330,68,g[0],{r:'g'}),A('b',290,212,g[1],{r:'g'}),A('c',372,214,g[2],{r:'g'}),A('N',222,150,Nu,{r:'nu'})],
+     bonds:[['C','X','dash'],['C','a','s'],['C','b','wedge'],['C','c','hash'],['C','N','dash']],
+     extras:[{x:180,y:162,t:'[',s:64},{x:478,y:162,t:']',s:64},{x:500,y:96,t:'‡',s:26}]},
+    {cap: opt.lastCap || 'Le parapluie s’est retourné : inversion de Walden. X⁻ est parti avec le doublet.',
+     atoms:[A('C',330,150,'C'),A('X',530,150,xl,{r:'x',ch:xch}),A('a',370,85,g[0],{r:'g'}),A('b',410,178,g[1],{r:'g'}),A('c',352,222,g[2],{r:'g'}),A('N',235,150,Nu==='H₂O'?'HO':Nu,{r:'nu'})],
+     bonds:[['C','a','s'],['C','b','wedge'],['C','c','hash'],['C','N','s']]}
+  ];
+}
+function fSN1(g, X, Nu, nuCh, chiral, opt={}){
+  const xl = opt.xLeave || X, xch = opt.xCh==null ? '−' : opt.xCh;
+  const pN = Nu==='H₂O'?'HO':Nu;
+  const f0 = {cap:'Étape lente : la liaison C–X se rompt, X part en emportant le doublet.',
+     atoms:[A('C',330,150,'C'),A('X',425,150,X,{r:'x',ch:opt.xCh0||''}),A('a',290,85,g[0],{r:'g'}),A('b',250,178,g[1],{r:'g'}),A('c',308,222,g[2],{r:'g'})],
+     bonds:[['C','X','s'],['C','a','s'],['C','b','wedge'],['C','c','hash']],
+     arrows:[{f:'b:C-X',t:'a:X',b:-26}]};
+  const f1 = {cap:'Carbocation plan (sp²). Le nucléophile peut arriver par le dessus ou par le dessous.',
+     atoms:[A('C',330,150,'C',{ch:'+'}),A('X',535,150,xl,{r:'x',ch:xch}),A('a',262,112,g[0],{r:'g'}),A('b',262,190,g[1],{r:'g'}),A('c',410,150,g[2],{r:'g'}),A('N',330,36,Nu,{r:'nu',ch:nuCh}),A('N2',330,266,Nu,{r:'nu',ch:nuCh})],
+     bonds:[['C','a','s'],['C','b','s'],['C','c','s']],
+     arrows:[{f:'a:N',t:'a:C',b:22},{f:'a:N2',t:'a:C',b:-22}]};
+  const f2 = chiral ? {cap:'Deux énantiomères en quantités égales : mélange racémique, optiquement inactif.',
+     atoms:[A('C',170,150,'C'),A('N',170,66,pN,{r:'nu'}),A('a',112,182,g[0],{r:'g'}),A('b',196,222,g[1],{r:'g'}),A('c',240,170,g[2],{r:'g'}),
+            A('C2',460,150,'C'),A('N2',460,234,pN,{r:'nu'}),A('a2',402,118,g[0],{r:'g'}),A('b2',486,78,g[1],{r:'g'}),A('c2',530,130,g[2],{r:'g'})],
+     bonds:[['C','N','s'],['C','a','s'],['C','b','wedge'],['C','c','hash'],['C2','N2','s'],['C2','a2','s'],['C2','b2','wedge'],['C2','c2','hash']],
+     extras:[{x:170,y:276,t:'50 %',s:16},{x:460,y:34,t:'50 %',s:16},{x:315,y:158,t:'+',s:28}]}
+   : {cap:'Les deux faces donnent la même molécule : pas de carbone asymétrique ici.',
+     atoms:[A('C',330,150,'C'),A('N',330,62,pN,{r:'nu'}),A('a',268,188,g[0],{r:'g'}),A('b',360,226,g[1],{r:'g'}),A('c',404,178,g[2],{r:'g'})],
+     bonds:[['C','N','s'],['C','a','s'],['C','b','wedge'],['C','c','hash']]};
+  return [f0,f1,f2];
+}
+function fE(type, al, be, X, B, opt={}){
+  const xl = opt.xLeave || X, xch = opt.xCh==null ? '−' : opt.xCh;
+  const base0 = [A('Hb',240,64,'H',{r:'h'}),A('Cb',240,150,'C'),A('Ca',350,150,'C'),A('X',350,242,X,{r:'x',ch:opt.xCh0||''}),A('t1',180,112,be[0],{r:'g'}),A('t2',188,200,be[1],{r:'g'}),A('s1',410,100,al[0],{r:'g'}),A('s2',425,172,al[1],{r:'g'})];
+  const bonds0 = [['Cb','Ca','s'],['Cb','Hb','s'],['Ca','X','s'],['Cb','t1','wedge'],['Cb','t2','hash'],['Ca','s1','wedge'],['Ca','s2','hash']];
+  const fin = {cap:'Alcène formé. Le H et X sont partis : deux groupes s’en vont à chaque élimination.',
+    atoms:[A('B',110,48,B==='H₂O'?'H₂O':B,{r:'nu',ch:B==='H₂O'?'+':''}),A('Hb',150,48,'H',{r:'h'}),A('Cb',250,150,'C'),A('Ca',350,150,'C'),A('X',350,262,xl,{r:'x',ch:xch}),A('t1',195,108,be[0],{r:'g'}),A('t2',195,194,be[1],{r:'g'}),A('s1',405,108,al[0],{r:'g'}),A('s2',405,194,al[1],{r:'g'})],
+    bonds:[['Cb','Ca','d'],['B','Hb','s'],['Cb','t1','s'],['Cb','t2','s'],['Ca','s1','s'],['Ca','s2','s']]};
+  if(B==='H₂O'){ fin.atoms[0].t='H₃O'; fin.atoms[0].ch='+'; fin.atoms[1].t=''; }
+  if(type==='E2') return [
+    {cap:'H (en β) et X sont coplanaires et en anti. La base arrache H, la C=C se forme et X part, tout en une étape.',
+     atoms:[A('B',110,48,B,{r:'nu',ch:B==='H₂O'?'':'−'}),...base0], bonds:bonds0,
+     arrows:[{f:'a:B',t:'a:Hb',b:26},{f:'b:Cb-Hb',t:'b:Cb-Ca',b:30},{f:'b:Ca-X',t:'a:X',b:-28}]},
+    fin];
+  return [
+    {cap:'Étape lente : X part avec le doublet, il reste un carbocation.', atoms:base0, bonds:bonds0, arrows:[{f:'b:Ca-X',t:'a:X',b:-28}]},
+    {cap:'La base arrache un H en β ; le doublet C–H forme la double liaison.',
+     atoms:[A('B',110,48,B,{r:'nu',ch:B==='H₂O'?'':'−'}),A('Hb',240,64,'H',{r:'h'}),A('Cb',240,150,'C'),A('Ca',350,150,'C',{ch:'+'}),A('X',350,268,xl,{r:'x',ch:xch}),A('t1',180,112,be[0],{r:'g'}),A('t2',188,200,be[1],{r:'g'}),A('s1',405,105,al[0],{r:'g'}),A('s2',405,195,al[1],{r:'g'})],
+     bonds:[['Cb','Ca','s'],['Cb','Hb','s'],['Cb','t1','wedge'],['Cb','t2','hash'],['Ca','s1','s'],['Ca','s2','s']],
+     arrows:[{f:'a:B',t:'a:Hb',b:26},{f:'b:Cb-Hb',t:'b:Cb-Ca',b:30}]},
+    fin];
+}
+function framesHalo(s, r, mech){
+  const Nu = nuLabel(r), ch = r.kind==='weak' ? '' : '−';
+  if(mech==='SN2') return fSN2(s.g, s.X, Nu, ch, {lastCap: s.chiral ? 'Le parapluie s’est retourné : inversion de Walden, le (R) devient (S).' : undefined});
+  if(mech==='SN1') return fSN1(s.g, s.X, Nu, ch, s.chiral);
+  return fE(mech, s.elim.alpha, s.elim.beta, s.X, r.kind==='weak'?'H₂O':nuLabel(r));
+}
+function protonate(frames){
+  const f0 = clone(frames[0]);
+  f0.cap = 'OH est un mauvais groupe partant : on le protone d’abord par H⁺.';
+  const X = f0.atoms.find(a=>a.id==='X'); X.t='OH'; X.ch='';
+  f0.atoms.push(A('Hp',X.x+80,X.y+(X.y>200?10:60),'H',{r:'h',ch:'+'}));
+  f0.arrows=[{f:'a:X',t:'a:Hp',b:-24}];
+  return [f0, ...frames];
+}
+function framesHaloLike(cls, mech){
+  const G = {primaire:{g:['H','H','C₃H₇'],al:['H','H'],be:['C₂H₅','H']}, secondaire:{g:['H','CH₃','C₂H₅'],al:['CH₃','H'],be:['CH₃','H']}, tertiaire:{g:['CH₃','CH₃','CH₃'],al:['CH₃','CH₃'],be:['H','H']}}[cls];
+  const o = {xLeave:'H₂O', xCh:'', xCh0:'+'};
+  let fr;
+  if(mech==='SN1') fr = fSN1(G.g,'OH₂','Br','−', cls==='secondaire', o);
+  else if(mech==='SN2') fr = fSN2(G.g,'OH₂','Br','−', o);
+  else fr = fE(mech, G.al, G.be, 'OH₂', 'HSO₄', o);
+  return protonate(fr);
+}
+function framesEne(s, key){
+  const p=s.c1, q=s.c2;
+  const base = (extraAtoms=[], extraBonds=[], dbl='d')=>({atoms:[A('C1',250,160,'C'),A('C2',350,160,'C'),A('p1',195,112,p[0],{r:'g'}),A('p2',195,208,p[1],{r:'g'}),A('q1',405,112,q[0],{r:'g'}),A('q2',405,208,q[1],{r:'g'}),...extraAtoms],
+    bonds:[['C1','C2',dbl],['C1','p1','s'],['C1','p2','s'],['C2','q1','s'],['C2','q2','s'],...extraBonds]});
+  const F = (cap, b, arrows, extras)=>({cap, ...b, arrows:arrows||[], extras:extras||[]});
+  if(key==='hbr' || key==='h3o'){
+    const hyd = key==='h3o';
+    const E = hyd ? A('E',385,40,'OH₂',{r:'x',ch:'+'}) : A('E',385,40,'Br',{r:'x'});
+    const N = hyd ? A('E',478,70,'H₂O',{r:'nu'}) : A('E',478,70,'Br',{r:'x',ch:'−'});
+    const fr = [
+      F('Les électrons π attaquent H⁺. Il se fixe sur le C le moins substitué pour donner le C⁺ le plus stable.', base([A('H',300,64,'H',{r:'h'}),E],[['H','E','s']]), [{f:'b:C1-C2',t:'a:H',b:-30},{f:'b:H-E',t:'a:E',b:-28}]),
+      F('Carbocation plan sur le C le plus substitué (Markovnikov). '+(hyd?'L’eau attaque.':'Br⁻ attaque.'), base([A('H',250,76,'H',{r:'h'}),{...N},{...A('q0',0,0,'')}].filter(a=>a.id!=='q0'),[['C1','H','s']],'s'), [{f:'a:E',t:'a:C2',b:24}]),
+      F(hyd?'H₂O fixé : oxonium. Il perd un H⁺ (catalyseur régénéré).':'Produit d’addition. Attaque possible par les deux faces : non stéréospécifique.', base([A('H',250,76,'H',{r:'h'}),hyd?A('E',350,74,'OH₂',{r:'nu',ch:'+'}):A('E',350,74,'Br',{r:'x'})],[['C1','H','s'],['C2','E','s']],'s')),
+    ];
+    fr[1].atoms.find(a=>a.id==='C2').ch='+';
+    if(hyd) fr.push(F('Alcool le plus substitué. H⁺ est rendu au milieu.', base([A('H',250,76,'H',{r:'h'}),A('E',350,74,'OH',{r:'nu'}),A('Hx',470,60,'H',{r:'h',ch:'+'})],[['C1','H','s'],['C2','E','s']],'s')));
+    return fr;
+  }
+  if(key==='hbrp'){
+    const fr = [
+      F('Initiation : le peroxyde crée Br•. Br• s’ajoute sur le C le moins substitué (radical le plus stable).', base([A('Br',250,62,'Br',{r:'x',ch:'•'})]), [{f:'a:Br',t:'a:C1',b:-20,half:1},{f:'b:C1-C2',t:'a:C1',b:26,half:1}]),
+      F('Radical sur le C le plus substitué. Il arrache un H à HBr.', base([A('Br',250,74,'Br',{r:'x'}),A('H',430,64,'H',{r:'h'}),A('Br2',500,42,'Br',{r:'x'})],[['C1','Br','s'],['H','Br2','s']],'s'), [{f:'a:H',t:'a:C2',b:24,half:1}]),
+      F('Produit anti-Markovnikov. Br• est régénéré : réaction en chaîne (propagation).', base([A('Br',250,74,'Br',{r:'x'}),A('H',350,74,'H',{r:'h'}),A('Br2',500,42,'Br',{r:'x',ch:'•'})],[['C1','Br','s'],['C2','H','s']],'s')),
+    ];
+    fr[1].atoms.find(a=>a.id==='C2').ch='•';
+    return fr;
+  }
+  if(key==='br2') return [
+    F('Le dibrome se polarise au contact des électrons π.', base([A('B1',300,80,'Br',{r:'x'}),A('B2',300,22,'Br',{r:'x'})],[['B1','B2','s']]), [{f:'b:C1-C2',t:'a:B1',b:-26},{f:'b:B1-B2',t:'a:B2',b:-26}]),
+    F('Ion bromonium ponté : la charge est répartie. Br⁻ attaque par le côté opposé.', base([A('B1',300,86,'Br',{r:'x',ch:'+'}),A('B2',330,272,'Br',{r:'x',ch:'−'})],[['B1','C1','s'],['B1','C2','s']],'s'), [{f:'a:B2',t:'a:C2',b:20}]),
+    F('Trans-addition : les deux Br de part et d’autre. Réaction stéréospécifique.', base([A('B1',250,76,'Br',{r:'x'}),A('B2',350,250,'Br',{r:'x'})],[['B1','C1','wedge'],['B2','C2','hash']],'s')),
+  ].map((f,i)=>{ if(i===2){ f.atoms.find(a=>a.id==='q2').x=420; f.atoms.find(a=>a.id==='q2').y=196; } return f; });
+  if(key==='b2h6') return [
+    F('BH₃ s’approche : B se place sur le C le moins encombré, H sur l’autre.', base([A('B',250,62,'BH₂',{r:'x'}),A('H',350,62,'H',{r:'h'})],[['B','H','s']]), [{f:'b:C1-C2',t:'a:B',b:-24},{f:'b:B-H',t:'a:C2',b:26}]),
+    F('État de transition à 4 centres : tout se fait en même temps (concerté).', base([A('B',250,82,'BH₂',{r:'x'}),A('H',350,82,'H',{r:'h'})],[['B','H','dash'],['B','C1','dash'],['H','C2','dash']]), [], [{x:470,y:70,t:'‡',s:26}]),
+    F('Cis-addition : B et H du même côté. Alkylborane formé (×3 en vrai).', base([A('B',250,74,'BR₂',{r:'x'}),A('H',350,74,'H',{r:'h'})],[['B','C1','wedge'],['H','C2','wedge']],'s')),
+    F('H₂O₂ / NaOH remplace B par OH : alcool le moins substitué (anti-Markovnikov).', base([A('B',250,74,'OH',{r:'nu'}),A('H',350,74,'H',{r:'h'})],[['B','C1','wedge'],['H','C2','wedge']],'s')),
+  ];
+  if(key==='kmnod') return [
+    F('MnO₄⁻ s’approche d’une seule face de la double liaison.', base([A('Mn',300,24,'Mn',{r:'x'}),A('O1',250,72,'O',{r:'x'}),A('O2',350,72,'O',{r:'x'})],[['Mn','O1','d'],['Mn','O2','s']]), [{f:'b:C1-C2',t:'a:O1',b:-24},{f:'a:O2',t:'a:C2',b:20}]),
+    F('Ester cyclique : les deux O arrivent du même côté.', base([A('Mn',300,24,'Mn',{r:'x'}),A('O1',250,80,'O',{r:'x'}),A('O2',350,80,'O',{r:'x'})],[['Mn','O1','s'],['Mn','O2','s'],['O1','C1','wedge'],['O2','C2','wedge']],'s')),
+    F('Hydrolyse : α-diol. Les deux OH sont du même côté (cis-addition).', base([A('O1',250,76,'OH',{r:'nu'}),A('O2',350,76,'OH',{r:'nu'})],[['O1','C1','wedge'],['O2','C2','wedge']],'s')),
+  ];
+  // coupure oxydante
+  const strong = key==='kmnoc';
+  return [
+    F(strong?'KMnO₄ concentré à chaud attaque la C=C.':'O₃ s’additionne : molozonide puis ozonide.', base(), [], [{x:300,y:70,t:strong?'[O] Δ':'O₃',s:22}]),
+    F(strong?'La double liaison est coupée : deux C=O. Un aldéhyde éventuel finit en acide (ou CO₂).':'Hydrolyse avec Zn/H⁺ : deux carbonyles, les aldéhydes sont conservés.',
+      {atoms:[A('C1',210,170,'C'),A('C2',390,170,'C'),A('O1',210,80,'O',{r:'x'}),A('O2',390,80,'O',{r:'x'}),A('p1',160,220,p[0],{r:'g'}),A('p2',260,222,p[1],{r:'g'}),A('q1',340,222,q[0],{r:'g'}),A('q2',440,220,q[1],{r:'g'})],
+       bonds:[['C1','O1','d'],['C2','O2','d'],['C1','p1','s'],['C1','p2','s'],['C2','q1','s'],['C2','q2','s']]}),
+  ];
+}
+function framesOxAlc(cls, strong){
+  const g = {primaire:['C₃H₇','H'], secondaire:['CH₃','C₂H₅']}[cls];
+  const b0 = {atoms:[A('C',300,160,'C'),A('O',300,72,'OH',{r:'x'}),A('H',300,248,'H',{r:'h'}),A('g1',228,160,g[0],{r:'g'}),A('g2',372,160,g[1],{r:'g'})], bonds:[['C','O','s'],['C','H','s'],['C','g1','s'],['C','g2','s']], arrows:[], extras:[{x:470,y:80,t:strong?'[O]':'Cu, 300 °C',s:20}]};
+  const fr = [{cap:'Le carbone fonctionnel porte encore un H : il peut être oxydé.', ...b0},
+    {cap: cls==='primaire' ? 'On enlève 2 H : aldéhyde.' : 'On enlève 2 H : cétone.', atoms:[A('C',300,160,'C'),A('O',300,72,'O',{r:'x'}),A('g1',228,160,g[0],{r:'g'}),A('g2',372,160,g[1],{r:'g'})], bonds:[['C','O','d'],['C','g1','s'],['C','g2','s']]}];
+  if(strong && cls==='primaire') fr.push({cap:'Oxydation forte : l’aldéhyde s’oxyde aussitôt en acide carboxylique.', atoms:[A('C',300,160,'C'),A('O',300,72,'O',{r:'x'}),A('g1',228,160,g[0],{r:'g'}),A('g2',372,160,'OH',{r:'x'})], bonds:[['C','O','d'],['C','g1','s'],['C','g2','s']]});
+  return fr;
+}
+
+/* ================= RENDU SVG DES SCÈNES ================= */
+const stageState = {frames:[], i:0, from:null, t:1, raf:0};
+function labelR(t){ return t ? {rx: Math.max(9, t.length*5.2+3), ry: 11} : {rx:2, ry:2}; }
+function shrink(p, q){
+  const dx=q.x-p.x, dy=q.y-p.y, L=Math.hypot(dx,dy)||1, ux=dx/L, uy=dy/L;
+  const {rx,ry}=labelR(p.t); const d = 1/Math.sqrt((ux/rx)**2+(uy/ry)**2);
+  return {x:p.x+ux*d, y:p.y+uy*d};
+}
+function bondSVG(a, b, type, op){
+  const p=shrink(a,b), q=shrink(b,a); const dx=q.x-p.x, dy=q.y-p.y, L=Math.hypot(dx,dy)||1, nx=-dy/L, ny=dx/L;
+  const o=`opacity="${op.toFixed(3)}"`;
+  if(type==='d') return `<g ${o}><line class="bond" x1="${p.x+nx*3.6}" y1="${p.y+ny*3.6}" x2="${q.x+nx*3.6}" y2="${q.y+ny*3.6}"/><line class="bond" x1="${p.x-nx*3.6}" y1="${p.y-ny*3.6}" x2="${q.x-nx*3.6}" y2="${q.y-ny*3.6}"/></g>`;
+  if(type==='dash') return `<line class="bond" ${o} stroke-dasharray="5 5" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`;
+  if(type==='wedge') return `<polygon class="wedge" ${o} points="${p.x},${p.y} ${q.x+nx*5},${q.y+ny*5} ${q.x-nx*5},${q.y-ny*5}"/>`;
+  if(type==='hash'){ let s=''; for(let k=1;k<=6;k++){ const t=k/6, w=5*t, cx=p.x+dx*t, cy=p.y+dy*t; s+=`<line class="bond" stroke-width="1.6" x1="${cx+nx*w}" y1="${cy+ny*w}" x2="${cx-nx*w}" y2="${cy-ny*w}"/>`; } return `<g ${o}>${s}</g>`; }
+  return `<line class="bond" ${o} x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}"/>`;
+}
+function ptOf(ref, atoms){
+  const [k,v]=ref.split(':');
+  if(k==='a'){ const a=atoms[v]; return a ? {x:a.x,y:a.y,atom:true} : null; }
+  const [x,y]=v.split('-'); const A1=atoms[x], B1=atoms[y]; if(!A1||!B1) return null;
+  return {x:(A1.x+B1.x)/2, y:(A1.y+B1.y)/2, atom:false};
+}
+function arrowSVG(ar, atoms){
+  const s=ptOf(ar.f,atoms), e=ptOf(ar.t,atoms); if(!s||!e) return '';
+  let dx=e.x-s.x, dy=e.y-s.y, L=Math.hypot(dx,dy)||1; const ux=dx/L, uy=dy/L;
+  const S0={x:s.x+ux*(s.atom?16:4), y:s.y+uy*(s.atom?16:4)}, E0={x:e.x-ux*(e.atom?18:6), y:e.y-uy*(e.atom?18:6)};
+  const mx=(S0.x+E0.x)/2, my=(S0.y+E0.y)/2, nx=-uy, ny=ux, b=ar.b||25;
+  return `<g class="arwg"><path class="arw" pathLength="1" d="M${S0.x},${S0.y} Q${mx+nx*b},${my+ny*b} ${E0.x},${E0.y}" marker-end="url(#${ar.half?'hh':'ah'})"/></g>`;
+}
+function ease(t){ return t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+function drawStage(){
+  const svg=document.getElementById('scene'); if(!svg) return;
+  const F=stageState.frames[stageState.i]; if(!F) return;
+  const P=stageState.from, t=ease(stageState.t);
+  const amap={}; const list=[];
+  const prevA={}; if(P) P.atoms.forEach(a=>prevA[a.id]=a);
+  F.atoms.forEach(a=>{ const pa=prevA[a.id]; const x = pa ? pa.x+(a.x-pa.x)*t : a.x, y = pa ? pa.y+(a.y-pa.y)*t : a.y;
+    const lab = pa && t<.5 ? pa.t : a.t; const ch = pa && t<.5 ? (pa.ch||'') : (a.ch||'');
+    const op = pa ? 1 : t; amap[a.id]={x,y,t:lab}; list.push({...a,x,y,t:lab,ch,op}); });
+  if(P) P.atoms.forEach(a=>{ if(!F.atoms.find(b=>b.id===a.id)){ amap[a.id]=amap[a.id]||{x:a.x,y:a.y,t:a.t}; list.push({...a,op:1-t}); }});
+  const key=b=>b[0]+'|'+b[1]+'|'+b[2];
+  const cur=new Set(F.bonds.map(key)), old=P?new Set(P.bonds.map(key)):new Set();
+  let bs='';
+  F.bonds.forEach(b=>{ if(amap[b[0]]&&amap[b[1]]) bs+=bondSVG(amap[b[0]],amap[b[1]],b[2], old.has(key(b))||!P?1:t); });
+  if(P) P.bonds.forEach(b=>{ if(!cur.has(key(b))&&amap[b[0]]&&amap[b[1]]) bs+=bondSVG(amap[b[0]],amap[b[1]],b[2],1-t); });
+  let as=''; list.forEach(a=>{ if(!a.t) return; const cls='atom '+(a.r||''); as+=`<g opacity="${a.op.toFixed(3)}"><text class="${cls}" x="${a.x}" y="${a.y}" text-anchor="middle" dominant-baseline="central">${a.t}</text>${a.ch?`<text class="chg" x="${a.x+labelR(a.t).rx+3}" y="${a.y-12}" text-anchor="middle">${a.ch}</text>`:''}</g>`; });
+  let ex=''; (F.extras||[]).forEach(e=>{ ex+=`<text class="extra" opacity="${t.toFixed(3)}" x="${e.x}" y="${e.y}" text-anchor="middle" dominant-baseline="central" font-size="${e.s||18}">${e.t}</text>`; });
+  let ar=''; if(stageState.t>=1) (F.arrows||[]).forEach(a=>{ ar+=arrowSVG(a, amap); });
+  svg.querySelector('#layer').innerHTML = bs+as+ex+ar;
+}
+function goFrame(i){
+  const fr=stageState.frames; if(!fr.length) return;
+  i=Math.max(0,Math.min(fr.length-1,i));
+  stageState.from = i===stageState.i ? null : fr[stageState.i];
+  stageState.i=i; stageState.t = (stageState.from && !matchMedia('(prefers-reduced-motion: reduce)').matches) ? 0 : 1;
+  cancelAnimationFrame(stageState.raf);
+  const t0=performance.now();
+  const step=now=>{ if(stageState.t<1){ stageState.t=Math.min(1,(now-t0)/750); drawStage(); stageState.raf=requestAnimationFrame(step);} else drawStage(); };
+  stageState.raf=requestAnimationFrame(step); drawStage();
+  const cap=document.getElementById('cap'); if(cap) cap.innerHTML=`<b>${i+1}/${fr.length}</b>${fr[i].cap}`;
+  document.querySelectorAll('#dots i').forEach((d,k)=>d.classList.toggle('on',k===i));
+  const pv=document.getElementById('prev'), nx=document.getElementById('next');
+  if(pv) pv.disabled = i===0; if(nx) nx.textContent = i===fr.length-1 ? 'Rejouer' : 'Étape suivante';
+}
+
+/* ================= RENDU UI ================= */
+const $=s=>document.querySelector(s);
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function shelfItems(){
+  if(S.tab==='sub'){
+    const fams=[['halo','Dérivés halogénés'],['ene','Alcènes'],['alc','Alcools']];
+    return fams.map(([f,h])=>({h, items:SUBSTRATES.filter(s=>s.fam===f).map(s=>({id:s.id,f:s.f,n:s.n,tg:s.fam==='halo'?HALO_TAG[s.cls]:s.tag,slot:'sub'}))}));
+  }
+  const src = S.tab==='rea'?REAGENTS:SOLVENTS; const grps=[...new Set(src.map(x=>x.grp))];
+  return grps.map(g=>({h:g, items:src.filter(x=>x.grp===g).map(x=>({id:x.id,f:x.f,n:x.n,tg:S.tab==='rea'?x.tag:x.type,slot:S.tab}))}));
+}
+function renderShelf(){
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.tab===S.tab));
+  $('#shelf').innerHTML = shelfItems().map(g=>`<div class="group-h">${g.h}</div>`+g.items.map(it=>`<button class="chip ${S[it.slot]===it.id?'in':''}" data-slot="${it.slot}" data-id="${it.id}"><span class="fx">${esc(it.f)}</span><span class="tg">${esc(it.tg)}</span><span class="nm">${esc(it.n)}</span></button>`).join('')).join('');
+}
+function renderSlots(){
+  const map={sub:SUBSTRATES,rea:REAGENTS,sol:SOLVENTS};
+  document.querySelectorAll('.slot').forEach(el=>{
+    const k=el.dataset.slot, o=byId(map[k],S[k]);
+    el.classList.toggle('full',!!o);
+    el.querySelector('.sv').innerHTML = o ? `<div class="fx">${esc(o.f)}</div><div class="nm">${esc(o.n)}</div>` : `<span class="empty">${k==='sol'?'facultatif sauf pour R–X':'vide'}</span>`;
+    el.querySelector('.x').hidden = !o;
+  });
+  document.querySelectorAll('.temps button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.t===S.T));
+  renderFlask();
+}
+function renderFlask(react){
+  const sol=byId(SOLVENTS,S.sol), n=['sub','rea','sol'].filter(k=>S[k]).length;
+  const lvl = n===0?0: n===1?.32: n===2?.55:.72;
+  const col = sol ? sol.col : (n? '#cfd8d3':'transparent');
+  const y = 245 - lvl*110;
+  const T=S.T;
+  const plate = T==='chaud' ? `<rect x="40" y="250" width="150" height="14" rx="4" fill="#d2552b"/><rect x="40" y="250" width="150" height="14" rx="4" fill="#ffb347" opacity=".5"><animate attributeName="opacity" values=".2;.7;.2" dur="1.6s" repeatCount="indefinite"/></rect>`
+    : T==='froid' ? `<path d="M30 210 L30 262 L200 262 L200 210" fill="#bfe3f5" opacity=".55" stroke="var(--glass)"/><text x="115" y="258" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="var(--f-mono)">glace 0 °C</text>`
+    : `<rect x="40" y="250" width="150" height="14" rx="4" fill="var(--line)"/>`;
+  const bubbles = (T==='chaud' && n) ? [0,1,2,3].map(i=>`<circle class="bubble" cx="${90+i*16}" cy="236" r="${3+i%2}" fill="#fff" opacity=".8" style="animation-delay:${i*.35}s"/>`).join('') : '';
+  $('#flask').innerHTML = `
+  <defs><clipPath id="fc"><path d="M95 20 L95 108 A62 62 0 1 0 135 108 L135 20 Z"/></clipPath></defs>
+  ${plate}
+  <g class="${react?'swirl':''}">
+    <g clip-path="url(#fc)"><rect x="40" y="${y}" width="160" height="200" fill="${col}" opacity=".85"/>
+    <path d="M40 ${y} Q 77 ${y-6} 115 ${y} T 190 ${y}" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2"/>${bubbles}</g>
+    <path d="M95 20 L95 108 A62 62 0 1 0 135 108 L135 20" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M90 20 L140 20" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M70 150 A46 46 0 0 0 82 200" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  ${T==='chaud'?`<path d="M108 8 L108 -10 M122 8 L122 -10" stroke="var(--muted)" stroke-width="2"/>`:''}`;
+}
+
+function renderResult(res){
+  const el=$('#result');
+  if(res.kind==='none'){
+    el.innerHTML = `<div class="nothing"><span class="label">Résultat</span><h2>${esc(res.title)}</h2>${res.why?`<p>${esc(res.why)}</p>`:''}${res.tip?`<p style="color:var(--muted)">→ ${esc(res.tip)}</p>`:''}</div>`;
+    stageState.frames=[]; return;
+  }
+  const M=MECH[res.mech]; const title = res.title || M.n;
+  const eq = `${res.sub.f}  +  ${res.rea.f}${res.sol?'  ·  '+res.sol.n:''}  ·  ${{froid:'0 °C',amb:'25 °C',chaud:'Δ'}[res.T]}`;
+  let left='';
+  if(res.kind==='halo'){
+    const order=['SN1','SN2','E1','E2'];
+    left = `<div class="box"><span class="label">Compétition des mécanismes</span><div class="bars">${order.map(m=>`<div class="bar"><b style="color:${MECH[m].c}">${m}</b><div class="track"><div class="fill" style="width:${(res.scores[m]*100).toFixed(1)}%;background:${MECH[m].c}"></div></div><span>${res.scores[m]===0?'bloqué':Math.round(res.scores[m]*100)+' %'}</span></div>`).join('')}</div>
+      <span class="label" style="margin-top:6px">Pourquoi</span>
+      <ul class="factors">${res.factors.map(f=>`<li><span class="k">${f.k}</span><span>${esc(f.t)}${f.fav.map(m=>`<span class="pill" style="background:${MECH[m].c}">${m}</span>`).join('')}</span></li>`).join('')}</ul></div>`;
+  } else {
+    left = `<div class="box"><span class="label">À retenir</span><ul class="notes">${res.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></div>`;
+  }
+  const prods = `<div class="box"><span class="label">Produits</span><div class="products">${res.products.map(p=>`<div class="prod ${p.r==='mino'?'mino':''}"><span class="role">${p.r==='mino'?'mino':p.r==='majo'?'majo':'seul'}</span><div><div class="fx">${esc(p.f)}</div><div class="nm">${esc(p.n)}</div></div>${p.st?`<div class="st">${esc(p.st)}</div>`:''}</div>`).join('')}</div>
+    ${res.kind==='halo' && res.notes.length?`<span class="label" style="margin-top:6px">À retenir</span><ul class="notes">${res.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:''}</div>`;
+  el.innerHTML = `
+    <div class="verdict"><div class="mbadge" style="--mc:${M.c}">${res.mech==='OX'?'[O]':res.mech==='AX2'?'AE':res.mech==='HB'?'BH₃':res.mech}</div>
+      <div style="min-width:0"><h2>${esc(title)}</h2><div class="eq">${esc(eq)}</div>${M.rate?`<div class="eq">${esc(M.rate)}</div>`:''}</div></div>
+    <div class="cols">${left}${prods}</div>
+    ${res.frames && res.frames.length ? `<div class="mech">
+      <div class="mech-head"><span class="label">Mécanisme pas à pas</span><div class="dots" id="dots">${res.frames.map(()=>'<i></i>').join('')}</div></div>
+      <div class="stage"><svg id="scene" viewBox="0 0 600 300" role="img" aria-label="Animation du mécanisme">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="hh" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,5 z"/></marker></defs>
+        <g id="layer"></g></svg></div>
+      <div class="mech-foot"><div class="caption" id="cap"></div><button class="btn small" id="prev">Précédente</button><button class="btn small" id="next" style="background:var(--ink);color:var(--paper)">Étape suivante</button></div></div>` : ''}`;
+  stageState.frames = res.frames || []; stageState.i=0; stageState.from=null;
+  if(stageState.frames.length){
+    goFrame(0);
+    $('#prev').onclick=()=>goFrame(stageState.i-1);
+    $('#next').onclick=()=>{ if(stageState.i===stageState.frames.length-1){ stageState.i=0; stageState.from=null; goFrame(0);} else goFrame(stageState.i+1); };
+  }
+}
+
+/* ================= DÉFIS ================= */
+const DEFIS = [
+  {t:'Inversion de Walden', d:'Obtiens le (S)-butan-2-ol à partir du (R)-2-bromobutane.', ok:r=>r.sub?.id==='2bub' && r.mech==='SN2' && main(r).includes('(S)-butan-2-ol')},
+  {t:'Racémique', d:'Obtiens du butan-2-ol racémique à partir du (R)-2-bromobutane.', ok:r=>r.sub?.id==='2bub' && r.mech==='SN1' && main(r).includes('butan-2-ol racémique')},
+  {t:'Zaïtsev', d:'Fais du 2-méthylbut-2-ène majoritaire à partir du 2-chloro-2-méthylbutane.', ok:r=>r.sub?.id==='tamcl' && (r.mech==='E1'||r.mech==='E2')},
+  {t:'Un primaire qui élimine', d:'Fais du but-1-ène majoritaire à partir du 1-bromobutane (pas d’alcool !).', ok:r=>r.sub?.id==='bub' && r.mech==='E2'},
+  {t:'Anti-Markovnikov', d:'Fais du 1-bromopropane à partir du propène.', ok:r=>r.sub?.id==='propene' && main(r).includes('1-bromopropane')},
+  {t:'Le bore malin', d:'Fais du propan-1-ol à partir du propène.', ok:r=>r.sub?.id==='propene' && main(r).includes('propan-1-ol')},
+  {t:'Méso', d:'Obtiens le butane-2,3-diol méso.', ok:r=>main(r).includes('butane-2,3-diol méso')},
+  {t:'Dibromé méso', d:'Obtiens le 2,3-dibromobutane méso.', ok:r=>main(r).includes('dibromobutane méso')},
+  {t:'Stop à l’aldéhyde', d:'Fais du butanal à partir du butan-1-ol.', ok:r=>main(r).includes('butanal')},
+  {t:'Déshydratation', d:'Fais du 2-méthylpropène à partir d’un alcool.', ok:r=>r.kind==='alc' && main(r).includes('2-méthylpropène')},
+];
+function main(r){ return (r.products||[]).filter(p=>p.r!=='mino').map(p=>p.n).join(' | '); }
+function renderDefis(){
+  const n=Object.keys(S.done).length;
+  $('#defiCount').textContent=`${n}/${DEFIS.length}`;
+  $('#dlist').innerHTML = DEFIS.map((d,i)=>`<li data-i="${i}" class="${S.mode==='defis'&&S.defi===i?'cur':''}"><span class="ck ${S.done[i]?'done':''}">${S.done[i]?'✓':''}</span><span><b>${esc(d.t)}</b> · ${esc(d.d)}</span></li>`).join('');
+  const g=$('#goal');
+  if(S.mode==='defis'){ const d=DEFIS[S.defi]; g.hidden=false;
+    g.innerHTML=`<div class="gtxt"><span class="label">Défi ${S.defi+1} / ${DEFIS.length}${S.done[S.defi]?' · réussi':''}</span><div><b>${esc(d.t)}</b></div><p>${esc(d.d)}</p></div><div class="goal-nav"><button class="btn small" id="gp">←</button><button class="btn small" id="gn">→</button></div>`;
+    $('#gp').onclick=()=>{S.defi=(S.defi+DEFIS.length-1)%DEFIS.length; renderDefis();};
+    $('#gn').onclick=()=>{S.defi=(S.defi+1)%DEFIS.length; renderDefis();};
+  } else g.hidden=true;
+}
+function renderLog(){
+  $('#log').innerHTML = S.log.length ? S.log.map(l=>`<li style="--mc:${MECH[l.m]?.c||'var(--line)'}"><span class="fx">${esc(l.a)}</span> → <b>${esc(l.p)}</b> <span style="color:var(--muted)">(${esc(l.m)})</span></li>`).join('') : '<li class="empty">Tes réactions s’afficheront ici.</li>';
+}
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2600); }
+
+/* ================= ACTIONS ================= */
+function put(slot,id){ S[slot] = S[slot]===id && slot!=='sub' && slot!=='rea' ? null : id; renderSlots(); renderShelf(); }
+function run(record=true){
+  const res=simulate(); renderResult(res); renderFlask(true);
+  if(record && res.kind!=='none'){
+    const p = res.products.find(x=>x.r!=='mino');
+    S.log.unshift({a:`${res.sub.n} + ${res.rea.f}`, p:p?p.n:'', m:res.mech}); S.log=S.log.slice(0,30);
+    let hit=-1; DEFIS.forEach((d,i)=>{ if(!S.done[i] && d.ok(res)){ S.done[i]=true; if(hit<0) hit=i; }});
+    if(hit>=0) toast(`Défi réussi : ${DEFIS[hit].t}`);
+    save(); renderLog(); renderDefis();
+  }
+}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab; renderShelf();});
+document.querySelectorAll('.temps button').forEach(b=>b.onclick=()=>{S.T=b.dataset.t; renderSlots();});
+document.querySelectorAll('.slot .x').forEach(b=>b.onclick=()=>{S[b.parentElement.dataset.slot]=null; renderSlots(); renderShelf();});
+$('#run').onclick=()=>run(true);
+$('#clear').onclick=()=>{S.sub=S.rea=S.sol=null; renderSlots(); renderShelf();};
+$('#mLabo').onclick=()=>{S.mode='labo'; $('#mLabo').setAttribute('aria-pressed',true); $('#mDefis').setAttribute('aria-pressed',false); renderDefis();};
+$('#mDefis').onclick=()=>{S.mode='defis'; $('#mDefis').setAttribute('aria-pressed',true); $('#mLabo').setAttribute('aria-pressed',false); const f=DEFIS.findIndex((d,i)=>!S.done[i]); S.defi=f<0?0:f; renderDefis(); window.scrollTo({top:0,behavior:'smooth'});};
+$('#dlist').onclick=e=>{ const li=e.target.closest('li'); if(!li) return; S.mode='defis'; S.defi=+li.dataset.i; $('#mDefis').setAttribute('aria-pressed',true); $('#mLabo').setAttribute('aria-pressed',false); renderDefis(); window.scrollTo({top:0,behavior:'smooth'}); };
+
+/* Glisser-déposer (souris + tactile) */
+let drag=null;
+$('#shelf').addEventListener('pointerdown',e=>{
+  const c=e.target.closest('.chip'); if(!c) return;
+  drag={c, x:e.clientX, y:e.clientY, moved:false, ghost:null, id:e.pointerId};
+  c.setPointerCapture(e.pointerId);
+});
+$('#shelf').addEventListener('pointermove',e=>{
+  if(!drag) return;
+  if(!drag.moved && Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>6){
+    drag.moved=true; const g=document.createElement('div'); g.className='ghost'; g.textContent=drag.c.querySelector('.fx').textContent; document.body.appendChild(g); drag.ghost=g;
+  }
+  if(drag.moved){ drag.ghost.style.left=e.clientX+'px'; drag.ghost.style.top=e.clientY+'px';
+    const tgt=dropTarget(e.clientX,e.clientY);
+    $('#flaskZone').classList.toggle('hover', !!tgt);
+    document.querySelectorAll('.slot').forEach(s=>s.classList.toggle('hover', tgt && s.dataset.slot===drag.c.dataset.slot));
+  }
+});
+function dropTarget(x,y){ const el=document.elementFromPoint(x,y); return el && (el.closest('#flaskZone')||el.closest('.slot')||el.closest('.bench')); }
+function endDrag(e){
+  if(!drag) return;
+  const {c,moved,ghost}=drag;
+  if(!moved) put(c.dataset.slot,c.dataset.id);
+  else { if(dropTarget(e.clientX,e.clientY)) put(c.dataset.slot,c.dataset.id); ghost.remove(); }
+  $('#flaskZone').classList.remove('hover'); document.querySelectorAll('.slot').forEach(s=>s.classList.remove('hover'));
+  drag=null;
+}
+$('#shelf').addEventListener('pointerup',endDrag);
+$('#shelf').addEventListener('pointercancel',e=>{ if(drag&&drag.ghost) drag.ghost.remove(); drag=null; });
+$('#shelf').addEventListener('keydown',e=>{ const c=e.target.closest('.chip'); if(c&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); put(c.dataset.slot,c.dataset.id);} });
+
+renderShelf(); renderSlots(); renderDefis(); renderLog(); run(false);
+</script>
+
+</body></html>

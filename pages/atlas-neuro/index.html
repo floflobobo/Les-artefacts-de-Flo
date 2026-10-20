@@ -1,0 +1,2058 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Atlas Neuro UE 3.5</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Mise en page : rail de chapitres à gauche (tiroir sur mobile), colonne de lecture ~720px, onglets par chapitre.
+   Identité : cahier d'électrophysiologie. Encre bleu nuit, tracé de PA en magenta « fluorescence », sympathique orange / parasympathique sarcelle. */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --surface2:#F6F8FB; --ink:#16203A; --muted:#58627A; --line:#D8DEE9; --line2:#B9C2D3;
+  --accent:#C2185B; --accent-soft:#F9E1EC; --accent2:#5B4BC4;
+  --sym:#D24E12; --sym-soft:#FCE8DD; --para:#0B7F79; --para-soft:#DDF3F1;
+  --tact:#2563C9; --pain:#D24E12; --sens:#2563C9; --mot:#0B7F79; --inh:#8A5CD6; --ca:#B7791F; --ca-soft:#FBF0DC;
+  --ok:#23824A; --ok-soft:#DFF2E6; --warn:#B7791F; --bad:#C0352B; --bad-soft:#FBE3E1;
+  --f-disp:"Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --note-bg:#FFF8D9; --note-line:#EEDC8C; --note-ink:#8A6A00;
+  --r:14px; --side:268px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E121B; --surface:#161C28; --surface2:#1C2433; --ink:#E5E9F2; --muted:#9CA6BB; --line:#283246; --line2:#3A4660;
+  --accent:#FF5C9A; --accent-soft:#3A1828; --accent2:#9F93FF;
+  --sym:#FF8A4C; --sym-soft:#3A2216; --para:#3CC8BE; --para-soft:#12302E;
+  --tact:#6EA2FF; --pain:#FF8A4C; --sens:#6EA2FF; --mot:#3CC8BE; --inh:#B79BFF; --ca:#E6B35A; --ca-soft:#33280F;
+  --ok:#4CC27A; --ok-soft:#14301F; --warn:#E6B35A; --bad:#FF6B5F; --bad-soft:#3A1715; --note-bg:#2B2614; --note-line:#4A3F17; --note-ink:#E8C55A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E121B; --surface:#161C28; --surface2:#1C2433; --ink:#E5E9F2; --muted:#9CA6BB; --line:#283246; --line2:#3A4660;
+  --accent:#FF5C9A; --accent-soft:#3A1828; --accent2:#9F93FF;
+  --sym:#FF8A4C; --sym-soft:#3A2216; --para:#3CC8BE; --para-soft:#12302E;
+  --tact:#6EA2FF; --pain:#FF8A4C; --sens:#6EA2FF; --mot:#3CC8BE; --inh:#B79BFF; --ca:#E6B35A; --ca-soft:#33280F;
+  --ok:#4CC27A; --ok-soft:#14301F; --warn:#E6B35A; --bad:#FF6B5F; --bad-soft:#3A1715; --note-bg:#2B2614; --note-line:#4A3F17; --note-ink:#E8C55A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--f-body)}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--f-disp);line-height:1.15;text-wrap:balance;margin:0}
+.lbl{font:500 11.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+/* Coque */
+.app{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:100vh}
+.rail{position:sticky;top:0;height:100vh;overflow:auto;border-right:1px solid var(--line);background:var(--surface);padding-block:20px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;gap:10px;align-items:center;cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.brand svg{flex:none}
+.brand b{font:800 19px var(--f-disp);display:block;letter-spacing:-.01em}
+.brand small{font:500 11px var(--f-mono);color:var(--muted);letter-spacing:.06em}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:grid;grid-template-columns:minmax(0,1fr) 40px;gap:8px;align-items:center;text-align:left;background:none;border:0;border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--ink)}
+.nav button:hover{background:var(--surface2)}
+.nav button.on{background:var(--accent-soft)}
+.nav .nm{font-size:14.5px;min-width:0}
+.nav .hot{font:500 10px var(--f-mono);color:var(--accent);letter-spacing:.06em;display:block}
+.bar{height:5px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:9px}
+.navsep{margin-top:6px}
+.main{min-width:0;padding-block:28px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.col{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.wide{max-width:1000px}
+.topbar{display:none}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:fixed;inset:0 auto 0 0;width:min(86vw,320px);z-index:40;transform:translateX(-105%);transition:transform .25s;box-shadow:0 0 40px rgba(0,0,0,.25);padding-top:calc(20px + env(safe-area-inset-top,0px))}
+  .rail.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(10,14,24,.45);z-index:39}
+  .topbar{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:30;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);border-bottom:1px solid var(--line);padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--surface)}
+  .main{padding-top:18px}
+}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:var(--surface);border-radius:999px;padding:8px 16px;cursor:pointer;font-weight:700;font-size:14.5px}
+.btn:hover{border-color:var(--ink)}
+.btn.pri{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.acc{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.sm{padding:5px 12px;font-size:13.5px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+/* Accueil */
+.hero{display:flex;flex-direction:column;gap:12px;padding-top:4px}
+.hero h1{font-size:clamp(34px,6vw,54px);font-weight:800;letter-spacing:-.02em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.trace{width:100%;height:64px;display:block}
+.trace path{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round}
+.trace .base{stroke:var(--line2);stroke-width:1;stroke-dasharray:3 5}
+.lede{font-size:17.5px;color:var(--muted);max-width:62ch;margin:0}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.facts div{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.facts b{font:800 26px var(--f-disp);font-variant-numeric:tabular-nums}
+.facts span{font-size:13.5px;color:var(--muted)}
+@media (max-width:560px){.facts{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.panel h2{font-size:21px}
+.next{border-left:4px solid var(--accent)}
+.chgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.chcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-width:0}
+.chcard:hover{border-color:var(--ink)}
+.chcard h3{font-size:16.5px;font-weight:700}
+.chcard .meta{display:flex;justify-content:space-between;font:500 12px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.chcard.hot{border-color:var(--accent)}
+/* Chapitre */
+.chhead{display:flex;flex-direction:column;gap:8px}
+.chhead h1{font-size:clamp(28px,4.6vw,40px);font-weight:800;letter-spacing:-.015em}
+.why{background:var(--accent-soft);border-radius:10px;padding:10px 14px;font-size:15px;margin:0}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none;position:sticky;top:0;background:var(--bg);z-index:5;padding-top:6px}
+@media (max-width:860px){.tabs{top:calc(57px + env(safe-area-inset-top,0px))}}
+.tabs button{flex:none;background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;cursor:pointer;font-weight:700;color:var(--muted);font-size:15px}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs .n{font:500 11px var(--f-mono);margin-left:4px;color:var(--muted)}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec h2{font-size:22px;font-weight:700;padding-top:6px}
+.sec p,.sec li{max-width:68ch}
+.sec ul,.sec ol{margin:0;padding-left:1.25em;display:flex;flex-direction:column;gap:6px}
+ol.chain{list-style:none;padding:0;counter-reset:c;gap:0}
+ol.chain>li{counter-increment:c;position:relative;padding:0 0 12px 40px;border-left:2px solid var(--line);margin-left:13px}
+ol.chain>li:last-child{border-left-color:transparent}
+ol.chain>li::before{content:counter(c);position:absolute;left:-14px;top:0;width:26px;height:26px;border-radius:50%;background:var(--surface);border:2px solid var(--accent);color:var(--accent);font:700 13px var(--f-mono);display:grid;place-items:center}
+ol.chain ul{margin-top:6px}
+.tblwrap{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-size:15px;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.t th,.t td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t th{font:500 12px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--surface2)}
+.t tr:last-child td{border-bottom:0}
+.t th.sym{color:var(--sym)} .t th.para{color:var(--para)}
+.t.eff td:first-child{font-weight:700;white-space:nowrap}
+@media (max-width:560px){.t.eff td:first-child{white-space:normal}}
+.callout{border:1px solid var(--accent);border-radius:10px;padding:10px 14px;background:var(--surface)}
+.note{color:var(--muted);font-size:14px;margin:0}
+.loop{background:var(--surface2);border-radius:10px;padding:10px 14px}
+.pieges{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:14px 18px}
+.pieges h3{font-size:16px;color:var(--bad);margin-bottom:6px}
+.pieges ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+/* Schémas */
+.dg{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.dg h3{font-size:18px}
+.dgbox{overflow-x:auto}
+.dg svg{width:100%;height:auto;display:block;min-width:460px}
+.fields svg{min-width:0}
+.dg .b{fill:var(--surface2);stroke:var(--line2);stroke-width:1.5}
+.dg .tx{fill:var(--ink);font:700 14px var(--f-body)}
+.dg .sm{fill:var(--muted);font:13px var(--f-body)}
+.dg .lv{fill:var(--muted);font:500 11px var(--f-mono);letter-spacing:.05em;text-transform:uppercase}
+.dg .mut{fill:var(--muted)}
+.dg .ln{fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round}
+.dg .ahd{fill:var(--muted)}
+.dg .acc{stroke:var(--accent)} .dg .acc-t{fill:var(--accent)} .dg .acc2{stroke:var(--accent2)}
+.dg .sens{stroke:var(--sens)} .dg .mot{stroke:var(--mot)} .dg .inh-l{stroke:var(--inh)} .dg .inh{fill:var(--inh);stroke:var(--inh)}
+.dg .dash{stroke-dasharray:7 6}
+.dg .v{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.5}
+.dg .nt{fill:var(--accent)}
+.dg .ch{fill:var(--ca-soft);stroke:var(--ca);stroke-width:1.5} .dg .ca{stroke:var(--ca)} .dg .ca-t{fill:var(--ca)}
+.dg .rc{fill:var(--para-soft);stroke:var(--para);stroke-width:1.5}
+.dg .mus{fill:var(--sym-soft)} .dg .fus{fill:var(--sens);stroke:var(--sens);fill-opacity:.25}
+.dg .gg{fill:var(--surface);stroke:var(--ink)} .dg .mn{fill:var(--para-soft);stroke:var(--mot)}
+.dg .cord{fill:var(--surface2)} .dg .astro{fill:var(--ca-soft)}
+.dg .sym-l{stroke:var(--sym)} .dg .para-l{stroke:var(--para)} .dg .sym-f{fill:var(--sym);stroke:var(--sym)}
+.dg .symb rect{fill:var(--sym-soft)} .dg .parab rect{fill:var(--para-soft)}
+.dg .win{fill:var(--surface);stroke:var(--accent)}
+.dg .mbm{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.2}
+.dg .peak{fill:none;stroke:var(--accent);stroke-width:3}
+.dg .mid{stroke:var(--line2);stroke-dasharray:4 5;stroke-width:1}
+.dg .vp{fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.dg .vp.tact{stroke:var(--tact)} .dg .vp.pain{stroke:var(--pain)}
+.dg .vp.coll{stroke-width:2;stroke-dasharray:4 4}
+.dg .vp.cut{stroke-opacity:.22;stroke-dasharray:3 6}
+.dg .syn{fill:var(--ink)}
+.dg .skin{fill:var(--sym-soft)}
+.dg .xmark path{stroke:var(--bad);stroke-width:5;stroke-linecap:round;fill:none}
+.dg .spk{stroke:var(--accent);stroke-width:2}
+.dg .eye{fill:var(--surface)}
+.dg .fq{fill:var(--para-soft);stroke:var(--para);stroke-width:1}
+.dg .fq.lost{fill:var(--bad);fill-opacity:.55;stroke:var(--bad)}
+.dg.st [data-k]{transition:opacity .25s}
+.dg.st [data-k]:not(.on){opacity:.16}
+.dg.st g.on .b{stroke:var(--accent);stroke-width:2.6}
+.dg.st path.on.ln{stroke-width:3.4}
+.steps{display:flex;flex-direction:column;gap:10px}
+.stepnow{background:var(--surface2);border-radius:10px;padding:12px 14px;min-height:84px}
+.stepnow .lbl{color:var(--accent)}
+.stepnow b{display:block;font:700 17px var(--f-disp);margin:2px 0 4px}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dots button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line2);background:var(--surface);cursor:pointer;font:700 12px var(--f-mono);color:var(--muted)}
+.dots button.on{border-color:var(--accent);background:var(--accent);color:#fff}
+.dots button.done{border-color:var(--accent);color:var(--accent)}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line2);border-radius:999px;padding:3px;gap:2px;background:var(--surface2)}
+.seg button{border:0;background:none;border-radius:999px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:700;color:var(--muted)}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.sel{display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px;flex-wrap:wrap}
+.sel select{border:1px solid var(--line2);border-radius:10px;background:var(--surface);padding:7px 10px;max-width:100%}
+.slider{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:14px}
+.slider label{font-weight:700}
+.slider input{flex:1;min-width:160px;accent-color:var(--accent)}
+.slider output{font:500 13px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:22px;height:4px;border-radius:3px;display:inline-block}
+.sw.tact{background:var(--tact)} .sw.pain{background:var(--pain)}
+.legend .dot{width:9px;height:9px;border-radius:50%;background:var(--ink);display:inline-block}
+.verdict{background:var(--surface2);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.verdict p{margin:0}
+.pill{display:inline-block;font:500 11.5px var(--f-mono);letter-spacing:.04em;border-radius:999px;padding:2px 9px;margin-right:6px;color:#fff}
+.pill.tact{background:var(--tact)} .pill.pain{background:var(--pain)}
+.vgrid{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:14px;align-items:start}
+.fields{display:flex;flex-direction:column;gap:12px}
+.fields div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:13px;color:var(--muted)}
+.fields svg{width:110px}
+@media (max-width:640px){.vgrid{grid-template-columns:minmax(0,1fr)}.fields{flex-direction:row;flex-wrap:wrap;justify-content:center}}
+.omap{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.org{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:6px;cursor:default}
+.org b{font-size:14.5px}
+.ef{font-size:13.5px;border-radius:8px;padding:5px 8px;display:flex;gap:8px;align-items:baseline}
+.ef span{font:500 10.5px var(--f-mono);text-transform:uppercase;letter-spacing:.05em;flex:none;width:46px}
+.ef.para{background:var(--para-soft)} .ef.para span{color:var(--para)}
+.ef.sym{background:var(--sym-soft)} .ef.sym span{color:var(--sym)}
+.ef i{font-style:normal;font-weight:700;color:var(--muted)}
+/* Page blanche, annales */
+.task{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.task h3{font-size:17.5px;font-weight:700}
+.task .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.tag{font:500 11.5px var(--f-mono);letter-spacing:.04em;border-radius:999px;padding:3px 10px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.tag.real{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.tag.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.tag.mid{background:var(--ca-soft);color:var(--warn);border-color:transparent}
+.tag.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.ctx{background:var(--surface2);border-radius:10px;padding:10px 14px;font-size:15px;margin:0}
+textarea{width:100%;min-height:170px;border:1px solid var(--line2);border-radius:10px;background:var(--surface2);padding:12px 14px;line-height:1.55;resize:vertical}
+textarea:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.reveal{border-top:1px dashed var(--line2);padding-top:12px;display:flex;flex-direction:column;gap:10px}
+.bareme{display:flex;flex-direction:column;gap:6px}
+.bitem{display:grid;grid-template-columns:26px minmax(0,1fr) 54px;gap:8px;align-items:start;padding:8px 10px;border-radius:10px;background:var(--surface2);cursor:pointer}
+.bitem input{width:18px;height:18px;margin-top:3px;accent-color:var(--ok)}
+.bitem .p{font:500 12.5px var(--f-mono);text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.bitem.ok{background:var(--ok-soft)} .bitem.partiel{background:var(--ca-soft)}
+.bitem .cm{grid-column:2/4;font-size:13.5px;color:var(--muted)}
+.score{font:800 28px var(--f-disp);font-variant-numeric:tabular-nums}
+.timer{font:500 15px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--muted)}
+.timer.late{color:var(--bad)}
+.ai{border:1px solid var(--accent2);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.ai .lbl{color:var(--accent2)}
+.rate{display:flex;flex-wrap:wrap;gap:8px}
+.rate button{border-radius:999px;padding:6px 14px;border:1px solid var(--line2);background:var(--surface);cursor:pointer;font-weight:700;font-size:14px}
+.rate button[data-r="0"].on{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.rate button[data-r="1"].on{background:var(--ca-soft);border-color:var(--warn);color:var(--warn)}
+.rate button[data-r="2"].on{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.model{background:var(--surface2);border-radius:10px;padding:12px 16px}
+/* Flashcards */
+.fc{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px 22px;min-height:230px;display:flex;flex-direction:column;gap:14px;justify-content:space-between}
+.fc .q{font:700 21px/1.3 var(--f-disp)}
+.fc .a{font-size:17px;border-top:1px dashed var(--line2);padding-top:12px}
+.fcmeta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font:500 12px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.boxes{display:flex;gap:6px;align-items:flex-end;height:56px}
+.boxes div{flex:1;background:var(--accent-soft);border-radius:6px 6px 0 0;position:relative;min-height:4px}
+.boxes div i{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font:500 10.5px var(--f-mono);color:var(--muted);font-style:normal}
+.empty{color:var(--muted);text-align:center;padding:30px 10px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);border-radius:999px;padding:9px 18px;font-weight:700;font-size:14px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.savestate{font:500 11px var(--f-mono);color:var(--muted)}
+.figs{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.figs.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:640px){.figs.two{grid-template-columns:minmax(0,1fr)}}
+.slide{margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.slide .zoom{padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;cursor:zoom-in;display:block}
+.slide img{display:block;width:100%;height:auto}
+.slide figcaption{font-size:13.5px;color:var(--muted)}
+.lightbox{position:fixed;inset:0;z-index:70;background:rgba(8,11,18,.88);display:grid;place-items:center;padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));cursor:zoom-out}
+.lightbox figure{margin:0;display:flex;flex-direction:column;gap:10px;max-width:min(1400px,100%);max-height:100%}
+.lightbox img{max-width:100%;max-height:calc(100vh - 90px);object-fit:contain;border-radius:8px;background:#fff}
+.lightbox figcaption{color:#E5E9F2;font-size:14px;text-align:center}
+.nadd{display:flex}
+.btn.ghost{border-style:dashed;color:var(--muted);font-weight:700;background:transparent}
+.btn.ghost:hover{color:var(--ink)}
+.nblk{background:var(--note-bg);border:1px solid var(--note-line);border-left:4px solid var(--note-ink);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.nblk .nh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.nblk .lbl{color:var(--note-ink)}
+.nblk .nb{font-size:15.5px;overflow-wrap:anywhere}
+.nblk textarea{min-height:110px;background:var(--surface)}
+.nblk.big{margin-top:-4px}
+.search{width:100%;border:1px solid var(--line2);border-radius:999px;background:var(--surface);padding:10px 16px}
+.search:focus{outline:none;border-color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<div class="app">
+<aside class="rail" aria-label="Navigation">
+<button class="brand" data-go="home" aria-label="Accueil"><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="9" fill="var(--ink)"/><path d="M4 22 H11 L13 19 L15 7 L18 27 L20 21 H30" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg><span><b>Atlas Neuro</b><small>UE 3.5 · DFGSP2</small></span></button>
+<nav id="nav" class="nav"></nav>
+<p class="note" style="font-size:12.5px">Sources : ronéo Pharmasutra 2025-26 et diapos du cours (Pr Sainte-Marie). Annales 2022 à 2025.</p>
+</aside>
+<div style="min-width:0">
+<header class="topbar"><button id="menuBtn" class="btn sm" aria-label="Ouvrir les chapitres">☰ Chapitres</button><button class="brand" data-go="home"><b style="font-size:16px">Atlas Neuro</b></button></header>
+<main id="main" class="main"></main>
+</div>
+</div>
+<div id="toast" class="toast" role="status"></div>
+<script>
+// ===== CONTENU : chapitres =====
+const CH = [];
+
+CH.push({
+id:"bases", title:"Bases : synapse, réflexe, niveaux d'intégration", short:"Bases",
+src:"Ronéo 01/10 · diapo Intro neuro",
+weight:"Socle de toutes les copies : chaque voie et chaque réflexe se raconte avec ces mécanismes.",
+diagrams:["synapse","rotulien"],
+sections:[
+{h:"Structure fonctionnelle du neurone", html:`
+<p>Un neurone a 4 zones fonctionnelles, dans le sens de circulation du message :</p>
+<ul>
+<li><b>Intégration</b> : dendrites et corps cellulaire reçoivent les potentiels post-synaptiques (PPS) ; ils se somment au <b>cône d'implantation de l'axone</b> (zone gâchette), où naît le potentiel d'action (PA) si le seuil est atteint.</li>
+<li><b>Conduction</b> : le PA parcourt l'axone, à intensité constante. La <b>myéline</b> accélère la conduction (conduction saltatoire).</li>
+<li><b>Transmission</b> : au bouton terminal, libération du neurotransmetteur (NT).</li>
+</ul>
+<p>Le PA obéit à la <b>loi du tout ou rien</b> : il naît ou ne naît pas, son amplitude ne varie pas. Ce qui est modulable, c'est la synapse.</p>`},
+{h:"Transmission synaptique, étape par étape", html:`
+<ol class="chain">
+<li>Le <b>PA</b> arrive au bouton présynaptique et le <b>dépolarise</b>.</li>
+<li>La dépolarisation ouvre des <b>canaux Ca²⁺ voltage-dépendants</b> : entrée de Ca²⁺ <b>extracellulaire</b> (gradient entrant).</li>
+<li>Le Ca²⁺ déclenche la <b>fusion des vésicules</b> avec la membrane plasmique (exocytose) : le NT est libéré dans la <b>fente synaptique</b>.</li>
+<li>Le NT se fixe sur des <b>récepteurs-canaux</b> post-synaptiques, qui laissent passer des ions.</li>
+<li>Ce passage d'ions crée un <b>PPS</b>, positif ou négatif selon le NT. C'est un <b>potentiel gradué</b> (proportionnel à la quantité de NT).</li>
+<li>Le NT est <b>retiré</b> de la fente : la transmission s'arrête.</li>
+</ol>
+<p><b>3 voies de retrait du NT</b> (chaque NT a sa propre gestion) :</p>
+<ul>
+<li><b>Recapture</b> dans le neurone ;</li>
+<li><b>Dégradation</b> enzymatique ;</li>
+<li><b>Capture par l'astrocyte</b>, qui le transforme en métabolite <b>inactif</b> sur le récepteur, puis le rend au neurone comme <b>précurseur</b> pour re-synthétiser le NT.</li>
+</ul>`},
+{h:"Neurotransmetteurs et neuromodulateurs", html:`
+<table class="t"><thead><tr><th></th><th>Glutamate</th><th>GABA</th></tr></thead><tbody>
+<tr><td>Rôle</td><td>Excitateur principal</td><td>Inhibiteur principal</td></tr>
+<tr><td>PPS</td><td><b>Dépolarisant</b> (PPS excitateur)</td><td><b>Hyperpolarisant</b> (PPS inhibiteur)</td></tr>
+<tr><td>Où</td><td colspan="2">Réseaux du SNC (et réflexes médullaires) : communication fine neurone à neurone</td></tr></tbody></table>
+<p>Un neurone libère <b>l'un ou l'autre</b> selon son type, pas les deux.</p>
+<p><b>Neuromodulateurs</b> : dopamine, sérotonine, noradrénaline, acétylcholine, histamine. Ils ne sont <b>pas forcément libérés dans une synapse</b> fine : libération <b>diffuse</b> sur une <b>population</b> de neurones. Ils modifient le fonctionnement du réseau (vigilance, vitesse de traitement) <b>sans changer la nature de l'analyse</b>, qui reste portée par glutamate et GABA.</p>
+<p>Il existe aussi de nombreux autres neuromédiateurs (neuropeptides, lipides, gaz), connus mais sans usage pharmacologique à ce jour.</p>`},
+{h:"Le réflexe rotulien (myotatique) : le circuit le plus simple", html:`
+<p><b>Branche extenseur : monosynaptique, 2 neurones.</b></p>
+<ol class="chain">
+<li><b>Stimulus</b> : la percussion du tendon rotulien <b>étire</b> le quadriceps et donc le <b>fuseau neuromusculaire</b> (fibres intrafusales).</li>
+<li><b>Transduction</b> : le stimulus physique devient électrique → <b>potentiel récepteur</b> (dépolarisation graduée) → si le <b>seuil</b> est atteint, <b>PA</b>.</li>
+<li>Les PA sont conduits par le <b>neurone sensitif</b> (neurone en T, corps cellulaire dans le <b>ganglion rachidien</b>), qui entre dans la moelle par la racine dorsale.</li>
+<li>Dans la <b>moelle</b>, il libère du <b>glutamate</b> sur le <b>motoneurone du quadriceps</b> : PPS excitateur → PA.</li>
+<li>PA du motoneurone → jonction neuromusculaire (<b>ACh</b>, récepteurs nicotiniques) → <b>contraction du quadriceps</b> → extension de la jambe.</li>
+</ol>
+<p><b>Branche fléchisseur : innervation réciproque.</b> Une <b>collatérale</b> du neurone sensitif libère du glutamate sur un <b>interneurone inhibiteur</b> (dans la moelle), qui libère du <b>GABA</b> sur le <b>motoneurone du fléchisseur</b> : ce motoneurone est hyperpolarisé, le fléchisseur se relâche et ne s'oppose pas à l'extension.</p>
+<p>C'est un <b>rétrocontrôle par voie nerveuse</b> : la détection (étirement) et la réponse (contraction) ont lieu dans le même muscle, qui revient à sa longueur initiale. Centre intégrateur : <b>L2-L4</b> (ronéo) ; la diapo indique l'arc <b>L4 – nerf fémoral</b>.</p>`},
+{h:"Les 3 niveaux d'intégration", html:`
+<p>Le système nerveux détecte et agit sur le monde, avec un traitement <b>hiérarchique</b> de plus en plus élaboré. Grâce aux <b>collatérales</b>, la même information est distribuée <b>en parallèle</b> aux 3 niveaux :</p>
+<table class="t"><thead><tr><th>Niveau</th><th>Réponse</th><th>Exemple (choc sur le genou)</th></tr></thead><tbody>
+<tr><td><b>Moelle épinière</b></td><td>Réflexe : <b>stéréotypé, automatique</b>, une seule réponse pour un stimulus</td><td>Étirement = contraction</td></tr>
+<tr><td><b>Cerveau « inférieur »</b></td><td>Réponse <b>basique, non spécifique</b> : ↑ <b>vigilance</b> via les neuromodulateurs</td><td>« Un impact inattendu »</td></tr>
+<tr><td><b>Cortex</b></td><td>Traitement <b>conscient</b> : analyse, mise en contexte, stratégie de réponse</td><td>« C'était léger, je peux me détendre »</td></tr></tbody></table>
+<p>La jambe part <b>avant</b> la prise de conscience : le réflexe médullaire a le circuit le plus court. Les relais synaptiques sont les points où le message peut être <b>modulé</b>. Exemple caricatural : endormi, le cerveau fonctionne mais n'est plus sensible à l'extérieur.</p>`},
+{h:"Organisation de l'encéphale", html:`
+<p>Vue sagittale, de haut en bas :</p>
+<ul>
+<li><b>Cortex</b> plissé (augmente la surface de neurones). Le <b>sillon central</b> sépare le lobe <b>frontal</b> (en avant) du lobe <b>pariétal</b> (en arrière) ; puis lobe <b>occipital</b> ; le lobe <b>temporal</b> est latéral.</li>
+<li><b>Gyrus cingulaire</b>, en croissant autour du <b>corps calleux</b> (axones reliant les 2 hémisphères).</li>
+<li><b>Diencéphale</b> : thalamus et hypothalamus.</li>
+<li><b>Tronc cérébral</b> : mésencéphale, métencéphale (pont), myélencéphale (bulbe), en continuité avec la <b>moelle épinière</b>.</li>
+<li><b>Cervelet</b>, en arrière du tronc.</li>
+</ul>
+<p>Le cortex a 6 couches et des aires spécialisées (aires de Brodmann), mais des fonctions complexes émergent des interactions entre modules. La phrénologie (« bosse des maths ») est une pseudo-science : à comprendre, pas à apprendre.</p>`}
+],
+pieges:[
+"Canaux Ca²⁺ <b>voltage-dépendants</b>, Ca²⁺ <b>extracellulaire</b> : les deux mots rapportent des points.",
+"Un neurone libère glutamate <b>ou</b> GABA, jamais « des vésicules de GABA et glutamate ».",
+"Toujours donner le <b>sens</b> du PPS : glutamate = dépolarisant, GABA = hyperpolarisant.",
+"Le GABA agit sur le <b>motoneurone</b> du fléchisseur, pas sur le muscle.",
+"La synapse à glutamate du réflexe est <b>dans la moelle</b> ; dans le muscle (JNM), c'est l'<b>ACh</b>.",
+"Branche extenseur = <b>monosynaptique à 2 neurones</b>, pas un « réseau ».",
+"Cerveau inférieur = <b>vigilance non spécifique</b> ; la mise en contexte est <b>corticale</b>.",
+"Ne pas sauter les étapes : <b>transduction → potentiel récepteur → seuil → PA</b>. Chaque flèche a son mécanisme."
+],
+cards:[
+["Quelles sont les 4 zones fonctionnelles d'un neurone ?","Intégration (dendrites, corps cellulaire, cône d'implantation = zone gâchette), conduction (axone), transmission (bouton terminal)."],
+["Qu'est-ce qui fait entrer le Ca²⁺ dans le bouton présynaptique ?","Des canaux Ca²⁺ voltage-dépendants, ouverts par la dépolarisation due au PA. Le Ca²⁺ est extracellulaire."],
+["Rôle du Ca²⁺ dans la transmission synaptique ?","Il déclenche la fusion des vésicules avec la membrane plasmique (exocytose du NT)."],
+["Les 3 voies de retrait d'un NT ?","Recapture, dégradation, capture par l'astrocyte qui le transforme en métabolite inactif rendu au neurone comme précurseur."],
+["PPS du glutamate ? du GABA ?","Glutamate : dépolarisant (excitateur). GABA : hyperpolarisant (inhibiteur)."],
+["Neuromodulateur vs neurotransmetteur ?","Le neuromodulateur est libéré de façon diffuse sur une population de neurones ; il module le réseau sans changer la nature de l'analyse (portée par glutamate/GABA)."],
+["Cite 5 neuromodulateurs.","Dopamine, sérotonine, noradrénaline, acétylcholine, histamine."],
+["Réflexe rotulien : combien de neurones dans la branche extenseur ?","2 : neurone sensitif et motoneurone. Monosynaptique, synapse glutamatergique dans la moelle."],
+["Réflexe rotulien : comment le fléchisseur est-il relâché ?","Collatérale → interneurone inhibiteur → GABA sur le motoneurone du fléchisseur → hyperpolarisation → relâchement (innervation réciproque)."],
+["Quel segment médullaire teste le réflexe rotulien ?","L2-L4 (ronéo) ; arc L4 – nerf fémoral (diapo)."],
+["Qu'est-ce qu'un potentiel gradué ?","Un potentiel dont l'amplitude est proportionnelle au stimulus (potentiel récepteur, PPS), par opposition au PA tout ou rien."],
+["Rôle du cerveau inférieur dans les niveaux d'intégration ?","Réponse basique non spécifique : augmentation de la vigilance via les neuromodulateurs."],
+["Pourquoi la jambe part-elle avant la prise de conscience ?","Le réflexe médullaire a le circuit le plus court ; l'info arrive en parallèle (collatérales) au cortex, plus lentement."],
+["Que sépare le sillon central ?","Le lobe frontal (en avant, cortex moteur) du lobe pariétal (en arrière, cortex somesthésique)."],
+["Les 3 étages du tronc cérébral ?","Mésencéphale, métencéphale (pont), myélencéphale (bulbe)."]
+]
+});
+
+CH.push({
+id:"sensi", title:"Généralités sur les sensibilités", short:"Généralités sensibilités",
+src:"Ronéo 01/10 · diapo Généralités modalités sensitives",
+weight:"Grille de lecture de toutes les sensibilités : la question « particularités de la nociception » se corrige avec elle.",
+diagrams:["codage"],
+sections:[
+{h:"Le schéma général d'une sensibilité", html:`
+<p>Chaque modalité se décrit avec la même grille (c'est la structure des diapos « Résumé ») :</p>
+<ol class="chain">
+<li><b>Stimulus physico-chimique</b> : de quelle nature ? externe ou interne ? proche ou à distance ?</li>
+<li><b>Transduction</b> : conversion en signal électrique par un récepteur cellulaire ou une structure spécialisée. Notions : <b>spécificité</b>, type de réponse, <b>adaptation</b>.</li>
+<li><b>Conduction / voies sensorielles</b> : vitesse de conduction, trajet, convergence, <b>relais</b>.</li>
+<li><b>Traitements et intégrations</b> : réflexes, projections sous-corticales et corticales.</li>
+</ol>
+<p>Les <b>relais</b> synaptiques sont les points où le signal peut être <b>modulé</b>, transmis ou arrêté : il faut savoir où ils sont.</p>`},
+{h:"Potentiel récepteur et codage de l'intensité", html:`
+<ul>
+<li>Le début de la détection est toujours un <b>potentiel récepteur</b> : modification de la polarisation de la membrane, <b>proportionnelle à l'intensité du stimulus</b>. C'est un <b>potentiel gradué</b>.</li>
+<li>Expérience de mécanotransduction : on appuie sur un neurone avec une pointe fine ; plus on appuie fort, plus la membrane se déforme et plus le courant enregistré est grand.</li>
+<li>Si le potentiel récepteur atteint le <b>seuil</b>, il génère des <b>PA</b>. L'intensité est codée par la <b>fréquence</b> des PA : plus le stimulus est fort, plus il y a de PA.</li>
+<li>À la synapse, la quantité de NT libérée dépend du nombre de PA : la réponse redevient graduée et donc <b>modulable</b>.</li>
+</ul>`},
+{h:"Réponses tonique et phasique", html:`
+<p>On regarde la <b>réponse</b> du récepteur (le train de PA), pas le stimulus.</p>
+<table class="t"><thead><tr><th>Tonique</th><th>Phasique</th></tr></thead><tbody>
+<tr><td>Des PA <b>tant que le stimulus est présent</b>. La fréquence peut diminuer (<b>adaptation</b>) mais ne s'annule pas.</td><td>Des PA seulement aux <b>transitions</b> : quand le stimulus apparaît ou disparaît. Rien si le stimulus est stable.</td></tr>
+<tr><td>Ex. : la fibre décharge tant que tu tiens ton sac.</td><td>Ex. : tu ne sens plus ta montre une fois mise.</td></tr></tbody></table>`},
+{h:"Vitesse de conduction et types de fibres", html:`
+<p>La vitesse dépend du <b>calibre</b> de l'axone et de sa <b>myélinisation</b> (conduction par sauts). Elle diffère selon la modalité :</p>
+<table class="t"><thead><tr><th>Fibre</th><th>Myéline</th><th>Modalité</th></tr></thead><tbody>
+<tr><td>Ia, II (Aα)</td><td>Fortement myélinisées, gros calibre</td><td>Proprioception (fuseau)</td></tr>
+<tr><td>Aβ</td><td>Myélinisées</td><td>Tact</td></tr>
+<tr><td>Aδ</td><td>Faiblement myélinisées</td><td>Nociception rapide, localisée (peau)</td></tr>
+<tr><td>C</td><td>Non myélinisées</td><td>Nociception (partout sauf tissu nerveux), intéroception</td></tr></tbody></table>
+<p class="note">La nomenclature détaillée des axones n'est pas à connaître (ronéo) ; retiens la logique calibre/myéline/vitesse.</p>`}
+],
+pieges:[
+"Tonique/phasique : regarder la <b>réponse</b> (les PA), pas le stimulus.",
+"Le potentiel récepteur est <b>gradué</b> ; le PA est <b>tout ou rien</b>. L'intensité est codée en <b>fréquence</b> de PA."
+],
+cards:[
+["Les 4 étapes du schéma général d'une sensibilité ?","Stimulus physico-chimique → transduction (récepteur) → conduction (voies sensorielles, relais) → traitements et intégrations (réflexes, projections corticales)."],
+["Qu'est-ce que la transduction ?","La conversion d'un stimulus physico-chimique en signal électrique (potentiel récepteur) par un récepteur."],
+["Comment l'intensité d'un stimulus est-elle codée ?","Potentiel récepteur gradué (proportionnel) → fréquence de PA → quantité de NT libérée au relais."],
+["Réponse tonique ?","PA tant que le stimulus est présent ; la fréquence peut s'adapter (diminuer)."],
+["Réponse phasique ?","PA seulement à l'apparition et à la disparition du stimulus."],
+["« Tu ne sens plus ta montre une fois mise » : tonique ou phasique ?","Phasique."],
+["« La fibre décharge tant que tu tiens ton sac » : tonique ou phasique ?","Tonique."],
+["De quoi dépend la vitesse de conduction ?","Du calibre de l'axone et de sa myélinisation (conduction saltatoire)."],
+["Pourquoi les relais synaptiques sont-ils importants ?","Ce sont les points où le message peut être modulé, transmis ou arrêté (réponse graduée à la synapse)."]
+]
+});
+
+CH.push({
+id:"tact", title:"Tact et somesthésie", short:"Tact",
+src:"Ronéos 01/10 et 13/10 · diapo Modalités sensitives",
+weight:"Comparé à la nociception en annale (4 pts). Latéralité des lésions : classique.",
+diagrams:["voies"],
+sections:[
+{h:"Récepteurs du tact", html:`
+<ul>
+<li>Le tact (toucher <b>épicritique</b> = fin) intègre dès le départ l'information de <b>nombreux récepteurs</b> de la peau : récepteurs du <b>follicule pileux</b> et mécanorécepteurs de l'épiderme et du derme.</li>
+<li>La peau se déforme : plus un récepteur est <b>superficiel</b>, moins il faut de stimulus pour l'activer.</li>
+<li>Les fibres sont <b>hautement myélinisées</b> : on a besoin de comprendre vite ce qui se passe à proximité directe.</li>
+<li>Certains récepteurs cutanés servent aussi à la <b>proprioception</b> (position du corps).</li>
+<li><b>Stéréognosie</b> : reconnaître un objet par le toucher seul.</li>
+</ul>`},
+{h:"La voie lemniscale : 3 neurones, 2 relais", html:`
+<ol class="chain">
+<li><b>1er neurone : neurone en T</b>, corps cellulaire dans le <b>ganglion rachidien</b> (spinal). Il reçoit l'info en périphérie, entre par la <b>racine dorsale</b> et monte <b>sans relais</b> dans les <b>colonnes dorsales</b> (substance blanche), <b>du même côté</b>.</li>
+<li><b>2e neurone</b> : dans les <b>noyaux des colonnes dorsales</b>, au <b>bulbe</b>. Son axone <b>croise la ligne médiane</b> : c'est la <b>décussation</b>, au niveau du bulbe. Il monte dans le <b>lemnisque médian</b>.</li>
+<li><b>3e neurone</b> : dans le <b>thalamus</b> (relais final). Il projette sur le <b>cortex somesthésique primaire</b>, lobe <b>pariétal</b>, juste <b>derrière le sillon central</b>.</li>
+</ol>
+<p><b>Face</b> : même principe, mais le neurone en T a son corps cellulaire dans un ganglion du <b>nerf trijumeau (V)</b> ; le reste du trajet est identique.</p>
+<p>Tout ce qui est sous le thalamus est <b>inconscient</b> ; la sensation devient <b>consciente au cortex</b>.</p>
+<p><b>Collatérales</b> : vers la moelle (réflexes) et vers le <b>cervelet</b>. Au relais, <b>inhibition latérale</b> (diapo) : elle renforce le contraste spatial.</p>`},
+{h:"Raisonner sur une lésion", html:`
+<p>La décussation du tact a lieu dans le <b>bulbe</b>. Donc :</p>
+<ul>
+<li>Lésion <b>sous le bulbe</b> (moelle) : perte du tact <b>du même côté</b> que la lésion.</li>
+<li>Lésion <b>au-dessus du bulbe</b> (tronc, thalamus, cortex) : perte <b>du côté opposé</b>.</li>
+</ul>
+<p>Le schéma interactif « Voies ascendantes » te laisse placer la lésion et voir ce qui est perdu.</p>`},
+{h:"Dermatomes et homoncule sensitif", html:`
+<ul>
+<li><b>Dermatome</b> : segment de peau innervé par un nerf rachidien précis, défini par le <b>niveau médullaire</b> auquel il est rattaché (organisation <b>métamérique</b>, mise en place pendant le développement fœtal ; visible sur un corps courbé). Frontières nettes avec des zones de recouvrement. Intérêt <b>diagnostique</b> : localiser le niveau d'une lésion.</li>
+<li><b>Homoncule sensitif</b> : projection <b>somatotopique</b> sur le cortex somesthésique primaire. Les zones les plus <b>innervées</b> (tête, lèvres, langue, bout des doigts) ont la plus grande surface corticale. Une lésion corticale fait perdre la sensibilité <b>consciente</b> de la région correspondante.</li>
+</ul>`},
+{h:"Résumé du tact (grille)", html:`
+<table class="t"><tbody>
+<tr><td><b>Stimulus</b></td><td>Physique : pression, vibration, déformation</td></tr>
+<tr><td><b>Transduction</b></td><td>Récepteurs variés de l'épiderme, du derme, des follicules</td></tr>
+<tr><td><b>Voies</b></td><td>Neurone en T (ganglion rachidien) → colonnes dorsales → noyaux des colonnes dorsales (bulbe) → décussation → lemnisque médian → thalamus → cortex. Collatérales : moelle, cervelet</td></tr>
+<tr><td><b>Intégration</b></td><td>Réflexes médullaires, inhibition latérale, projection somatotopique sur le cortex somesthésique I</td></tr></tbody></table>`}
+],
+pieges:[
+"Le <b>3e neurone est dans le thalamus</b> ; le cortex pariétal est la <b>destination</b>, pas un neurone de la voie.",
+"Toujours localiser le 1er neurone : <b>ganglion rachidien</b> (neurone en T).",
+"Décussation du tact : <b>bulbe</b>. Lésion médullaire = même côté ; au-dessus du bulbe = côté opposé."
+],
+cards:[
+["Les 3 neurones de la voie du tact et leur localisation ?","1) Neurone en T, ganglion rachidien ; 2) noyaux des colonnes dorsales (bulbe) ; 3) thalamus. Destination : cortex somesthésique pariétal."],
+["Où a lieu la décussation de la voie du tact ?","Au bulbe, à la sortie des noyaux des colonnes dorsales (2e neurone)."],
+["Dans quel faisceau monte l'axone du 1er neurone du tact ?","Les colonnes dorsales, du même côté, sans relais dans la moelle."],
+["Comment s'appelle le faisceau après la décussation du tact ?","Le lemnisque médian."],
+["Lésion de l'hémimoelle gauche : tact perdu de quel côté ?","À gauche (sous la lésion) : la décussation du tact est plus haut, dans le bulbe."],
+["Lésion du thalamus gauche : tact perdu de quel côté ?","À droite."],
+["Voie du tact pour la face ?","Neurone en T dans un ganglion du nerf trijumeau (V), puis même trajet (décussation, lemnisque, thalamus, cortex)."],
+["Qu'est-ce qu'un dermatome ?","Un segment de peau innervé par un nerf rachidien, défini par son niveau médullaire (organisation métamérique). Utile pour localiser une lésion."],
+["Pourquoi les lèvres sont-elles énormes sur l'homoncule ?","Elles ont beaucoup de récepteurs : la surface corticale dépend de la richesse d'innervation."],
+["Où la sensation tactile devient-elle consciente ?","Au cortex somesthésique ; tout ce qui est sous le thalamus est inconscient."],
+["Qu'est-ce que la stéréognosie ?","La reconnaissance d'un objet par le toucher seul."],
+["Collatérales de la voie du tact ?","Vers la moelle (réflexes) et vers le cervelet."]
+]
+});
+
+CH.push({
+id:"proprio", title:"Proprioception et réflexes", short:"Proprioception",
+src:"Ronéo 13/10 · diapo Modalités sensitives",
+weight:"Fournit l'information qui construit et corrige tout programme moteur.",
+diagrams:["rotulien"],
+sections:[
+{h:"Les 3 types de récepteurs proprioceptifs", html:`
+<p>La proprioception rend <b>consciente</b> la position des segments de membres les uns par rapport aux autres, même assis. Elle naît de la <b>convergence</b> de nombreux récepteurs :</p>
+<table class="t"><thead><tr><th>Récepteur</th><th>Disposition</th><th>Information</th></tr></thead><tbody>
+<tr><td><b>Fuseau neuromusculaire</b> (fibres intrafusales)</td><td>En <b>parallèle</b> des fibres extrafusales, même orientation</td><td><b>Longueur</b> du muscle (étirement)</td></tr>
+<tr><td><b>Organe tendineux</b> (de Golgi)</td><td>En <b>série</b>, dans le tendon, entre les fibres de collagène</td><td><b>Tension</b> musculaire (compression des fibres nerveuses quand le muscle tire sur le tendon)</td></tr>
+<tr><td><b>Récepteurs cutanés et articulaires</b> (type Ruffini, Pacini ; fascias, ligaments)</td><td>Autour des articulations</td><td><b>Position et mouvement</b> de l'articulation (étirement de la peau au coude)</td></tr></tbody></table>
+<p>Les <b>fibres extrafusales</b>, plus nombreuses, assurent la contraction et la force ; les <b>intrafusales</b> détectent la longueur. Le fuseau a un système d'ajustement connecté aux motoneurones.</p>`},
+{h:"Les voies courtes : réflexes proprioceptifs", html:`
+<ul>
+<li><b>Réflexe myotatique</b> : un étirement brusque (marteau) étire la fibre intrafusale → réflexe de <b>correction</b> : <b>contraction</b> du muscle étiré qui rétablit sa longueur. Ex. : réflexe rotulien.</li>
+<li><b>Réflexe tendineux</b> : une <b>tension excessive</b> sur le tendon active l'organe tendineux → <b>inhibition</b> réflexe → <b>relâchement</b> du muscle. Il fonctionne à l'inverse du myotatique et <b>protège</b> le muscle de la rupture.</li>
+<li>3 grands types de réflexes : <b>myotatiques</b>, <b>cutanés</b> (tact) et <b>tendineux</b>.</li>
+</ul>
+<p><b>Intérêt clinique</b> : grâce à l'organisation <b>métamérique</b>, chaque réflexe teste un segment. Réflexe absent = défaut de la branche <b>sensitive</b>, de la branche <b>motrice</b> ou du <b>segment médullaire</b> (rotulien : L2-L4).</p>`},
+{h:"Voies centrales et résumé", html:`
+<ul>
+<li>Même voie que le tact : neurone en T (ganglion rachidien) → <b>colonnes dorsales</b> → noyaux → <b>lemnisque médian</b> → thalamus → <b>cortex somesthésique primaire</b>.</li>
+<li>En plus : des <b>collatérales vers le cervelet</b> (faisceaux <b>spinocérébelleux</b>), centre intégrateur essentiel de la <b>motricité</b> et de la coordination.</li>
+<li>Fibres <b>myélinisées</b> de gros calibre (Ia, II).</li>
+</ul>
+<p>Pendant un mouvement, <b>le corps devient le stimulateur</b> de ses propres propriocepteurs : la contraction est elle-même source d'information (attraper une bouteille tend le tendon).</p>`}
+],
+pieges:[
+"Fuseau = <b>longueur</b>, en <b>parallèle</b> ; organe tendineux = <b>tension</b>, en <b>série</b>.",
+"Myotatique : stimulation → <b>contraction</b>. Tendineux : stimulation → <b>relâchement</b>.",
+"La proprioception a une destination en plus du tact : le <b>cervelet</b>."
+],
+cards:[
+["Que mesure le fuseau neuromusculaire ?","La longueur du muscle (étirement), via les fibres intrafusales disposées en parallèle."],
+["Que mesure l'organe tendineux ?","La tension musculaire (disposé en série, dans le tendon)."],
+["Les 3 informations de la proprioception ?","Longueur du muscle, tension musculaire, mobilisation des articulations."],
+["Réflexe tendineux : stimulus et réponse ?","Tension excessive sur le tendon → inhibition → relâchement du muscle (protection contre la rupture)."],
+["Fibres intrafusales vs extrafusales ?","Intrafusales : détection de la longueur. Extrafusales : plus nombreuses, contraction et force."],
+["Voie centrale de la proprioception ?","Colonnes dorsales → lemnisque médian → thalamus → cortex somesthésique I, plus collatérales vers le cervelet."],
+["Un réflexe abolit peut traduire quoi ?","Une atteinte de la branche sensitive, de la branche motrice ou du segment médullaire correspondant."],
+["Les 3 grands types de réflexes ?","Myotatiques, cutanés, tendineux."]
+]
+});
+CH.push({
+id:"noci", title:"Nociception", short:"Nociception",
+src:"Ronéo 20/10 · diapo Modalités sensitives",
+weight:"Annale 2024-25 : « particularités de la transduction des fibres nociceptives vs tact fin » (4 pts).",
+diagrams:["voies"],
+sections:[
+{h:"Détection : des nocicepteurs polymodaux à haut seuil", html:`
+<p>La nociception est la <b>détection d'un signal de lésion</b> tissulaire. Les nocicepteurs sont des <b>terminaisons libres</b> dans les tissus, directement exposées aux conditions tissulaires.</p>
+<ul>
+<li><b>Polymodalité</b> : une même fibre détecte plusieurs stimuli qui signent une lésion. Récepteurs : <b>canaux ioniques</b> sensibles à la chaleur, aux protons (acidose), à la <b>capsaïcine</b> ; <b>récepteurs à l'ATP</b> (libéré par les cellules lésées) ; <b>récepteurs aux protons</b> ; <b>mécanorécepteurs</b> activés par des pressions intenses (coup de marteau).</li>
+<li><b>Haut seuil</b> : il faut un stimulus d'intensité <b>supérieure aux niveaux physiologiques</b> (acidité, température, ATP).</li>
+<li>Activés, ils génèrent des PA transmis au SNC.</li>
+</ul>`},
+{h:"Nociception vs tact : la différence de réponse", html:`
+<table class="t"><thead><tr><th></th><th>Tact fin</th><th>Nociception</th></tr></thead><tbody>
+<tr><td>Stimulus</td><td>Faible intensité</td><td>Haute intensité (lésion)</td></tr>
+<tr><td>Seuil</td><td>Bas</td><td><b>Haut</b>, mais modulable (sensibilisation)</td></tr>
+<tr><td>Spécificité</td><td>Récepteurs spécialisés</td><td><b>Polymodale</b></td></tr>
+<tr><td>Adaptation</td><td>Fréquence de PA qui <b>décroît</b> (on s'habitue aux vêtements)</td><td><b>Pas ou très peu d'adaptation</b> : tant qu'il y a un stimulus, il y a des PA</td></tr>
+<tr><td>Fibres</td><td>Hautement myélinisées</td><td><b>Aδ</b> faiblement myélinisées, <b>C</b> non myélinisées</td></tr>
+<tr><td>Rétroaction locale</td><td>Non</td><td><b>Réflexe d'axone</b> : libération de substance P</td></tr></tbody></table>`},
+{h:"Fibres nociceptives", html:`
+<ul>
+<li><b>Aδ</b> : faiblement myélinisées, dans la <b>peau</b>, <b>rapides</b> ; douleur rapide et <b>localisée</b>, réaction immédiate face à un danger externe.</li>
+<li><b>C</b> : <b>non myélinisées</b>, présentes <b>partout</b>, y compris la peau, <b>sauf le tissu nerveux central</b>. Les méninges sont innervées, pas le cerveau : on peut opérer le cerveau d'un patient conscient une fois les méninges anesthésiées.</li>
+</ul>
+<p><b>But</b> : déclencher une réaction de <b>retrait ou d'évitement</b> pour limiter les dommages et protéger l'organisme.</p>`},
+{h:"Sensibilisation : un haut seuil qui peut devenir bas", html:`
+<ul>
+<li>Des récepteurs membranaires <b>RCPG et RTK</b> ne dépolarisent pas la fibre eux-mêmes, mais <b>modulent les récepteurs-canaux</b> : ils <b>abaissent leur seuil</b>.</li>
+<li>Condition : présence de leurs <b>ligands</b>, qui signent l'<b>inflammation</b> (ex. <b>prostaglandines</b>).</li>
+<li>Résultat : un stimulus plus faible suffit à déclencher des PA. Le nocicepteur à haut seuil devient un récepteur <b>à bas seuil</b>.</li>
+<li>Exemple : <b>coup de soleil</b>. Les UV causent une inflammation ; une tape dans le dos devient douloureuse.</li>
+</ul>`},
+{h:"Réflexe d'axone et cercle vicieux inflammatoire", html:`
+<ul>
+<li>Les fibres sont très <b>ramifiées</b> dans le territoire. Un PA né dans une branche remonte vers le SNC mais peut aussi repartir <b>de façon rétrograde</b> dans les autres branches : c'est le <b>réflexe d'axone</b>.</li>
+<li>Les fibres contiennent des vésicules de molécules <b>pro-inflammatoires</b>, dont la <b>substance P</b>, libérées par exocytose quand la fibre est activée.</li>
+<li>La substance P cible les <b>mastocytes</b> (sentinelles des tissus), qui <b>dégranulent</b> : <b>histamine</b> (vasoactive, passage des cellules immunitaires), <b>cytokines</b> (recrutement), <b>protéases</b> (dégradation de la matrice), <b>NGF</b> (ligand de TrkA), <b>leucotriènes et prostaglandines</b>.</li>
+</ul>
+<p class="loop"><b>Cercle vicieux</b> : lésion → nocicepteurs activés (PA) → réflexe d'axone, libération de substance P → mastocytes → médiateurs inflammatoires → <b>sensibilisation</b> des nocicepteurs → douleur accrue.</p>
+<p>Utilité : un <b>halo</b> d'activation autour de la lésion recrute les cellules immunitaires qui circonscrivent un éventuel pathogène.</p>`},
+{h:"Voie courte : le réflexe de flexion et d'extension croisée", html:`
+<p>Exemple : marcher sur une punaise. Les cellules lésées libèrent de l'<b>ATP</b>, détecté par le nocicepteur (branche périphérique du neurone en T, corps cellulaire dans le ganglion rachidien). L'info entre par la <b>corne postérieure</b> et diffuse à un <b>réseau d'interneurones</b>.</p>
+<ul>
+<li>Côté stimulé : <b>flexion</b> du membre (s'écarter du danger).</li>
+<li>Côté opposé : <b>extension</b> (maintien de l'équilibre postural).</li>
+</ul>
+<p>Réflexe <b>polysynaptique</b>, <b>multi-étagé</b> et <b>bilatéral</b>. Automatique mais <b>modulable</b> par les contrôles centraux. Il existe aussi des réflexes végétatifs.</p>`},
+{h:"Projections centrales et matrice de la douleur", html:`
+<ol class="chain">
+<li><b>1er neurone</b> : nocicepteur, neurone en T (ganglion rachidien ; face : nerf trijumeau).</li>
+<li><b>2e neurone</b> : dans la <b>corne postérieure</b> de la moelle. Son axone <b>décusse dans la moelle</b> et monte dans le <b>quadrant antérolatéral</b> de la substance blanche.</li>
+<li>Faisceaux ascendants : <b>spinothalamique</b>, spino-réticulo-thalamique, spino-ponto-amygdalien, spino-hypothalamique.</li>
+<li><b>Collatérales</b> vers le tronc : <b>formation réticulée</b> (éveil cortical, vigilance) et <b>substance grise périaqueducale (PAG)</b>, centre de <b>modulation descendante</b> de la douleur.</li>
+<li><b>3e neurone</b> : <b>thalamus</b>, puis projection sur plusieurs aires corticales : la <b>matrice de la douleur</b>.</li>
+</ol>
+<table class="t"><thead><tr><th>Aire</th><th>Rôle</th></tr></thead><tbody>
+<tr><td><b>Cortex somatosensoriel</b></td><td>Analyse <b>discriminative</b>, neutre : localisation, nature (brûlure, piqûre), intensité</td></tr>
+<tr><td><b>Cortex insulaire</b></td><td><b>Valence émotionnelle</b> : gênant, désagréable, insupportable</td></tr>
+<tr><td><b>Cortex cingulaire</b></td><td>Dimension <b>motivationnelle et comportementale</b> : agir pour éviter, ou supporter</td></tr></tbody></table>
+<p>La douleur est donc <b>sensation + émotion</b>. Rôle physiologique : induire une réaction ; rôle pathologique si elle devient chronique.</p>`},
+{h:"Projections sous-corticales", html:`
+<ul>
+<li>La <b>formation réticulée</b> intègre l'<b>intensité</b> et la propage de façon <b>non spécifique</b> au cortex : <b>éveil cortical</b>, préparation à réagir. On gifle une personne inconsciente : la douleur active la formation réticulée qui réveille le cortex.</li>
+<li>D'autres noyaux (noyau du tractus solitaire, noyau parabrachial, amygdale, hypothalamus) produisent des <b>réactions neuro-humorales et végétatives</b> (hormones, viscères). Les noms ne sont pas à retenir.</li>
+<li>Hiérarchie : moelle → tronc → cortex ; à chaque étage, le message peut être <b>modulé ou inhibé</b> aux synapses.</li>
+<li><b>Chirurgie</b> : supprimer la conscience ne suffit pas. Sous anesthésie, le tronc traitait encore la douleur (FC très haute, complications). D'où l'usage de molécules qui bloquent la douleur <b>en amont</b>, avant le cortex.</li>
+</ul>`},
+{h:"Douleurs projetées", html:`
+<p>Au <b>2e neurone</b> (corne postérieure), il y a une <b>convergence</b> des afférences <b>cutanées et viscérales</b> sur un même neurone. Le cortex qui reçoit cette voie l'interprète comme une lésion <b>cutanée</b>.</p>
+<p>Exemple : l'<b>infarctus du myocarde</b> donne une douleur de brûlure au <b>bras gauche</b>. Chaque organe a sa zone cutanée de projection caractéristique.</p>`},
+{h:"Résumé de la nociception (grille)", html:`
+<table class="t"><tbody>
+<tr><td><b>Stimulus</b></td><td>Mécanique, thermique, chimique, signant une lésion</td></tr>
+<tr><td><b>Transduction</b></td><td>Récepteurs mono- ou polymodaux, à haut seuil mais modulable (sensibilisation), peu d'adaptation, réflexe d'axone</td></tr>
+<tr><td><b>Voies</b></td><td>Fibres Aδ et C ; neurone en T → 2e neurone de la corne postérieure → décussation médullaire → quadrant antérolatéral → tronc (FR, PAG) → thalamus</td></tr>
+<tr><td><b>Intégration</b></td><td>Réflexes médullaires polysynaptiques ; projections sous-corticales (éveil, végétatif) ; matrice corticale ; systèmes de modulation</td></tr></tbody></table>`}
+],
+pieges:[
+"Annale : on demande la <b>transduction</b>, donc récepteurs, seuil, adaptation, sensibilisation, réflexe d'axone. Pas la voie centrale en détail.",
+"Décussation de la douleur : <b>dans la moelle</b> (vs bulbe pour le tact). Lésion d'hémimoelle : douleur perdue du côté <b>opposé</b>.",
+"Les fibres C sont partout <b>sauf dans le tissu nerveux central</b>."
+],
+cards:[
+["Qu'est-ce que la polymodalité d'un nocicepteur ?","Une même fibre détecte plusieurs types de stimuli signant une lésion (chaleur, protons, ATP, capsaïcine, pression intense)."],
+["Pourquoi dit-on que les nocicepteurs sont à haut seuil ?","Ils ne s'activent que pour des stimuli dépassant les niveaux physiologiques (acidité, température, ATP)."],
+["Adaptation : tact vs nociception ?","Tact : fréquence de PA qui décroît (adaptation). Nociception : pas ou très peu d'adaptation, PA tant que le stimulus dure."],
+["Fibres Aδ ?","Faiblement myélinisées, dans la peau, rapides : douleur rapide et localisée."],
+["Fibres C ?","Non myélinisées, partout sauf le tissu nerveux central."],
+["Mécanisme de la sensibilisation ?","Des RCPG et RTK activés par des médiateurs inflammatoires (prostaglandines) abaissent le seuil des récepteurs-canaux : haut seuil → bas seuil."],
+["Exemple de sensibilisation vu en cours ?","Le coup de soleil : une tape dans le dos devient douloureuse."],
+["Qu'est-ce que le réflexe d'axone ?","Un PA qui repart de façon rétrograde dans les autres branches de la fibre et provoque la libération de substance P en périphérie."],
+["Que libèrent les mastocytes activés par la substance P ?","Histamine, cytokines, protéases, NGF, leucotriènes et prostaglandines."],
+["Le cercle vicieux inflammatoire de la douleur ?","Nocicepteurs activés → substance P → mastocytes → médiateurs → sensibilisation → plus de douleur."],
+["Réflexe de flexion et d'extension croisée ?","Flexion du membre stimulé (retrait) + extension du membre opposé (équilibre). Polysynaptique, bilatéral, multi-étagé."],
+["Où décusse la voie de la douleur ?","Dans la moelle, juste après le 2e neurone de la corne postérieure ; elle monte dans le quadrant antérolatéral."],
+["Rôle de la substance grise périaqueducale (PAG) ?","Centre de modulation descendante du message nociceptif."],
+["Rôle de la formation réticulée dans la douleur ?","Intègre l'intensité et la propage de façon non spécifique au cortex : éveil cortical, vigilance."],
+["Les 3 aires de la matrice de la douleur ?","Somatosensoriel (discriminatif), insulaire (valence émotionnelle), cingulaire (motivation, comportement)."],
+["Pourquoi l'infarctus fait-il mal au bras gauche ?","Convergence des afférences viscérales et cutanées sur le même 2e neurone de la corne postérieure : douleur projetée."],
+["Pourquoi bloquer la douleur avant le cortex en chirurgie ?","Inconscient, le patient traite encore la douleur au tronc : réactions neurovégétatives (FC très haute) et complications."]
+]
+});
+
+CH.push({
+id:"intero", title:"Intéroception, BHE et organes circumventriculaires", short:"Intéroception",
+src:"Ronéo 20/10 · diapo Modalités sensitives",
+weight:"Fait le lien avec le SNA (branche sensitive des réflexes végétatifs, barorécepteurs, nerf X).",
+diagrams:[],
+sections:[
+{h:"Intéroception : percevoir l'état interne du corps", html:`
+<ul>
+<li>Ressemble à la nociception, avec une différence majeure : récepteurs <b>à bas seuil</b> (nociception = haut seuil).</li>
+<li>Signaux <b>thermiques</b> (activité métabolique), <b>mécaniques</b> et <b>chimiques</b>.</li>
+<li>Fibres : les plus petites myélinisées et non myélinisées ; elles empruntent des <b>nerfs crâniens</b> : <b>trijumeau (V)</b>, <b>glossopharyngien (IX)</b> et surtout <b>vague (X)</b> ; et des racines dorsales.</li>
+<li>Elles se terminent dans le <b>noyau du tractus solitaire</b> (bulbe), puis noyau parabrachial (pont) → <b>thalamus</b> (complexe ventropostérieur) → <b>cortex insulaire</b>.</li>
+<li>Le <b>cortex insulaire</b> assure la représentation <b>consciente</b> des sensations internes. Sensation floue, qui contribue aux <b>émotions corporelles</b> (plénitude après un repas).</li>
+<li>Un même organe a une sensibilité intéroceptive <b>et</b> nociceptive : une contraction intense (vomissement) active des voies nociceptives.</li>
+<li>Elle alimente des <b>réflexes</b> et des coordinations <b>homéostatiques</b> (ex. baroréflexe, avec le nerf IX).</li>
+</ul>`},
+{h:"La barrière hémato-encéphalique (BHE)", html:`
+<p>Le SNC est isolé du sang. Barrières au niveau des <b>capillaires</b> et des cellules épithéliales des <b>plexus choroïdes</b>. La BHE comprend :</p>
+<ul><li><b>Cellules endothéliales</b> à <b>jonctions très serrées</b> ;</li><li>une <b>lame basale</b> ;</li><li>des <b>pieds astrocytaires</b> autour des capillaires.</li></ul>
+<p>Elle empêche le passage libre des composants sanguins et protège le cerveau des variations du milieu interne.</p>`},
+{h:"Les organes circumventriculaires (CVO) sensitifs", html:`
+<ul>
+<li>Zones <b>dépourvues de BHE</b>, autour des cavités centrales (ventricules) : <b>organe subfornical (SFO)</b>, <b>organe vasculaire de la lame terminale (OVLT)</b>, <b>area postrema</b>.</li>
+<li>Endothélium <b>fenêtré</b>, pas de pieds astrocytaires : le <b>plasma touche le tissu nerveux</b>.</li>
+<li>Leurs récepteurs détectent : la <b>composition du plasma</b> (osmolarité, Ca²⁺), des <b>hormones</b> (angiotensine II, ADH, hormones digestives), des <b>médiateurs inflammatoires</b> (substance P, prostaglandines, interleukines, LPS).</li>
+<li>Exemple : la <b>fièvre</b>. Les prostaglandines circulantes d'une infection sont détectées par les CVO, qui déclenchent l'adaptation thermique.</li>
+</ul>`}
+],
+pieges:["Intéroception = <b>bas seuil</b> ; nociception = <b>haut seuil</b>.","Destination corticale de l'intéroception : <b>cortex insulaire</b>."],
+cards:[
+["Différence majeure intéroception / nociception ?","Intéroception : récepteurs à bas seuil. Nociception : haut seuil."],
+["Nerfs crâniens de l'intéroception ?","Trijumeau (V), glossopharyngien (IX), vague (X), le plus important."],
+["Où se terminent les fibres intéroceptives ?","Dans le noyau du tractus solitaire (bulbe)."],
+["Cortex de l'intéroception ?","Le cortex insulaire (via le thalamus)."],
+["Composants de la BHE ?","Cellules endothéliales à jonctions serrées, lame basale, pieds astrocytaires."],
+["Qu'est-ce qu'un CVO sensitif ?","Une zone sans BHE (endothélium fenêtré, pas de pieds astrocytaires) où le plasma touche le tissu nerveux : SFO, OVLT, area postrema."],
+["Que détectent les CVO ?","Osmolarité, Ca²⁺, hormones (Ang II, ADH, digestives), médiateurs inflammatoires (substance P, prostaglandines, interleukines)."],
+["Lien CVO et fièvre ?","Les prostaglandines circulantes sont détectées par les CVO, qui déclenchent l'adaptation thermique."]
+]
+});
+
+CH.push({
+id:"moteur", title:"Motricité somatique", short:"Motricité somatique",
+src:"Ronéos 13/10 et 20/10 · diapo Motricité somatique",
+weight:"Indispensable pour l'annale « fasciculations » (contractions hors programme moteur) et pour opposer somatique et autonome.",
+diagrams:["moteur"],
+sections:[
+{h:"Ce que mobilise un geste : l'exemple de l'écriture", html:`
+<ul><li>Une activité de <b>posture inconsciente</b> (rester assis) ;</li><li>des activités <b>fines</b> dirigées vers un objectif (doigts, yeux qui suivent la ligne) ;</li><li>des mouvements <b>proximaux d'accompagnement</b> (le bras).</li></ul>
+<p>Toute activité motrice naît d'une <b>intention</b> et d'un objectif.</p>`},
+{h:"L'effecteur final : l'unité motrice", html:`
+<ul>
+<li><b>Unité motrice</b> = un <b>motoneurone</b> + les <b>fibres musculaires</b> qu'il innerve (l'axone se ramifie). Plus petite entité que le système moteur peut commander.</li>
+<li>Synapse <b>cholinergique</b> : la jonction neuromusculaire libère de l'<b>acétylcholine</b>, qui se fixe sur des récepteurs <b>nicotiniques</b> (récepteurs-canaux) → <b>dépolarisation</b> de la fibre, propagée à toute la fibre → contraction.</li>
+<li>Le muscle squelettique n'a <b>aucune activité de base</b> : sa contraction dépend <b>strictement</b> de la commande nerveuse.</li>
+</ul>`},
+{h:"Organisation dans la moelle", html:`
+<ul>
+<li>Motoneurones dans la <b>corne antérieure</b> (substance grise), organisation <b>somatotopique</b> : <b>médian → muscles proximaux</b> (posture, soutien) ; <b>latéral → muscles distaux</b> (gestes fins). C'est un « homoncule moteur » médullaire.</li>
+<li><b>Système latéral</b> → motoneurones latéraux (distaux) : surtout le <b>faisceau corticospinal latéral</b> (et rubrospinal).</li>
+<li><b>Système ventromédian</b> → motoneurones médians (proximaux, posture) : faisceaux <b>réticulospinal</b>, vestibulospinal, tectospinal et <b>corticospinal ventral</b>. À retenir surtout : réticulospinal et corticospinal.</li>
+</ul>`},
+{h:"Voie principale : corticospinale, dite pyramidale", html:`
+<ul>
+<li><b>Projection directe</b> du cortex vers la moelle.</li>
+<li>Départ : <b>cortex moteur primaire</b>, lobe <b>frontal</b>, juste <b>en avant du sillon central</b>.</li>
+<li>L'axone descend dans le tronc : <b>mésencéphale → pont → bulbe</b>.</li>
+<li>Au bulbe, la majorité des fibres <b>croisent</b> : <b>décussation pyramidale</b> → faisceau <b>corticospinal latéral</b>. Le croisement forme un triangle sur la face antérieure du bulbe (les <b>pyramides</b>), d'où le nom.</li>
+<li>Synapse sur les <b>motoneurones</b> de la moelle. Elle porte les <b>gestes fins, précis</b> (l'objectif du mouvement). Voie <b>directe croisée</b>.</li>
+<li>Pour la tête : <b>voie corticobulbaire</b>, vers les noyaux des <b>nerfs crâniens</b> du tronc.</li>
+</ul>
+<p><b>Expérience historique</b> : section des pyramides chez le singe (voies extrapyramidales intactes). Il marche et grimpe encore, mais perd la <b>pince pouce-index</b> : il amène la nourriture à la bouche avec tout le bras. Il ne reste que les mouvements d'accompagnement.</p>`},
+{h:"Voies secondaires dites extrapyramidales", html:`
+<p>Connexion <b>indirecte</b> : relais dans des <b>noyaux du tronc cérébral</b>, qui projettent sur les motoneurones (système ventromédian). Elles <b>accompagnent</b> le mouvement : posture, équilibre.</p>
+<ul>
+<li><b>Formation réticulée → faisceau réticulospinal</b> : étendue sur les 3 étages du tronc, sans noyaux bien définis ; reçoit le cortex (pré)moteur. <b>Maintien de la posture</b> (tonus) et <b>régulation proactive</b>. Expérience : au signal sonore, tirer sur une manette ; le <b>mollet s'active avant le biceps</b> (anticipation), et en cas de déséquilibre une traction réflexe ajuste les contractions.</li>
+<li><b>Noyaux vestibulaires → faisceau vestibulospinal</b> : multimodaux (vestibule, vision, moelle) ; stabilité de la tête, équilibre, posture, fixation du regard.</li>
+<li><b>Colliculus supérieur (tectum) → faisceau tectospinal</b> : orientation de la tête et des yeux, alimentée par la vision (poursuite oculaire).</li>
+</ul>`},
+{h:"Origine des commandes : les cortex moteurs", html:`
+<p>Analogie du sprinter « <b>Attention, prêt, partez !</b> », de l'avant vers l'arrière du lobe frontal :</p>
+<table class="t"><thead><tr><th>Cortex</th><th>Rôle</th><th>Sprinter</th></tr></thead><tbody>
+<tr><td><b>Préfrontal</b> (associatif)</td><td><b>Motivation</b> de l'action</td><td>« Attention » : envie de gagner</td></tr>
+<tr><td><b>Prémoteur</b></td><td>Élaboration de la <b>stratégie</b>, séquence mentale</td><td>« Prêt » : il mentalise sa course</td></tr>
+<tr><td><b>Moteur primaire</b></td><td><b>Exécution</b> du programme, projection sur les voies motrices</td><td>« Partez »</td></tr></tbody></table>
+<ul>
+<li>Le cortex moteur primaire a un <b>homoncule moteur</b> : la <b>main</b> et la région <b>oro-laryngée</b> (langue, bouche, larynx) sont surreprésentées. Nous sommes des êtres <b>manuels et communicants</b>.</li>
+<li><b>Miroir de la sensibilité</b> : en sensibilité, le cortex primaire est la cible de la périphérie et envoie vers les autres cortex (vers l'arrière, cortex pariétal postérieur). En motricité, le cortex primaire reçoit des autres cortex (depuis l'avant) et envoie vers la périphérie.</li>
+<li><b>Sensibilité au service du mouvement</b> : cortex somatosensoriel I (je touche le pupitre) → cortex <b>pariétal postérieur</b> associatif (je suis à côté du pupitre) → cortex préfrontal et prémoteur. Le cerveau doit connaître la <b>position initiale</b> pour construire le programme.</li>
+<li><b>Boucles de régulation</b> : noyaux gris centraux et cervelet.</li>
+</ul>`}
+],
+pieges:["Muscle squelettique : <b>aucune activité de base</b>, commande = contraction. (Le contraste avec les cibles du SNA est un classique.)","Décussation <b>pyramidale</b> au <b>bulbe</b> ; le cortex moteur est <b>en avant</b> du sillon central (frontal)."],
+cards:[
+["Qu'est-ce qu'une unité motrice ?","Un motoneurone et l'ensemble des fibres musculaires qu'il innerve."],
+["NT et récepteur de la jonction neuromusculaire ?","Acétylcholine sur récepteurs nicotiniques (récepteurs-canaux) → dépolarisation de la fibre."],
+["Organisation somatotopique de la corne antérieure ?","Médian = muscles proximaux (posture) ; latéral = muscles distaux (gestes fins)."],
+["Faisceaux du système latéral ?","Corticospinal latéral (et rubrospinal) → muscles distaux, gestes fins."],
+["Faisceaux du système ventromédian ?","Réticulospinal, vestibulospinal, tectospinal, corticospinal ventral → posture, muscles proximaux."],
+["Trajet de la voie pyramidale ?","Cortex moteur primaire (frontal, en avant du sillon central) → mésencéphale → pont → bulbe (décussation pyramidale) → corticospinal latéral → motoneurones."],
+["Pourquoi « pyramidale » ?","Le croisement des fibres au bulbe forme les pyramides bulbaires, en triangle sur la face antérieure."],
+["Résultat de la section des pyramides chez le singe ?","Perte de la motricité fine (pince pouce-index) ; marche et escalade conservées par les voies extrapyramidales."],
+["Rôle de la voie réticulospinale ?","Maintien de la posture (tonus) et régulation proactive : le mollet se contracte avant le biceps."],
+["Rôle du colliculus supérieur (tectum) ?","Orientation de la tête et des yeux (tectospinal), poursuite oculaire à partir de la vision."],
+["« Attention, prêt, partez » : quels cortex ?","Préfrontal (motivation), prémoteur (stratégie), moteur primaire (exécution)."],
+["Zones les plus représentées sur l'homoncule moteur ?","La main et la région oro-laryngée (langue, bouche, larynx)."],
+["Voie motrice de la tête ?","La voie corticobulbaire, vers les noyaux des nerfs crâniens du tronc."],
+["Rôle du cortex pariétal postérieur dans le mouvement ?","Il intègre la sensibilité (position dans l'espace) et la transmet au préfrontal et au prémoteur pour construire le programme."]
+]
+});
+CH.push({
+id:"sna", title:"Système nerveux autonome (SNA)", short:"SNA",
+src:"Ronéos 24/10 et 21/11 (pas de diapo SNA dans le projet)",
+weight:"Le chapitre qui rapporte le plus : environ 22 pts sur les 30 pts de neuro des 3 annales. Le prof veut le listing des effets « par cœur, en réflexe ».",
+hot:true,
+diagrams:["snaTrajet","snaMap"],
+sections:[
+{h:"Somatique vs autonome : les différences fonctionnelles", html:`
+<table class="t"><thead><tr><th></th><th>Système nerveux somatique</th><th>Système nerveux autonome</th></tr></thead><tbody>
+<tr><td>Cibles</td><td>Un seul type : <b>muscle strié squelettique</b></td><td><b>Muscle cardiaque, muscles lisses, glandes</b> (endocrines, exocrines), dans de nombreux organes</td></tr>
+<tr><td>Activité de base de la cible</td><td><b>Aucune</b> : la contraction dépend strictement de la commande</td><td><b>Automatisme</b> propre : le SNA n'est pas indispensable au fonctionnement de base</td></tr>
+<tr><td>Effet de la commande</td><td>Toujours une <b>contraction</b></td><td><b>Augmentation ou diminution</b> de l'activité existante : il <b>module</b></td></tr></tbody></table>`},
+{h:"Somatique vs autonome : les différences anatomiques", html:`
+<table class="t"><thead><tr><th></th><th>Somatique</th><th>Autonome</th></tr></thead><tbody>
+<tr><td>Connexion</td><td><b>Directe</b> : le neurone du SNC va jusqu'à la cible</td><td><b>Indirecte</b> : <b>2 neurones</b>, relais dans un <b>ganglion</b> (pré- puis post-ganglionnaire)</td></tr>
+<tr><td>Fibres</td><td>Fortement myélinisées, rapides</td><td>Moins rapides : la cible n'attend pas la commande pour fonctionner</td></tr>
+<tr><td>NT final</td><td><b>ACh</b> → récepteurs <b>nicotiniques</b></td><td>Ganglion : <b>ACh → nicotiniques</b>. Cible : <b>NA → adrénergiques</b> (α1, α2, β1, β2, β3) ou <b>ACh → muscariniques</b></td></tr></tbody></table>
+<p>Récepteurs adrénergiques et muscariniques = <b>RCPG</b> : pas de dépolarisation directe. Selon le récepteur en face du NT, la réponse diffère : c'est ce qui permet la <b>variété des réponses</b> des cibles.</p>
+<p><b>Particularité sympathique</b> : des cellules de même origine embryonnaire deviennent soit des neurones, soit des <b>cellules endocrines</b> (médullosurrénale) ; les deux font partie du système sympathique.</p>`},
+{h:"Ce qui définit sympathique et parasympathique : l'anatomie", html:`
+<div class="callout">Le prof insiste : ce n'est <b>pas</b> le NT qui définit les deux branches. Le sympathique utilise <b>préférentiellement</b> la NA au niveau terminal, le parasympathique <b>préférentiellement</b> l'ACh. La <b>définition est anatomique</b>.</div>
+<table class="t"><thead><tr><th></th><th class="sym">Sympathique (orthosympathique)</th><th class="para">Parasympathique</th></tr></thead><tbody>
+<tr><td>Neurone central</td><td>Moelle épinière, <b>corne latérale</b>, segments <b>thoraco-lombaires T1 à L2</b></td><td><b>Cranio-sacré</b> : noyaux de certains <b>nerfs crâniens</b> (tronc cérébral) et moelle <b>sacrée</b></td></tr>
+<tr><td>Ganglions</td><td><b>Paravertébraux</b> (chaîne le long de toute la colonne) et <b>prévertébraux</b> (en avant des vertèbres, de l'aorte, dans l'abdomen)</td><td><b>Au niveau ou à proximité de la viscère</b> cible</td></tr>
+<tr><td>Grand nerf</td><td>—</td><td><b>Nerf vague (X)</b> : part du tronc, descend dans le thorax jusqu'à l'estomac et l'intestin</td></tr></tbody></table>`},
+{h:"Trajet des fibres sympathiques", html:`
+<ol class="chain">
+<li>Neurone <b>pré-ganglionnaire</b> dans la <b>corne latérale</b> (T1-L2). Sa fibre sort par la <b>racine ventrale</b>, avec les fibres motrices somatiques.</li>
+<li>Elle quitte la racine par un <b>rameau communicant</b> et rejoint la <b>chaîne paravertébrale</b>.</li>
+<li>Trois scénarios selon la cible :
+<ul>
+<li><b>Cible au même étage</b> (ex. un segment cutané) : relais <b>cholinergique</b> dans le ganglion paravertébral de cet étage ; la fibre <b>post-ganglionnaire</b> rejoint la racine spinale du même niveau.</li>
+<li><b>Cible à un autre étage</b> (ex. la tête) : la fibre <b>monte (ou descend) dans la chaîne</b>, fait son relais au ganglion approprié, puis repart par la racine de cet étage. La chaîne dépasse T1-L2 et couvre les régions cervicale et sacrée.</li>
+<li><b>Viscères abdominaux</b> : la fibre <b>traverse</b> le ganglion paravertébral <b>sans synapse</b> et fait son relais dans un ganglion <b>prévertébral</b>, en avant de l'aorte.</li>
+</ul></li>
+</ol>
+<p>La chaîne paravertébrale sert surtout à atteindre la <b>tête</b> et le <b>thorax</b> ; les ganglions prévertébraux, les viscères <b>abdominaux et pelviens</b>. Une interruption de la chaîne empêche le sympathique d'atteindre les cibles en aval.</p>
+<p class="note">Application directe : le <b>ganglion cervical supérieur</b> est le ganglion le plus haut de cette chaîne ; c'est le relais vers la face (annale Claude Bernard-Horner).</p>`},
+{h:"Cibles : partagées ou exclusives", html:`
+<p>Le plus souvent, sympathique et parasympathique ont les <b>mêmes cibles</b>, avec des effets opposés. Mais :</p>
+<table class="t"><thead><tr><th class="sym">Exclusivement sympathiques</th><th class="para">Particularités parasympathiques</th></tr></thead><tbody>
+<tr><td>
+<ul><li>La <b>majorité des vaisseaux</b> (sauf organes génitaux et glandes salivaires)</li>
+<li><b>Adipocytes</b></li><li><b>Glandes sudoripares</b> et muscles <b>pilo-érecteurs</b></li>
+<li><b>Myocarde contractile</b> (le tissu nodal a une double innervation)</li>
+<li><b>Glandes surrénales</b></li><li>Capsule de la <b>rate</b> (réservoir de plaquettes)</li></ul></td>
+<td><ul><li>Viscères : par le <b>nerf vague</b> ; tête : autres nerfs crâniens ; organes pelviens : nerfs <b>sacrés</b>.</li>
+<li><b>Tube digestif</b> : il a son propre <b>système nerveux entérique</b> (autonomie). Le parasympathique agit comme <b>modulateur</b> de ce réseau.</li>
+<li><b>Vaisseaux</b> : l'ACh est vasodilatatrice mais il n'y a <b>pas d'innervation parasympathique directe</b> des vaisseaux, sauf <b>organes génitaux</b> (érection, principe du Viagra) et <b>glandes salivaires</b>.</li>
+<li><b>Cœur</b> : nœud sinusal et conduction seulement.</li></ul></td></tr></tbody></table>`},
+{h:"Le listing des effets, organe par organe", html:`
+<p>À connaître <b>par cœur</b> (le prof : « ça devra être un réflexe »). La carte interactive ci-dessus te fait réviser en mode quiz.</p>
+<div class="tblwrap"><table class="t eff"><thead><tr><th>Organe</th><th class="para">Parasympathique</th><th class="sym">Sympathique</th></tr></thead><tbody>
+<tr><td>Iris (pupille)</td><td><b>Myosis</b> (pupille rétrécie)</td><td><b>Mydriase</b> (pupille ouverte)</td></tr>
+<tr><td>Muscle ciliaire / cristallin</td><td>Contraction du muscle ciliaire → fibres zonulaires détendues → cristallin <b>bombé</b> : vision de <b>près</b></td><td>Relâchement → anneau élargi, zonules tendues → cristallin <b>aplati</b> : vision de <b>loin</b></td></tr>
+<tr><td>Glandes lacrymales</td><td>↑ Sécrétion</td><td>—</td></tr>
+<tr><td>Muqueuse nasale</td><td>↑ Sécrétions</td><td>Vasoconstriction → ↓ sécrétions</td></tr>
+<tr><td>Glandes salivaires</td><td>↑ Sécrétion abondante (fluidifie le bol) ; vasodilatation</td><td>Inhibe</td></tr>
+<tr><td>Estomac, intestin : motilité</td><td>↑ <b>Motilité</b> (brassage, progression)</td><td>↓ Motilité</td></tr>
+<tr><td>Sphincters digestifs</td><td><b>Relâchement</b></td><td>↑ <b>Tonus</b> (contraction)</td></tr>
+<tr><td>Vésicule biliaire</td><td>Contraction (sels biliaires)</td><td>Inhibe</td></tr>
+<tr><td>Pancréas exocrine</td><td>↑ Enzymes digestives</td><td>Inhibe</td></tr>
+<tr><td>Pancréas endocrine</td><td>↑ <b>Insuline</b></td><td>↑ <b>Glucagon</b></td></tr>
+<tr><td>Foie</td><td>↑ Synthèse de <b>glycogène</b> (stockage)</td><td>↑ <b>Glycogénolyse</b> et <b>néoglucogenèse</b></td></tr>
+<tr><td>Adipocytes</td><td>—</td><td>↑ <b>Lipolyse</b></td></tr>
+<tr><td>Cœur (nœud sinusal)</td><td>↓ <b>Fréquence</b></td><td>↑ Fréquence</td></tr>
+<tr><td>Myocarde contractile</td><td>—</td><td>↑ <b>Force</b> de contraction</td></tr>
+<tr><td>Artérioles</td><td>Minime (sauf génitaux, salivaires : vasodilatation)</td><td><b>Vasoconstriction</b> (tonus de base)</td></tr>
+<tr><td>Veines</td><td>—</td><td>Vasoconstriction</td></tr>
+<tr><td>Bronches</td><td><b>Bronchoconstriction</b> + ↑ mucus</td><td><b>Bronchodilatation</b></td></tr>
+<tr><td>Fréquence respiratoire</td><td colspan="2"><b>Aucun rôle du SNA</b> : commande <b>somatique</b> (diaphragme, muscle strié)</td></tr>
+<tr><td>Vessie : détrusor</td><td><b>Contraction</b></td><td><b>Relâchement</b> (la vessie se distend)</td></tr>
+<tr><td>Vessie : sphincter interne (lisse)</td><td><b>Relâchement</b> → <b>miction</b></td><td><b>Contraction</b> → <b>remplissage</b></td></tr>
+<tr><td>Sphincter externe (strié)</td><td colspan="2">Commande <b>somatique</b> : contrôle volontaire de la miction</td></tr>
+<tr><td>Glandes sudoripares</td><td>—</td><td>↑ <b>Sudation</b></td></tr>
+<tr><td>Muscles pilo-érecteurs</td><td>—</td><td>Contraction (horripilation)</td></tr>
+<tr><td>Médullosurrénale</td><td>—</td><td>Sécrétion (cellules endocrines sympathiques)</td></tr>
+<tr><td>Rein (rénine)</td><td>—</td><td>↑ Rénine (récepteur <b>β1</b>)</td></tr></tbody></table></div>
+<p class="note">Iris : ce sont deux <b>effets fonctionnels antagonistes</b> (myosis/mydriase), portés par deux muscles différents. La ronéo du 21/11 inverse myosis et mydriase dans un passage sur la lumière : la bonne version est trop de lumière → <b>myosis</b> (parasympathique) ; peu de lumière → <b>mydriase</b>.</p>`},
+{h:"La balance : repos et digestion vs combat ou fuite", html:`
+<table class="t"><thead><tr><th class="para">Parasympathique : « stockage des ressources »</th><th class="sym">Sympathique : « combat ou fuite »</th></tr></thead><tbody>
+<tr><td>Domine au <b>repos</b> et pendant la <b>digestion</b>. Assimilation et <b>mise en réserve</b> de l'énergie : ↑ activité digestive, insuline, glycogène ; bronchoconstriction ; ↓ travail cardiaque ; ↓ tonus des sphincters (miction, défécation). Il renforce l'effet du glucose en le dirigeant vers le stockage.</td>
+<td>Domine en situation d'<b>alerte</b>. <b>Mobilise</b> les ressources : digestion inhibée, glycogénolyse, néoglucogenèse, lipolyse, glucagon ; bronchodilatation (apport d'O₂) ; ↑↑ travail cardiaque ; ↑ tonus des sphincters (retenir les fluides).</td></tr></tbody></table>`},
+{h:"Raisonner en pharmacien : l'exemple de l'ANSM", html:`
+<p>« En cas de rhume, évitez les <b>vasoconstricteurs par voie orale</b> » (effet sympathomimétique) :</p>
+<ul>
+<li><b>Intérêt</b> : resserrer les vaisseaux de la muqueuse nasale pour décongestionner le nez et réduire l'écoulement.</li>
+<li>Mais la voie est <b>systémique</b> : tout l'organisme est touché.</li>
+<li><b>Risques</b> : <b>hypertension</b> (vasoconstriction généralisée), effets <b>cardiaques</b> (↑ FC, ↑ force), <b>rétention urinaire</b> (le sympathique favorise le remplissage : détrusor relâché, sphincter interne contracté).</li>
+<li><b>Contre-indication</b> évidente : le patient <b>hypertendu</b>.</li>
+</ul>
+<p>Même logique pour toutes les questions cliniques : identifier la branche en cause, puis dérouler son listing organe par organe.</p>`}
+],
+pieges:[
+"<b>Orthosympathique = sympathique.</b>",
+"La définition des branches est <b>anatomique</b> (thoraco-lombaire vs cranio-sacré), pas le NT.",
+"Le parasympathique <b>n'innerve quasiment pas les vaisseaux</b> (sauf génitaux, salivaires). La rougeur de Claude Bernard-Horner vient de la <b>perte du tonus sympathique</b>.",
+"Le SNA ne commande <b>pas la fréquence respiratoire</b> (somatique) ; il agit sur le <b>calibre des bronches</b>.",
+"Ne pas oublier la moitié de la réponse : pour chaque organe, <b>les deux branches</b>.",
+"Sueur, pilo-érection, adipocytes, surrénales : <b>uniquement sympathique</b>."
+],
+cards:[
+["Différence fonctionnelle majeure entre cibles somatiques et autonomes ?","Le muscle squelettique n'a pas d'activité de base ; les cibles du SNA ont un automatisme, que le SNA module (↑ ou ↓)."],
+["Différence anatomique majeure somatique / autonome ?","Somatique : connexion directe. Autonome : 2 neurones avec relais dans un ganglion."],
+["NT et récepteur dans un ganglion autonome ?","ACh sur récepteurs nicotiniques (sympathique et parasympathique)."],
+["Récepteurs des cibles du SNA ?","Adrénergiques (α1, α2, β1, β2, β3) pour la NA ; muscariniques pour l'ACh. Tous des RCPG."],
+["Qu'est-ce qui définit le sympathique ?","L'anatomie : neurone central dans la corne latérale de la moelle thoraco-lombaire (T1-L2)."],
+["Qu'est-ce qui définit le parasympathique ?","L'anatomie : cranio-sacré (nerfs crâniens du tronc et moelle sacrée)."],
+["Où sont les ganglions parasympathiques ?","Au niveau ou à proximité de la viscère cible."],
+["Les 2 types de ganglions sympathiques ?","Paravertébraux (chaîne le long de la colonne) et prévertébraux (en avant de l'aorte, abdomen)."],
+["Trajet d'une fibre sympathique vers la tête ?","Corne latérale → racine ventrale → rameau communicant → chaîne paravertébrale, monte → relais au ganglion cervical (cervical supérieur) → fibre post-ganglionnaire vers la face."],
+["Trajet d'une fibre sympathique vers un viscère abdominal ?","Traverse le ganglion paravertébral sans synapse → relais dans un ganglion prévertébral."],
+["Cibles exclusivement sympathiques ?","La plupart des vaisseaux, adipocytes, glandes sudoripares, pilo-érecteurs, myocarde contractile, surrénales, capsule de la rate."],
+["Vaisseaux avec innervation parasympathique ?","Seulement ceux des organes génitaux (érection) et des glandes salivaires."],
+["Rôle du parasympathique sur le tube digestif ?","Modulateur du système nerveux entérique : ↑ motilité, ↑ sécrétions, relâchement des sphincters."],
+["Effet du parasympathique sur la pupille ? Du sympathique ?","Parasympathique : myosis. Sympathique : mydriase."],
+["Vision de près : quelle branche, quel mécanisme ?","Parasympathique : contraction du muscle ciliaire → zonules détendues → cristallin bombé."],
+["Effets parasympathiques sur le stockage énergétique ?","↑ Insuline, ↑ synthèse de glycogène hépatique."],
+["Effets sympathiques sur les ressources énergétiques ?","Glycogénolyse, néoglucogenèse, glucagon, lipolyse."],
+["Effet du parasympathique sur les bronches ?","Bronchoconstriction et ↑ sécrétion de mucus."],
+["Le SNA règle-t-il la fréquence respiratoire ?","Non : elle est somatique (diaphragme, muscle strié). Le SNA règle le calibre des bronches."],
+["Miction : rôle de chaque branche ?","Parasympathique : contraction du détrusor + relâchement du sphincter interne (miction). Sympathique : relâchement du détrusor + contraction du sphincter interne (remplissage)."],
+["Sphincter externe de la vessie ?","Muscle strié, commande somatique : contrôle volontaire."],
+["Effet du sympathique sur le cœur ?","↑ Fréquence (nœud sinusal) et ↑ force de contraction (myocarde)."],
+["Effet du parasympathique sur le cœur ?","↓ Fréquence (nœud sinusal, nerf vague). Pas d'innervation du myocarde contractile."],
+["Pourquoi éviter les vasoconstricteurs oraux dans le rhume chez l'hypertendu ?","Voie systémique : vasoconstriction généralisée (HTA), effets cardiaques, rétention urinaire."],
+["Récepteur de la sécrétion de rénine par le sympathique ?","β1."],
+["Le grand nerf du parasympathique viscéral ?","Le nerf vague (X)."]
+]
+});
+
+CH.push({
+id:"pa", title:"SNA et régulation de la pression artérielle", short:"SNA et PA",
+src:"Ronéos 24/10 (cardio) et 21/11",
+weight:"Pont neuro-cardio : baroréflexe, tonus de base, hiérarchie temporelle. Utile aussi pour les 10 pts cardio.",
+diagrams:["baro"],
+sections:[
+{h:"Une valeur régulée, avec deux horizons", html:`
+<ul>
+<li>À <b>court terme</b> : la PA est régulée pour les besoins impératifs de <b>2 organes nobles</b>, le <b>cœur et le cerveau</b>. On garde une PA élevée quitte à <b>hypoperfuser</b> d'autres territoires (girafe : PA élevée parce que le cerveau est très haut au-dessus du cœur).</li>
+<li>À <b>long terme</b> : on ne peut pas hypoperfuser les autres organes éternellement. Il faut changer la <b>volémie</b> (sang circulant) : c'est le rôle du <b>rein</b>.</li>
+</ul>`},
+{h:"Les détecteurs", html:`
+<ul>
+<li><b>Barorécepteurs</b> (les plus importants) : fibres sensitives sensibles à l'<b>étirement</b> de la paroi artérielle, au <b>sinus carotidien</b> (bifurcation carotidienne, entre cœur et cerveau). Info portée par le <b>nerf IX</b> (glossopharyngien) : branche de l'<b>intéroception</b>. Zone de détection <b>50 à 200 mmHg</b>, qui inclut la PA normale (120/80) : <b>surveillance continue</b>, le message change dès qu'on s'écarte.</li>
+<li><b>Volorécepteurs</b> : cellules sensibles à l'étirement dans le compartiment <b>basse pression</b> (oreillette droite). Ils renseignent sur le <b>remplissage vasculaire</b>, indépendamment de la PA.</li>
+<li><b>Détection centrale</b> : le cerveau (tronc) détecte sa propre perfusion ; s'il est hypoperfusé, il augmente massivement la PA.</li>
+<li><b>Chémorécepteurs</b> (crosse aortique) : sensibles à la PA et à la <b>PaO₂</b>, ils interviennent en cas d'<b>hypoxémie</b> (baisse de PaO₂ artérielle ; à distinguer de l'hypoxie tissulaire).</li>
+</ul>`},
+{h:"Le baroréflexe", html:`
+<p>Boucle <b>réflexe végétative</b> : détection (barorécepteurs) → <b>centre cardio-régulateur du tronc cérébral</b> → réponse motrice par le SNA. Il fonctionne <b>dans les deux sens</b>.</p>
+<p><b>Si la PA augmente</b> : plus de PA sur le nerf IX → le tronc :</p>
+<ul>
+<li><b>ralentit le cœur</b> : ↑ parasympathique (frein) et ↓ sympathique (accélérateur) ;</li>
+<li><b>diminue la force</b> de contraction : ↓ sympathique → ↓ volume d'éjection ;</li>
+<li><b>dilate les vaisseaux</b> : ↓ sympathique → ↓ résistances.</li>
+</ul>
+<p>Si la PA baisse : l'inverse. Seul le sympathique innerve le myocarde contractile et la majorité des vaisseaux.</p>`},
+{h:"Tonus de base", html:`
+<ul>
+<li>Le tronc cérébral contient un <b>générateur de tonus</b> : à PA normale, il existe déjà une activité sympathique et parasympathique.</li>
+<li><b>Cœur</b> : tonus de base <b>parasympathique</b>. FC de repos 60-80 bpm, inférieure au rythme intrinsèque du nœud sinusal. Chez le <b>transplanté</b> (cœur dénervé) : <b>~110 bpm</b>.</li>
+<li><b>Vaisseaux</b> : tonus de base <b>sympathique</b> (vasoconstriction de base). Sans lui, on serait en vasodilatation permanente ; avec lui, on peut moduler dans les deux sens.</li>
+</ul>`},
+{h:"Variations normales de la PA", html:`
+<ul>
+<li><b>Rythme circadien</b> : plus élevée en activité, plus basse pendant le sommeil (récupération).</li>
+<li><b>Émotions</b> : une interprétation corticale (peur) se branche sur le système automatique : ↑ FC. Coordination des réponses végétatives par les niveaux cortical et sous-cortical.</li>
+<li><b>Exercice</b> : sang dirigé vers les muscles, le cœur et le cerveau ; puis interaction avec la <b>thermorégulation</b> qui rouvre la peau (sudation). ↑ <b>retour veineux</b> par la pompe musculaire (veines à valves comprimées) et la <b>pompe respiratoire</b> (dépression thoracique) → ↑ précharge → ↑ volume d'éjection.</li>
+</ul>`},
+{h:"Relais hormonal : SRAA et peptides natriurétiques", html:`
+<ul>
+<li><b>SRAA</b> : l'<b>appareil juxtaglomérulaire</b> du rein sécrète la <b>rénine</b> si la <b>perfusion rénale baisse</b> ou si l'<b>activité sympathique augmente</b> (β1). Rénine : angiotensinogène (foie) → angiotensine I ; <b>enzyme de conversion</b> (capillaires pulmonaires) → <b>angiotensine II</b>.</li>
+<li>Effets de l'Ang II : <b>vasoconstriction</b> directe ; ↑ libération de NA ; action centrale (inhibe le centre cardio-inhibiteur, pour éviter une bradycardie réflexe) ; ↑ <b>ADH</b> (réabsorption d'eau) ; ↑ réabsorption de <b>Na⁺</b> (tube proximal) ; ↑ <b>aldostérone</b> (réabsorption de Na⁺ sur un autre segment). Na⁺ réabsorbé → l'eau suit → ↑ volémie → ↑ PA.</li>
+<li>Transition : d'abord forte activation sympathique, puis la réabsorption rénale reconstitue la volémie et l'activation sympathique diminue.</li>
+<li><b>Peptides natriurétiques</b> (ANP des oreillettes, BNP) : sécrétés quand le cœur est <b>distendu</b> ; ↑ <b>natriurèse</b>, inhibent le SRAA, vasodilatateurs → ↓ volémie → ↓ PA.</li>
+<li><b>Hiérarchie temporelle</b> : nerveux (secondes) → hormonal → <b>rénal</b> (long terme, le plus puissant, sans limite théorique).</li>
+</ul>`}
+],
+pieges:["Ce sont les <b>centres du tronc cérébral</b> qui intègrent, pas les barorécepteurs.","Cœur : tonus de base <b>parasympathique</b> ; vaisseaux : tonus de base <b>sympathique</b>.","Le rein/SRAA agit <b>en dernier</b> (heures et plus)."],
+cards:[
+["Où sont les barorécepteurs principaux et quel nerf porte l'info ?","Sinus carotidien ; nerf glossopharyngien (IX)."],
+["Plage de détection des barorécepteurs ?","50 à 200 mmHg, qui inclut la PA normale : surveillance continue."],
+["Que détectent les volorécepteurs, et où ?","Le remplissage vasculaire, par l'étirement de l'oreillette droite (basse pression)."],
+["Baroréflexe si la PA monte ?","↑ Parasympathique et ↓ sympathique : ↓ FC, ↓ force, vasodilatation → la PA baisse."],
+["Où est le centre intégrateur du baroréflexe ?","Le centre cardio-régulateur du tronc cérébral."],
+["Tonus de base du cœur ?","Parasympathique : FC 60-80 bpm au lieu de ~110 bpm (cœur dénervé du transplanté)."],
+["Tonus de base des vaisseaux ?","Sympathique : vasoconstriction de base, qui permet de moduler dans les deux sens."],
+["Déclencheurs de la sécrétion de rénine ?","Baisse de la perfusion rénale ; augmentation de l'activité sympathique (β1)."],
+["Effets de l'angiotensine II ?","Vasoconstriction, ↑ NA, inhibition centrale du frein cardiaque, ↑ ADH, ↑ réabsorption de Na⁺, ↑ aldostérone."],
+["Qui s'oppose au SRAA ?","Les peptides natriurétiques (ANP, BNP) : natriurèse, inhibition du SRAA, vasodilatation."],
+["Hypoxémie vs hypoxie ?","Hypoxémie : baisse de la PaO₂ du sang artériel. Hypoxie : manque d'O₂ au niveau des tissus."]
+]
+});
+CH.push({
+id:"vision", title:"Vision", short:"Vision",
+src:"Ronéo 21/11 · diapo Modalités sensorielles",
+weight:"Croise le SNA (pupille, cristallin) et la logique des lésions (voies visuelles).",
+diagrams:["visionLesion"],
+sections:[
+{h:"L'œil : réglage à l'avant, détection à l'arrière", html:`
+<ul>
+<li><b>Partie antérieure</b> : entrée de la lumière et <b>systèmes de réglage</b>.
+<ul><li><b>Involontaires</b>, sous contrôle du <b>SNA</b> : diaphragme (<b>pupille</b>) et <b>cristallin</b> (mise au point).</li>
+<li><b>Volontaires</b> : orientation de l'axe optique par les <b>muscles extrinsèques</b> (squelettiques), innervés par des nerfs crâniens.</li></ul></li>
+<li><b>Partie postérieure</b> : la <b>rétine</b>. Le nerf optique et les vaisseaux passent par le même conduit.</li>
+</ul>`},
+{h:"La rétine", html:`
+<ul>
+<li>Plusieurs couches de neurones, avec <b>1 entrée</b> (photorécepteurs) et <b>1 sortie</b> (cellules <b>ganglionnaires</b>, dont les axones convergent pour former le <b>nerf optique</b>). Réseau local de <b>prétraitement</b>.</li>
+<li>Contre-intuitif : les photorécepteurs sont <b>dos à la lumière</b>, au fond ; la lumière traverse les couches nerveuses avant de les atteindre.</li>
+<li>Ils sont au contact de l'<b>épithélium pigmentaire</b>, sous lequel passent les vaisseaux (énergie par diffusion ; les vaisseaux n'entrent dans la rétine qu'en cas de pathologie).</li>
+<li><b>Bâtonnets</b> : intensité lumineuse, quelle que soit la couleur (« noir et blanc »). <b>Cônes</b> : couleurs ; plusieurs types, un par couleur ; le cerveau reconstitue la couleur.</li>
+</ul>`},
+{h:"Phototransduction", html:`
+<ol class="chain">
+<li>Le segment externe contient des <b>disques</b> empilés portant les pigments visuels.</li>
+<li>Pigment = <b>opsine</b> + <b>rétinal</b>. Un photon <b>isomérise</b> le rétinal de <b>cis en trans</b> : il s'étend et <b>déforme</b> l'opsine.</li>
+<li>Cette déformation déclenche une <b>signalisation</b> (non exigible) qui change l'activité de la cellule ; le message traverse la rétine jusqu'aux cellules ganglionnaires puis le nerf optique.</li>
+</ol>
+<ul>
+<li>Le rétinal est commun à tous ; c'est l'<b>opsine</b> qui change entre cônes et bâtonnets et règle la sensibilité aux couleurs.</li>
+<li>Le rétinal dérive de la <b>vitamine A</b> : une carence peut rendre aveugle.</li>
+<li>Après isomérisation, le couple n'est plus fonctionnel : les disques usagés sont <b>exocytés vers l'épithélium pigmentaire</b>, qui reconvertit le trans-rétinal en <b>cis-rétinal</b> et le rend aux photorécepteurs. Une atteinte visuelle peut donc venir du détecteur ou du <b>support</b>.</li>
+</ul>`},
+{h:"Voies courtes (inconscientes)", html:`
+<p>Après le <b>chiasma</b>, des collatérales vont vers des noyaux qui n'analysent que l'<b>intensité lumineuse</b> ou le contraste, pas l'image :</p>
+<ul>
+<li><b>Hypothalamus</b> : <b>rythmes circadiens</b> (pas d'écran avant de dormir).</li>
+<li>Noyau du <b>tronc cérébral</b> : réflexes <b>végétatifs</b> (SNA) de la <b>pupille</b> (trop de lumière → myosis ; peu de lumière → mydriase) et de l'<b>accommodation</b> du cristallin (par le contraste, comme l'autofocus d'un appareil photo).</li>
+<li><b>Colliculus supérieur</b> (tectum) → voie <b>tectospinale</b> (extrapyramidale) : mouvements automatiques des yeux et de la tête, <b>poursuite oculaire</b>.</li>
+</ul>`},
+{h:"Voie longue (consciente) vers le cortex occipital", html:`
+<ol class="chain">
+<li>Le <b>cristallin</b> (lentille biconvexe) <b>inverse</b> l'image : gauche ↔ droite, haut ↔ bas. Un objet du champ visuel gauche se projette sur la <b>rétine nasale gauche</b> et la <b>rétine temporale droite</b>.</li>
+<li><b>Nerfs optiques</b> → <b>chiasma optique</b> : <b>croisement partiel</b>. Seules les fibres de la <b>rétine nasale</b> croisent. Ainsi, un même point de l'espace (vu par les 2 yeux) se retrouve dans <b>un seul</b> hémisphère.</li>
+<li><b>Tractus optique</b> → <b>thalamus</b> (corps genouillé latéral), dernier relais.</li>
+<li><b>Radiations optiques</b> : l'info se sépare puis reconverge. Rétine <b>supérieure</b> → radiations <b>supérieures</b> (passent par le cortex <b>pariétal</b>) ; rétine <b>inférieure</b> → radiations <b>inférieures</b> (cortex <b>temporal</b>).</li>
+<li><b>Cortex strié</b>, lobe <b>occipital</b> : projection <b>topique</b>, « précision photographique », image analysée mais pas encore interprétée.</li>
+</ol>
+<p>Résultat : le champ visuel <b>gauche</b> est traité par l'hémisphère <b>droit</b>. Des lésions localisées donnent des déficits précis (AVC pariétal droit). Le simulateur ci-dessus applique cette logique.</p>`},
+{h:"Association des informations visuelles", html:`
+<ul>
+<li><b>Courant dorsal</b> → cortex <b>pariétal</b> (aussi somesthésique) : position des objets et de soi dans l'espace, le « <b>où ?</b> ».</li>
+<li><b>Courant ventral</b> → cortex <b>temporal</b> (mémoire, identification) : on associe ce qu'on voit à ce que c'est, le « <b>quoi ?</b> ».</li>
+</ul>`}
+],
+pieges:["Croisement <b>partiel</b> : seule la rétine <b>nasale</b> croise.","Trop de lumière → <b>myosis</b> (parasympathique)."],
+cards:[
+["Systèmes de réglage involontaires de l'œil ?","Pupille et cristallin, sous contrôle du SNA."],
+["Rôle des bâtonnets ? des cônes ?","Bâtonnets : intensité lumineuse. Cônes : couleurs."],
+["Mécanisme de la phototransduction ?","Le photon isomérise le rétinal cis → trans, qui déforme l'opsine et déclenche une signalisation."],
+["Qu'est-ce qui distingue cônes et bâtonnets au niveau moléculaire ?","L'opsine (le rétinal est commun)."],
+["Pourquoi la vitamine A est-elle indispensable à la vision ?","Le rétinal en dérive."],
+["Rôle de l'épithélium pigmentaire ?","Il reçoit les disques usagés et reconvertit le trans-rétinal en cis-rétinal."],
+["Quelles fibres croisent au chiasma ?","Celles de la rétine nasale."],
+["Dernier relais avant le cortex visuel ?","Le thalamus (corps genouillé latéral)."],
+["Où passent les radiations optiques supérieures ? inférieures ?","Supérieures : cortex pariétal (rétine supérieure). Inférieures : cortex temporal (rétine inférieure)."],
+["Où arrive la voie visuelle consciente ?","Cortex strié du lobe occipital."],
+["Voies visuelles courtes : 3 destinations ?","Hypothalamus (rythmes circadiens), noyau du tronc (pupille, accommodation), colliculus supérieur (poursuite oculaire)."],
+["Courant dorsal / ventral ?","Dorsal → pariétal : « où ? ». Ventral → temporal : « quoi ? »."],
+["Le champ visuel gauche est traité par quel hémisphère ?","Le droit."]
+]
+});
+
+CH.push({
+id:"oreille", title:"Oreille interne : audition et équilibre", short:"Audition, équilibre",
+src:"Ronéo 24/11 · diapo Modalités sensorielles",
+weight:"Annale 2022-23 : organisation fonctionnelle de la cochlée (4 pts), sans le traitement de l'info.",
+diagrams:["cochlee"],
+sections:[
+{h:"Oreille externe et moyenne", html:`
+<ul>
+<li><b>Externe</b> : <b>pavillon</b> et <b>conduit auditif</b> dirigent le son vers la <b>membrane tympanique</b>, qui vibre selon les variations de pression de l'air.</li>
+<li><b>Moyenne</b> : la <b>chaîne des osselets</b> (marteau, enclume, étrier) transmet mécaniquement et <b>amplifie</b> la vibration jusqu'à la membrane d'entrée de l'oreille interne (<b>fenêtre ovale</b>, sur laquelle appuie l'étrier).</li>
+<li>La <b>trompe d'Eustache</b> relie l'oreille moyenne au pharynx : la pression y égale celle de la cavité orale. En plongée, on se bouche le nez et on expire pour compenser.</li>
+<li>Réflexe de <b>protection</b> : un petit muscle de la chaîne des osselets se contracte et réduit la transmission des sons trop forts.</li>
+</ul>`},
+{h:"Oreille interne : labyrinthe et endolymphe", html:`
+<ul>
+<li>Un système <b>labyrinthique</b> de sacs et de membranes contient l'<b>endolymphe</b>, partagée entre l'organe de l'<b>équilibre</b> (au-dessus) et la <b>cochlée</b> (en dessous), qui communiquent au niveau du <b>saccule</b>.</li>
+<li>Particularité : l'endolymphe est <b>riche en K⁺</b> (~300 mmol, contre ~150 en intracellulaire selon la ronéo), contrairement au liquide extracellulaire habituel, pauvre en K⁺.</li>
+</ul>`},
+{h:"La cellule ciliée : un seul mécanisme pour deux sens", html:`
+<ol class="chain">
+<li>Pôle <b>apical</b> : des <b>cils en escalier</b> de tailles croissantes, baignant dans l'endolymphe.</li>
+<li>À la pointe des cils, des <b>canaux ioniques mécanosensibles</b>, reliés d'un cil à l'autre par des liens.</li>
+<li>Quand les cils se plient, la <b>traction</b> du lien <b>ouvre</b> le canal.</li>
+<li>Entrée de <b>K⁺</b> (gradient entrant, car l'endolymphe est plus riche en K⁺ que la cellule) → <b>dépolarisation</b>. Ici c'est le K⁺, et non le Na⁺, qui dépolarise.</li>
+<li>La dépolarisation gagne le pôle <b>basolatéral</b> → <b>exocytose</b> de NT → PA dans la fibre du <b>nerf VIII</b>.</li>
+</ol>
+<p>Le même mécanisme donne des sensations différentes (son ou mouvement) selon l'<b>environnement</b> de la cellule.</p>`},
+{h:"Le vestibule : équilibre", html:`
+<table class="t"><thead><tr><th></th><th>Sacs otolithiques (utricule, saccule)</th><th>Canaux semi-circulaires</th></tr></thead><tbody>
+<tr><td>Structure</td><td>Zone sensible : la <b>macule</b>. Cils enchâssés dans un gel, la <b>membrane otolithique</b>, couverte de cristaux de calcium (<b>otolithes</b>) soumis à la gravité</td><td><b>3 canaux</b> en anneau, un par plan de l'espace (x, y, z), chacun avec une <b>ampoule</b> : cellules ciliées dans un gel <b>sans otolithes</b></td></tr>
+<tr><td>Stimulus</td><td>La tête s'incline : les otolithes, plus lourds, <b>glissent</b>, entraînent le gel qui plie les cils</td><td>La tête tourne : l'<b>endolymphe</b> bouge et plie les cils, seulement si la rotation est <b>dans le plan du canal</b></td></tr>
+<tr><td>Information</td><td><b>Position de la tête</b> et <b>accélérations linéaires</b> (marche, voiture, ascenseur). Une macule horizontale, une plus verticale</td><td><b>Accélérations angulaires</b> (rotations). Horizontal : tourner la tête ; antérieur : se pencher avant/arrière ; postérieur : incliner sur le côté. Mouvement complexe : plusieurs canaux</td></tr></tbody></table>`},
+{h:"Voies vestibulaires", html:`
+<ul>
+<li>Nerf <b>VIII (vestibulo-cochléaire)</b>, branche vestibulaire → <b>noyaux vestibulaires</b> du tronc (4 de chaque côté).</li>
+<li>Noyaux <b>multimodaux</b> : vestibule + <b>vision</b> + position du cou et de la tête (moelle). La convergence assure la cohérence, l'équilibre et l'orientation.</li>
+<li>→ <b>Moelle</b> : réflexes <b>vestibulo-spinaux</b> (posture, éviter la chute).</li>
+<li>↔ <b>Cervelet</b> : mémoire motrice, posture, coordination.</li>
+<li>→ <b>Thalamus</b> → cortex (gyrus postcentral, proche du cortex somesthésique) : perception <b>consciente</b> des déplacements.</li>
+<li><b>Réflexe vestibulo-oculaire</b> : canaux → VIII → noyaux vestibulaires → noyaux <b>oculomoteurs</b> (III, VI) : les yeux bougent en sens <b>opposé</b> à la tête et le regard reste fixe (se regarder dans un miroir en bougeant la tête).</li>
+</ul>`},
+{h:"La cochlée : audition", html:`
+<ol class="chain">
+<li>L'oreille transforme l'onde <b>aérienne</b> en vibration <b>mécanique</b> (tympan, osselets) puis en onde <b>liquidienne</b> (cochlée).</li>
+<li>L'étrier pousse la <b>fenêtre ovale</b> (vestibulaire), à l'entrée de la <b>rampe vestibulaire</b>.</li>
+<li>L'onde <b>monte</b> la rampe vestibulaire jusqu'au sommet de la spirale (<b>apex</b>), puis <b>redescend</b> par la <b>rampe tympanique</b> et se <b>dissipe</b> sur la <b>fenêtre ronde</b> (tympanique, mobile) : pas d'écho. Les rampes contiennent un liquide extracellulaire, <b>pas l'endolymphe</b>.</li>
+<li>Entre les deux rampes : l'<b>organe spiral</b>, siège de la <b>transduction</b>. Les cellules ciliées sont prises entre la <b>membrane basilaire</b> (<b>mobile</b>) et la <b>membrane tectoriale</b> (<b>fixe</b>).</li>
+<li>L'onde déplace la membrane basilaire, qui pousse les cils contre la tectoriale : <b>cisaillement</b> → ouverture des canaux → entrée de K⁺ → dépolarisation → message nerveux.</li>
+</ol>
+<p><b>Tonotopie</b> : une seule zone de la membrane basilaire vibre selon la fréquence. <b>Base</b> : sons <b>aigus</b> (hautes fréquences). <b>Apex</b> : sons <b>graves</b>. L'<b>endroit</b> qui vibre code la <b>hauteur</b> du son.</p>
+<p><b>Fragilité</b> : les cils ne se renouvellent pas. Une stimulation trop intense (concerts, écouteurs) les arrache : perte <b>irréversible</b>. La fenêtre est perméable : ce qui atteint l'oreille moyenne (médicaments) peut passer dans l'oreille interne.</p>`},
+{h:"Voies auditives", html:`
+<ul>
+<li>Nerf <b>VIII</b>, branche cochléaire → tronc cérébral : projections <b>bilatérales</b> (les deux oreilles), qui permettent de <b>localiser</b> les sons.</li>
+<li>Conséquence diagnostique : une <b>surdité d'une seule oreille</b> est d'origine <b>périphérique</b>, pas centrale.</li>
+<li>Puis relais thalamique et <b>cortex auditif primaire</b>, lobe <b>temporal</b> : analyse consciente et compréhension.</li>
+</ul>`}
+],
+pieges:["Dans la cellule ciliée, c'est le <b>K⁺ qui entre et dépolarise</b> (endolymphe riche en K⁺).","Base = <b>aigus</b> ; apex = <b>graves</b>.","Annale cochlée : ne pas décrire le transfert ni le traitement de l'information, rester sur l'organisation et la transduction."],
+cards:[
+["Rôle des osselets ?","Transmettre et amplifier la vibration du tympan jusqu'à la fenêtre ovale."],
+["Rôle de la trompe d'Eustache ?","Équilibrer la pression de l'oreille moyenne avec celle de la cavité orale (pharynx)."],
+["Particularité ionique de l'endolymphe ?","Elle est riche en K⁺ : l'entrée de K⁺ dépolarise la cellule ciliée."],
+["Mécanisme de transduction de la cellule ciliée ?","Flexion des cils → traction des liens → ouverture des canaux mécanosensibles → entrée de K⁺ → dépolarisation → exocytose de NT."],
+["Que détectent les sacs otolithiques ?","Position de la tête et accélérations linéaires (glissement des otolithes)."],
+["Que détectent les canaux semi-circulaires ?","Accélérations angulaires (rotations), par le mouvement de l'endolymphe dans le plan du canal."],
+["Différence entre macule et ampoule ?","Macule : gel couvert d'otolithes (gravité). Ampoule : gel sans otolithes, déplacé par l'endolymphe."],
+["Qu'est-ce que le réflexe vestibulo-oculaire ?","Canaux → VIII → noyaux vestibulaires → noyaux oculomoteurs : les yeux compensent le mouvement de la tête, le regard reste fixe."],
+["Pourquoi les noyaux vestibulaires sont-ils multimodaux ?","Ils intègrent vestibule, vision et position du cou (moelle)."],
+["Trajet de l'onde dans la cochlée ?","Fenêtre ovale → rampe vestibulaire → apex → rampe tympanique → fenêtre ronde (dissipation)."],
+["Membranes de l'organe spiral ?","Basilaire (mobile) et tectoriale (fixe) : le cisaillement plie les cils."],
+["Où sont détectés les sons aigus ? graves ?","Aigus : base de la cochlée. Graves : apex."],
+["Comment est codée la hauteur d'un son ?","Par l'endroit de la membrane basilaire qui vibre (tonotopie)."],
+["Pourquoi la perte auditive par bruit est-elle irréversible ?","Les cils des cellules ciliées ne se renouvellent pas."],
+["Surdité d'une seule oreille : centrale ou périphérique ?","Périphérique, car les projections centrales sont bilatérales."],
+["Où est le cortex auditif primaire ?","Lobe temporal."]
+]
+});
+// ===== QUESTIONS : annales réelles + questions type annale =====
+// b : barème [points, critère attendu]
+const QS = [
+{id:"a24-noci", ch:"noci", real:"Session 1 · 2024-25", pts:4,
+q:"Indiquer les particularités de la transduction des fibres nociceptives (par rapport aux autres sensibilités, par exemple le tact fin).",
+b:[
+[0.5,"Nocicepteurs = terminaisons libres dans les tissus, détectent un signal de lésion cellulaire"],
+[0.75,"Polymodalité : canaux sensibles à la chaleur, aux protons, à la capsaïcine ; récepteurs à l'ATP ; mécanorécepteurs à forte pression (vs récepteurs spécialisés du tact)"],
+[0.5,"Haut seuil : stimulus dépassant les niveaux physiologiques (vs bas seuil du tact)"],
+[0.75,"Pas ou peu d'adaptation : PA à fréquence élevée tant que le stimulus dure (vs fréquence qui décroît pour le tact)"],
+[0.75,"Sensibilisation : RCPG/RTK activés par des médiateurs inflammatoires (prostaglandines) abaissent le seuil des récepteurs-canaux ; exemple du coup de soleil"],
+[0.75,"Réflexe d'axone : PA rétrograde, libération de substance P → mastocytes (histamine, NGF, prostaglandines…) → cercle vicieux de sensibilisation"]
+]},
+{id:"a24-dig", ch:"sna", real:"Session 1 · 2024-25", pts:6,
+q:"Décrire les actions du système nerveux autonome permettant de coordonner la digestion, l'absorption et le stockage des ressources énergétiques.",
+b:[
+[0.5,"Cadre : parasympathique = assimilation et stockage (repos, digestion) ; sympathique = freine ces processus pour mobiliser (combat ou fuite)"],
+[0.5,"Le parasympathique module le système nerveux entérique (autonomie du tube digestif), via surtout le nerf vague"],
+[0.75,"Salive : ↑ sécrétion abondante (fluidifie le bol, amorce la dégradation)"],
+[0.75,"Estomac/intestin : ↑ motilité (brassage, mélange avec les sucs) et relâchement des sphincters (progression du bol)"],
+[0.75,"Vésicule biliaire : contraction (sels biliaires) ; pancréas exocrine : ↑ enzymes"],
+[1,"Stockage : ↑ insuline (pancréas endocrine), ↑ synthèse de glycogène hépatique ; renforce l'effet du glucose"],
+[1,"Sympathique : inhibe digestion et stockage ; glycogénolyse, néoglucogenèse, glucagon ; lipolyse des adipocytes (cible exclusivement sympathique)"],
+[0.75,"Mécanisme : NT terminaux préférentiels (ACh → muscariniques ; NA → adrénergiques), RCPG, modulation d'une activité intrinsèque"]
+]},
+{id:"a23-cbh1", ch:"sna", real:"Session 2 · 2023-24", pts:4,
+ctx:"Le ganglion cervical supérieur, situé au niveau du cou, appartient à la chaîne des ganglions paravertébraux. Il est le siège d'un relais pour transmettre, au niveau de la face, les informations du système auquel il appartient. Sa lésion induit un syndrome de Claude Bernard-Horner : pour la moitié de la face du même côté que la lésion, une insuffisance de sécrétion de sueur, une rougeur due à l'altération de la vasomotricité et un myosis. En revanche, aucune altération de l'expression du visage, de la mastication, des mouvements de la tête.",
+q:"Indiquez, en donnant votre(vos) argument(s), à quel système nerveux appartient le ganglion cervical supérieur.",
+b:[
+[0.75,"Réponse : système nerveux autonome, branche sympathique (orthosympathique)"],
+[1,"Argument anatomique : un ganglion = relais entre 2 neurones, propre au SNA (le somatique est direct)"],
+[1,"Argument anatomique : la chaîne paravertébrale est sympathique (les ganglions parasympathiques sont près des viscères) ; elle monte au-delà de T1-L2 pour atteindre la tête"],
+[1.25,"Argument fonctionnel : symptômes uniquement végétatifs, touchant des cibles exclusivement sympathiques (sueur, vasomotricité) ; aucun déficit somatique (expression, mastication, tête)"]
+]},
+{id:"a23-cbh2", ch:"sna", real:"Session 2 · 2023-24", pts:6,
+ctx:"Même énoncé : lésion du ganglion cervical supérieur → pour l'hémiface du même côté, insuffisance de sueur, rougeur (vasomotricité), myosis ; pas d'atteinte de l'expression du visage, de la mastication, des mouvements de la tête.",
+q:"Expliquez chacune des observations décrites dans l'énoncé.",
+b:[
+[0.75,"Même côté que la lésion : le SNA n'a pas de décussation entre le ganglion et la cible ; la fibre post-ganglionnaire innerve l'hémiface ipsilatérale"],
+[1.25,"Sueur ↓ : glandes sudoripares exclusivement sympathiques ; sans relais ganglionnaire, plus de commande → anhidrose"],
+[1.5,"Rougeur : les vaisseaux sont innervés seulement par le sympathique, qui porte un tonus de base vasoconstricteur ; perte du tonus → vasodilatation → rougeur (le parasympathique n'innerve pas ces vaisseaux)"],
+[1.5,"Myosis : l'iris reçoit une double innervation antagoniste ; perte de la mydriase sympathique → l'action parasympathique (myosis) n'est plus contrebalancée"],
+[1,"Pas d'atteinte motrice : expression, mastication, mouvements de tête = muscles squelettiques, commande somatique directe (voie corticobulbaire, nerfs crâniens), sans ganglion"]
+]},
+{id:"a22-coch", ch:"oreille", real:"Session 2 · 2022-23", pts:4,
+q:"Expliquer l'organisation fonctionnelle de la cochlée, c'est-à-dire comment les cellules sensorielles s'intègrent au sein de cette partie de l'oreille interne et les stimuli détectés en conséquence. (Ne pas décrire le transfert ou le traitement de l'information.)",
+b:[
+[0.75,"Transmission : tympan → osselets (amplification) → fenêtre ovale ; onde aérienne → onde liquidienne"],
+[0.75,"Rampe vestibulaire → apex → rampe tympanique → dissipation à la fenêtre ronde (pas d'écho)"],
+[0.75,"Organe spiral entre les rampes : cellules ciliées entre membrane basilaire (mobile) et tectoriale (fixe)"],
+[1,"Transduction : déplacement de la basilaire → cisaillement des cils → canaux mécanosensibles → entrée de K⁺ (endolymphe riche en K⁺) → dépolarisation → exocytose de NT"],
+[0.75,"Tonotopie : base = aigus, apex = graves ; l'endroit qui vibre code la fréquence (hauteur du son)"]
+]},
+{id:"a22-chol", ch:"sna", real:"Session 2 · 2022-23", pts:6,
+ctx:"Un patient présente une accélération du transit intestinal (diarrhée) et un myosis.",
+q:"Quelles autres modifications des systèmes physiologiques pouvez-vous suspecter (sans décrire le symptôme associé) ? Le patient présente aussi des contractions musculaires brèves, de groupes musculaires isolés et variables, non incluses dans un programme moteur, conduisant à des crampes. Expliquez en quoi cette information complète le tableau.",
+b:[
+[0.75,"Identifier une hyperactivité parasympathique (ou un excès d'ACh sur les récepteurs muscariniques) : diarrhée = ↑ motilité, myosis"],
+[0.5,"Œil : accommodation de près (contraction du muscle ciliaire), ↑ larmes"],
+[0.75,"Sécrétions : ↑ salive, ↑ sécrétions nasales, ↑ sucs digestifs, contraction de la vésicule, relâchement des sphincters"],
+[0.75,"Cœur et bronches : bradycardie ; bronchoconstriction + ↑ mucus"],
+[0.5,"Vessie : contraction du détrusor + relâchement du sphincter interne (miction)"],
+[0.25,"Métabolisme : ↑ insuline, ↑ stockage du glycogène"],
+[1,"Contractions hors programme moteur = atteinte périphérique de la jonction neuromusculaire (unité motrice), pas de la commande centrale : ACh sur récepteurs nicotiniques"],
+[1.5,"Synthèse : le point commun est l'acétylcholine (terminale parasympathique muscarinique + JNM nicotinique, et ganglions) → excès global d'ACh, par exemple défaut de dégradation (acétylcholinestérase) : le tableau n'est pas qu'une hyperactivité parasympathique"]
+]},
+// ---- questions type annale (rédigées sur le modèle des annales) ----
+{id:"t-synapse", ch:"bases", pts:5,
+q:"Décrivez la transmission synaptique, de l'arrivée du potentiel d'action présynaptique jusqu'à la fin du signal. Précisez le rôle du calcium et la différence entre glutamate et GABA.",
+b:[
+[0.75,"PA → dépolarisation du bouton présynaptique"],
+[1,"Ouverture de canaux Ca²⁺ voltage-dépendants, entrée de Ca²⁺ extracellulaire"],
+[0.75,"Ca²⁺ → fusion des vésicules (exocytose), NT libéré dans la fente"],
+[0.75,"Récepteurs-canaux post-synaptiques → passage d'ions → PPS (potentiel gradué)"],
+[0.75,"Glutamate : PPS dépolarisant (excitateur) ; GABA : hyperpolarisant (inhibiteur) ; un neurone libère l'un ou l'autre"],
+[1,"Retrait : recapture, dégradation, capture astrocytaire (métabolite inactif rendu comme précurseur)"]
+]},
+{id:"t-rotulien", ch:"bases", pts:6,
+q:"Décrivez le réflexe rotulien, de la percussion du tendon à l'extension de la jambe, et expliquez comment le muscle antagoniste est relâché. Situez-le dans les niveaux d'intégration.",
+b:[
+[0.75,"Étirement du quadriceps détecté par le fuseau neuromusculaire (fibres intrafusales)"],
+[1,"Transduction → potentiel récepteur gradué → seuil → PA"],
+[0.75,"Neurone en T (ganglion rachidien), racine dorsale, synapse glutamatergique sur le motoneurone dans la moelle : monosynaptique, 2 neurones"],
+[0.75,"Motoneurone → JNM (ACh, nicotiniques) → contraction du quadriceps → extension ; rétrocontrôle"],
+[1.25,"Collatérale → interneurone inhibiteur → GABA → hyperpolarisation du motoneurone du fléchisseur → relâchement"],
+[0.75,"Niveau médullaire : stéréotypé, automatique ; collatérales vers cerveau inférieur (vigilance) et cortex (conscience, plus tard) ; segment L2-L4"],
+[0.75,"Les relais synaptiques sont les points de modulation"]
+]},
+{id:"t-tact", ch:"tact", pts:4,
+q:"Décrivez la voie de la sensibilité tactile fine du membre inférieur droit jusqu'au cortex. Une lésion de l'hémimoelle gauche fait-elle perdre le tact à droite ?",
+b:[
+[0.75,"1er neurone : neurone en T, corps dans le ganglion rachidien ; racine dorsale ; monte sans relais dans les colonnes dorsales du même côté"],
+[0.75,"2e neurone : noyaux des colonnes dorsales (bulbe) ; décussation au bulbe ; lemnisque médian"],
+[0.75,"3e neurone : thalamus → cortex somesthésique primaire, pariétal, derrière le sillon central ; somatotopie (homoncule)"],
+[0.5,"Conscience au cortex ; collatérales vers moelle et cervelet"],
+[1.25,"Lésion de l'hémimoelle gauche : non, le tact droit monte à droite dans la moelle (décussation bulbaire) ; perte du tact à gauche sous la lésion"]
+]},
+{id:"t-douleur", ch:"noci", pts:6,
+q:"Un patient marche sur une punaise. Décrivez les réponses réflexes, les voies et les structures qui construisent sa perception de la douleur.",
+b:[
+[0.75,"Lésion → ATP libéré → nocicepteurs polymodaux à haut seuil (Aδ rapides), neurone en T"],
+[1,"Réflexe de flexion (côté stimulé) et d'extension croisée (côté opposé) : polysynaptique, bilatéral, multi-étagé"],
+[1,"2e neurone dans la corne postérieure, décussation médullaire, quadrant antérolatéral (spinothalamique…)"],
+[1,"Tronc : formation réticulée (éveil cortical), PAG (modulation descendante) ; réactions végétatives et neuro-humorales"],
+[0.5,"3e neurone thalamique"],
+[1.25,"Matrice : somatosensoriel (discriminatif), insulaire (valence), cingulaire (motivation, comportement) ; douleur = sensation + émotion"],
+[0.5,"Réflexe d'axone, inflammation et sensibilisation locales"]
+]},
+{id:"t-proj", ch:"noci", pts:3,
+q:"Expliquez pourquoi un infarctus du myocarde peut être ressenti comme une brûlure du bras gauche.",
+b:[
+[1,"Convergence des afférences viscérales (cœur) et cutanées (bras) sur le même 2e neurone de la corne postérieure"],
+[1,"Voie de projection commune → même zone corticale"],
+[1,"Le cortex somatosensoriel, habitué aux afférences cutanées, interprète la lésion comme cutanée : douleur projetée"]
+]},
+{id:"t-intero", ch:"intero", pts:4,
+q:"Comparez intéroception et nociception, puis expliquez comment le cerveau détecte directement la composition du plasma malgré la barrière hémato-encéphalique.",
+b:[
+[0.75,"Intéroception : état interne, récepteurs à bas seuil (vs haut seuil de la nociception)"],
+[0.75,"Nerfs V, IX, X → noyau du tractus solitaire → thalamus → cortex insulaire (conscience des sensations internes, émotions corporelles)"],
+[0.75,"BHE : endothélium à jonctions serrées, lame basale, pieds astrocytaires"],
+[1,"CVO sensitifs (SFO, OVLT, area postrema) : endothélium fenêtré, pas de pieds astrocytaires, contact plasma/tissu nerveux"],
+[0.75,"Détection : osmolarité, Ca²⁺, Ang II, ADH, médiateurs inflammatoires ; exemple de la fièvre"]
+]},
+{id:"t-moteur", ch:"moteur", pts:6,
+q:"Vous saisissez un verre sur une table. Décrivez l'organisation des commandes motrices, du cortex à la contraction musculaire, en distinguant geste fin et ajustements posturaux.",
+b:[
+[0.75,"Cortex pariétal postérieur : position initiale du corps (info somesthésique)"],
+[1,"Préfrontal (motivation), prémoteur (stratégie), moteur primaire (exécution) ; homoncule moteur (main surreprésentée)"],
+[1,"Voie pyramidale : cortex moteur frontal → tronc → décussation pyramidale au bulbe → corticospinal latéral → motoneurones latéraux → muscles distaux (gestes fins)"],
+[1,"Voies extrapyramidales indirectes : formation réticulée → réticulospinal → motoneurones médians → posture, anticipation (mollet avant le biceps)"],
+[0.75,"Unité motrice : motoneurone, JNM, ACh, nicotiniques, dépolarisation ; muscle sans activité de base"],
+[0.75,"Rétroaction proprioceptive : la contraction stimule fuseaux et organes tendineux ; boucles cervelet et noyaux gris centraux"],
+[0.75,"Organisation somatotopique de la corne antérieure (médian = proximal, latéral = distal)"]
+]},
+{id:"t-sna-def", ch:"sna", pts:5,
+q:"Comparez les systèmes nerveux somatique et autonome sur les plans fonctionnel et anatomique. Qu'est-ce qui définit les branches sympathique et parasympathique ?",
+b:[
+[1,"Fonctionnel : cible somatique unique (muscle squelettique) sans activité de base → commande = contraction ; cibles du SNA (cœur, muscles lisses, glandes) avec automatisme → modulation ↑ ou ↓"],
+[1,"Anatomique : connexion directe vs 2 neurones et ganglion ; fibres rapides myélinisées vs plus lentes"],
+[1,"NT : ACh/nicotiniques à la JNM et au ganglion ; NA/adrénergiques ou ACh/muscariniques sur les cibles (RCPG)"],
+[1.25,"Définition anatomique : sympathique = corne latérale T1-L2, ganglions para/prévertébraux ; parasympathique = cranio-sacré (nerf X…), ganglions près des viscères"],
+[0.75,"Le NT n'est pas la définition : sympathique préférentiellement NA, parasympathique préférentiellement ACh"]
+]},
+{id:"t-ansm", ch:"sna", pts:5,
+q:"L'ANSM déconseille les vasoconstricteurs par voie orale en cas de rhume. Expliquez leur intérêt, puis les effets indésirables attendus et la contre-indication principale.",
+b:[
+[1,"Intérêt : effet sympathique sur la muqueuse nasale → vasoconstriction → décongestion, ↓ sécrétions"],
+[0.75,"Voie systémique : toutes les cibles sympathiques sont touchées"],
+[1,"Vaisseaux : vasoconstriction généralisée → ↑ résistances → hypertension"],
+[0.75,"Cœur : ↑ FC et ↑ force"],
+[1,"Vessie : relâchement du détrusor + contraction du sphincter interne → rétention urinaire"],
+[0.5,"Contre-indication : patient hypertendu"]
+]},
+{id:"t-baro", ch:"pa", pts:5,
+q:"Décrivez le baroréflexe lors d'une hausse brutale de la pression artérielle, puis expliquez le rôle du tonus de base du SNA sur le cœur et les vaisseaux.",
+b:[
+[1,"Barorécepteurs du sinus carotidien (étirement), nerf IX, plage 50-200 mmHg, surveillance continue"],
+[0.75,"Intégration au centre cardio-régulateur du tronc cérébral"],
+[1.25,"Réponse : ↑ parasympathique et ↓ sympathique → ↓ FC ; ↓ sympathique → ↓ force et vasodilatation → ↓ résistances → ↓ PA"],
+[1,"Tonus de base cardiaque parasympathique : 60-80 bpm vs ~110 bpm chez le transplanté"],
+[1,"Tonus de base vasculaire sympathique : vasoconstriction de base qui permet une modulation dans les deux sens"]
+]},
+{id:"t-vision", ch:"vision", pts:5,
+q:"Décrivez la voie visuelle d'un objet situé dans le champ visuel gauche jusqu'au cortex, puis les voies visuelles courtes.",
+b:[
+[0.75,"Inversion par le cristallin : projection sur rétine nasale gauche et temporale droite"],
+[0.75,"Phototransduction : rétinal cis → trans, opsine ; cellules ganglionnaires → nerf optique"],
+[1,"Chiasma : croisement partiel des fibres nasales → l'objet est regroupé dans l'hémisphère droit"],
+[1,"Tractus optique → thalamus (CGL) → radiations sup (pariétal) / inf (temporal) → cortex strié occipital"],
+[1.5,"Voies courtes : hypothalamus (circadien), tronc (réflexe pupillaire et accommodation via le SNA), colliculus supérieur (poursuite oculaire, tectospinal)"]
+]},
+{id:"t-vestib", ch:"oreille", pts:4,
+q:"Expliquez comment le vestibule détecte la position et les mouvements de la tête, puis comment il stabilise le regard.",
+b:[
+[0.75,"Cellules ciliées, cils en escalier, canaux mécanosensibles, entrée de K⁺ (endolymphe) → dépolarisation"],
+[1,"Sacs otolithiques (macules) : otolithes qui glissent avec la gravité → position et accélérations linéaires"],
+[1,"Canaux semi-circulaires (3 plans) : endolymphe qui bouge dans l'ampoule → accélérations angulaires"],
+[1.25,"Nerf VIII → noyaux vestibulaires (multimodaux) → noyaux oculomoteurs : réflexe vestibulo-oculaire, yeux en sens opposé à la tête"]
+]}
+];
+// ===== DIAPOS DU COURS, rangées par section =====
+const SLIDES = {
+"bases-s0":[["intro-1","Structure fonctionnelle du neurone"],["intro-2","Types de neurones et position anatomique"]],
+"bases-s1":[["intro-3","Transmission synaptique"]],
+"bases-s3":[["intro-5","Exemple de circuit : le réflexe rotulien"]],
+"bases-s4":[["intro-6","Différents niveaux d'intégration"],["intro-4","Système d'interaction avec le monde"]],
+"bases-s5":[["intro-7","Organisation de l'encéphale"]],
+"sensi-s0":[["gen-1","Généralités : schéma général et caractéristiques"]],
+"sensi-s1":[["gen-2","Potentiel récepteur, réponses phasique/tonique, vitesse de conduction"]],
+"tact-s0":[["sensi-01","Récepteurs du tact"]],
+"tact-s1":[["sensi-02","Tact : voies (corps et face)"]],
+"tact-s3":[["sensi-03","Dermatomes"],["sensi-04","Homoncule sensitif"]],
+"tact-s4":[["sensi-05","Tact : résumé"]],
+"proprio-s0":[["sensi-06","Fuseau neuromusculaire et organe tendineux de Golgi"]],
+"proprio-s1":[["sensi-07","Réflexes myotatique et tendineux"]],
+"proprio-s2":[["sensi-08","Proprioception : voies (partie inférieure du corps)"],["sensi-09","Proprioception : résumé"]],
+"noci-s0":[["sensi-10","Nociception : récepteurs, sensibilisation, réflexe d'axone"]],
+"noci-s5":[["sensi-11","Réflexe de flexion et d'extension croisée"]],
+"noci-s6":[["sensi-12","Nociception : projections centrales"]],
+"noci-s7":[["sensi-13","Nociception : projections sous-corticales"]],
+"noci-s8":[["sensi-14","Douleurs projetées"]],
+"noci-s9":[["sensi-15","Nociception : résumé"]],
+"intero-s0":[["sensi-16","Intéroception : voies"],["sensi-19","Intéroception : résumé"]],
+"intero-s1":[["sensi-17","Localisation des barrières du SNC"]],
+"intero-s2":[["sensi-18","CVO sensitifs"]],
+"moteur-s1":[["moto-1","Unité motrice"],["moto-2","Jonction neuromusculaire"]],
+"moteur-s2":[["moto-3","Organisation des voies dans la moelle"]],
+"moteur-s3":[["moto-4","Voie corticospinale (pyramidale)"]],
+"moteur-s4":[["moto-5","Voies vestibulospinale et tectospinale"],["moto-6","Voie réticulospinale et régulation anticipatrice"]],
+"moteur-s5":[["moto-7","Origines des commandes motrices"],["moto-8","Schéma de la motricité"]],
+"vision-s0":[["senso-01","Vision : l'organe"]],
+"vision-s1":[["senso-02","Vision : la rétine"]],
+"vision-s2":[["senso-03","Phototransduction"]],
+"vision-s3":[["senso-04","Vision : voies centrales"]],
+"vision-s4":[["senso-05","Voies visuelles : champs et chiasma"],["senso-06","Voies visuelles : radiations optiques"]],
+"vision-s5":[["senso-07","Courants dorsal et ventral"],["senso-08","Vision : résumé"]],
+"oreille-s0":[["senso-09","Anatomie de l'oreille"]],
+"oreille-s2":[["senso-10","Cellules ciliées : transduction"]],
+"oreille-s3":[["senso-11","Vestibule et canaux semi-circulaires"]],
+"oreille-s4":[["senso-12","Vestibule : voies centrales"],["senso-13","Vestibule : résumé"]],
+"oreille-s5":[["senso-14","Audition : transmission"],["senso-15","Audition : transduction (organe spiral)"]],
+"oreille-s6":[["senso-16","Audition : résumé"]]
+};
+// ===== SCHÉMAS =====
+function B(x,y,w,h,k,l1,l2,cls){
+  const cy = l2 ? y+h/2-7 : y+h/2+5;
+  return `<g data-k="${k}"><rect class="b ${cls||''}" x="${x}" y="${y}" width="${w}" height="${h}" rx="10"/>`+
+  `<text class="tx" x="${x+w/2}" y="${cy}" text-anchor="middle">${l1}</text>`+
+  (l2?`<text class="sm" x="${x+w/2}" y="${cy+17}" text-anchor="middle">${l2}</text>`:'')+`</g>`;
+}
+function A(d,k,cls){return `<path data-k="${k}" class="ln ${cls||''}" d="${d}" marker-end="url(#ah)"/>`;}
+const DEFS = `<defs><marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahd"/></marker></defs>`;
+
+const DIAG = {};
+
+DIAG.synapse = {title:"La synapse en 6 étapes", kind:"stepper",
+svg:`<svg viewBox="0 0 600 330" role="img" aria-label="Synapse chimique">${DEFS}
+<g data-k="pa"><rect class="b" x="275" y="4" width="50" height="46" rx="6"/><text class="sm" x="266" y="30" text-anchor="end">axone</text>
+<ellipse class="b" cx="300" cy="112" rx="155" ry="68"/>
+<path class="ln acc" d="M300 8 V 58" marker-end="url(#ah)"/><text class="tx acc-t" x="334" y="30">PA</text></g>
+<g data-k="ves"><circle class="v" cx="232" cy="108" r="14"/><circle class="v" cx="275" cy="90" r="14"/><circle class="v" cx="322" cy="112" r="14"/><circle class="v" cx="366" cy="96" r="14"/><circle class="v" cx="292" cy="140" r="14"/><text class="sm" x="300" y="170" text-anchor="middle">vésicules de NT</text></g>
+<g data-k="ca"><rect class="ch" x="170" y="160" width="22" height="30" rx="4"/><rect class="ch" x="408" y="160" width="22" height="30" rx="4"/>
+<text class="tx ca-t" x="140" y="210">Ca²⁺</text><text class="tx ca-t" x="438" y="210">Ca²⁺</text>
+<path class="ln ca" d="M160 205 C 175 200, 180 195, 181 186" marker-end="url(#ah)"/><path class="ln ca" d="M450 205 C 430 200, 422 195, 419 186" marker-end="url(#ah)"/>
+<text class="sm" x="76" y="150" text-anchor="middle">canal Ca²⁺</text><text class="sm" x="76" y="166" text-anchor="middle">voltage-dépendant</text></g>
+<text class="sm mut" x="300" y="200" text-anchor="middle">fente synaptique</text>
+<g data-k="nt"><circle class="nt" cx="245" cy="192" r="4"/><circle class="nt" cx="262" cy="200" r="4"/><circle class="nt" cx="300" cy="190" r="4"/><circle class="nt" cx="318" cy="201" r="4"/><circle class="nt" cx="352" cy="193" r="4"/></g>
+<g data-k="pps"><rect class="b" x="120" y="222" width="360" height="92" rx="22"/><text class="tx" x="300" y="285" text-anchor="middle">neurone post-synaptique : PPS (gradué)</text></g>
+<g data-k="rec"><rect class="rc" x="236" y="212" width="18" height="24" rx="4"/><rect class="rc" x="291" y="212" width="18" height="24" rx="4"/><rect class="rc" x="346" y="212" width="18" height="24" rx="4"/><text class="sm" x="300" y="258" text-anchor="middle">récepteurs-canaux</text></g>
+<g data-k="ret"><ellipse class="b astro" cx="530" cy="250" rx="58" ry="38"/><text class="tx" x="530" y="255" text-anchor="middle">astrocyte</text></g>
+</svg>`,
+steps:[
+{t:"Arrivée du PA",d:"Le potentiel d'action arrive au bouton présynaptique et le dépolarise.",on:["pa"]},
+{t:"Entrée de Ca²⁺",d:"La dépolarisation ouvre des canaux Ca²⁺ voltage-dépendants : le Ca²⁺ extracellulaire entre.",on:["ca"]},
+{t:"Exocytose",d:"Le Ca²⁺ déclenche la fusion des vésicules avec la membrane : le NT est libéré dans la fente.",on:["ves","nt"]},
+{t:"Fixation",d:"Le NT se fixe sur des récepteurs-canaux post-synaptiques, qui s'ouvrent.",on:["nt","rec"]},
+{t:"PPS",d:"Le passage d'ions crée un PPS gradué : dépolarisant (glutamate) ou hyperpolarisant (GABA).",on:["rec","pps"]},
+{t:"Retrait du NT",d:"Recapture, dégradation, ou capture par l'astrocyte qui rend un précurseur inactif au neurone.",on:["ret","nt"]}
+]};
+
+DIAG.rotulien = {title:"Réflexe rotulien et innervation réciproque", kind:"stepper",
+svg:`<svg viewBox="0 0 790 360" role="img" aria-label="Réflexe rotulien">${DEFS}
+<g data-k="quad"><ellipse class="b mus" cx="170" cy="130" rx="38" ry="92"/><text class="tx" x="170" y="40" text-anchor="middle">quadriceps</text><text class="sm" x="170" y="56" text-anchor="middle">(extenseur)</text></g>
+<g data-k="flech"><ellipse class="b mus" cx="68" cy="140" rx="30" ry="82"/><text class="tx" x="68" y="44" text-anchor="middle">fléchisseur</text></g>
+<g data-k="fus"><rect class="b fus" x="160" y="104" width="20" height="46" rx="8"/><text class="sm" x="214" y="120">fuseau</text></g>
+<g data-k="tendon"><path class="ln" d="M170 224 V 258"/><text class="sm" x="182" y="250">tendon rotulien</text><path class="ln acc" d="M110 300 L 160 262" marker-end="url(#ah)"/><text class="tx acc-t" x="70" y="318">percussion</text></g>
+<ellipse class="b cord" cx="500" cy="190" rx="112" ry="96"/><text class="tx" x="500" y="315" text-anchor="middle">moelle épinière (L2-L4)</text>
+<g data-k="gg"><circle class="b gg" cx="360" cy="104" r="15"/><text class="sm" x="360" y="80" text-anchor="middle">ganglion rachidien</text></g>
+<path data-k="sens" class="ln sens" d="M180 120 C 260 110, 300 104, 345 104 M375 104 C 430 108, 470 140, 492 196" marker-end="url(#ah)"/>
+<g data-k="mnE"><circle class="b mn" cx="500" cy="212" r="14"/><text class="sm" x="620" y="216">MN extenseur</text><path class="ln" d="M514 212 H 614" stroke-dasharray="2 4"/></g>
+<path data-k="motE" class="ln mot" d="M488 220 C 400 250, 260 250, 200 190" marker-end="url(#ah)"/>
+<path data-k="coll" class="ln sens" d="M455 146 C 440 160, 432 178, 430 196" marker-end="url(#ah)"/>
+<g data-k="inter"><circle class="b inh" cx="430" cy="206" r="10"/><text class="sm" x="620" y="246">interneurone inhibiteur</text><path class="ln" d="M440 210 C 520 230, 560 242, 614 242" stroke-dasharray="2 4"/>
+<path class="ln inh-l" d="M430 218 L 434 252" marker-end="url(#ah)"/></g>
+<g data-k="mnF"><circle class="b mn" cx="436" cy="266" r="14"/><text class="sm" x="620" y="282">MN fléchisseur</text><path class="ln" d="M450 270 C 530 278, 580 278, 614 278" stroke-dasharray="2 4"/></g>
+<path data-k="motF" class="ln mot dash" d="M424 274 C 300 310, 130 300, 82 222" marker-end="url(#ah)"/>
+</svg>`,
+steps:[
+{t:"Stimulus",d:"La percussion du tendon étire brusquement le quadriceps et ses fuseaux neuromusculaires (fibres intrafusales).",on:["tendon","quad","fus"]},
+{t:"Transduction",d:"L'étirement devient un potentiel récepteur gradué ; au seuil, des PA naissent dans la fibre sensitive.",on:["fus","sens"]},
+{t:"Neurone en T",d:"Corps cellulaire dans le ganglion rachidien ; l'axone entre dans la moelle par la racine dorsale.",on:["gg","sens"]},
+{t:"Synapse glutamatergique",d:"Dans la moelle, le neurone sensitif libère du glutamate sur le motoneurone du quadriceps : un seul relais, 2 neurones.",on:["sens","mnE"]},
+{t:"Contraction",d:"PA du motoneurone → JNM (ACh, nicotiniques) → contraction du quadriceps → extension de la jambe.",on:["mnE","motE","quad"]},
+{t:"Innervation réciproque",d:"Une collatérale active un interneurone inhibiteur, qui libère du GABA sur le motoneurone du fléchisseur : il se relâche.",on:["coll","inter","mnF","motF","flech"]}
+]};
+
+DIAG.moteur = {title:"Du projet moteur à la contraction", kind:"stepper",
+svg:`<svg viewBox="0 0 660 410" role="img" aria-label="Organisation de la motricité">${DEFS}
+${B(16,16,180,50,"pf","Cortex préfrontal","motivation")}
+${B(240,16,180,50,"pm","Cortex prémoteur","stratégie")}
+${B(464,16,180,50,"m1","Cortex moteur I","exécution")}
+${A("M196 41 H 236","pf")}${A("M420 41 H 460","pm")}
+${B(240,98,180,50,"pp","Pariétal postérieur","où suis-je ?")}
+${B(464,98,180,50,"s1","Somesthésique I","je touche")}
+${A("M464 123 H 424","pp")}${A("M330 98 V 70","pp")}
+${B(464,186,180,50,"tronc","Bulbe","décussation pyramidale")}
+${B(240,186,180,50,"fr","Formation réticulée","relais du tronc")}
+${B(16,186,180,50,"loop","Cervelet, NGC","boucles de régulation")}
+${A("M554 66 V 182","pyr","acc")}${A("M500 66 C 470 120, 380 140, 340 182","extra","acc2")}
+${B(464,268,180,46,"mnl","MN latéraux","corne antérieure")}
+${B(240,268,180,46,"mnm","MN médians","corne antérieure")}
+${A("M554 236 V 264","pyr","acc")}${A("M330 236 V 264","extra","acc2")}
+${B(464,346,180,48,"dist","Muscles distaux","gestes fins")}
+${B(240,346,180,48,"prox","Muscles proximaux","posture")}
+${A("M554 314 V 342","pyr","acc")}${A("M330 314 V 342","extra","acc2")}
+<path data-k="fb" class="ln dash" d="M644 370 C 660 300, 660 180, 644 123" marker-end="url(#ah)"/>
+<text data-k="fb" class="sm" x="650" y="250" text-anchor="end" transform="rotate(-90 650 250)">propriocepteurs</text>
+</svg>`,
+steps:[
+{t:"« Attention »",d:"Le cortex préfrontal porte la motivation de l'action.",on:["pf"]},
+{t:"Où en suis-je ?",d:"Le cortex somesthésique I (je touche) passe l'info au pariétal postérieur (je suis à côté du verre), qui informe les cortex frontaux : il faut la position initiale.",on:["s1","pp"]},
+{t:"« Prêt »",d:"Le cortex prémoteur élabore la stratégie, la séquence du mouvement.",on:["pm"]},
+{t:"« Partez »",d:"Le cortex moteur primaire, en avant du sillon central, exécute en se projetant sur les voies motrices (homoncule moteur).",on:["m1"]},
+{t:"Voie pyramidale",d:"Projection directe : tronc, décussation pyramidale au bulbe, faisceau corticospinal latéral, motoneurones latéraux, muscles distaux : le geste fin.",on:["m1","tronc","mnl","dist","pyr"]},
+{t:"Voies extrapyramidales",d:"Indirectes : relais dans la formation réticulée, faisceau réticulospinal, motoneurones médians, muscles proximaux : posture et anticipation.",on:["fr","mnm","prox","extra"]},
+{t:"Boucles et rétroaction",d:"La contraction stimule les propriocepteurs (le corps devient stimulus) ; le cervelet et les noyaux gris centraux ajustent le programme.",on:["fb","s1","loop"]}
+]};
+
+DIAG.snaTrajet = {title:"Trajet des fibres sympathiques : 3 scénarios", kind:"stepper",
+svg:`<svg viewBox="0 0 640 380" role="img" aria-label="Trajet des fibres sympathiques">${DEFS}
+<circle class="b cord" cx="96" cy="200" r="72"/><text class="sm" x="96" y="292" text-anchor="middle">moelle T1-L2</text>
+<g data-k="pre"><circle class="b sym-f" cx="120" cy="178" r="11"/><text class="sm" x="96" y="150" text-anchor="middle">corne latérale</text></g>
+<path data-k="rv" class="ln sym-l" d="M128 188 C 150 220, 170 240, 205 246" marker-end="url(#ah)"/>
+<text data-k="rv" class="sm" x="150" y="270">racine ventrale</text>
+<path data-k="rc" class="ln sym-l" d="M210 244 C 235 236, 250 222, 266 208" marker-end="url(#ah)"/>
+<text data-k="rc" class="sm" x="226" y="184" text-anchor="middle">rameau</text><text data-k="rc" class="sm" x="226" y="198" text-anchor="middle">communicant</text>
+<path data-k="chain" class="ln" d="M280 30 V 352"/><text class="sm" x="290" y="370">chaîne paravertébrale</text>
+<g data-k="g1"><circle class="b gg" cx="280" cy="62" r="14"/><text class="sm" x="262" y="40" text-anchor="end">ganglion cervical sup.</text></g>
+<g data-k="g2"><circle class="b gg" cx="280" cy="200" r="14"/></g>
+<circle class="b gg" cx="280" cy="320" r="12"/>
+<path data-k="up" class="ln sym-l" d="M268 192 C 262 150, 262 110, 270 78" marker-end="url(#ah)"/>
+<path data-k="s2" class="ln sym-l dash" d="M294 62 H 420" marker-end="url(#ah)"/>
+${B(424,36,200,52,"s2","Face","iris, sueur, vaisseaux","symb")}
+<path data-k="s1" class="ln sym-l dash" d="M294 200 H 420" marker-end="url(#ah)"/>
+${B(424,174,200,52,"s1","Peau (même étage)","sueur, vaisseaux, poils","symb")}
+<path data-k="prev" class="ln sym-l" d="M290 210 C 320 250, 350 290, 382 300" marker-end="url(#ah)"/>
+<g data-k="prev"><circle class="b gg" cx="396" cy="304" r="14"/><text class="sm" x="396" y="340" text-anchor="middle">ganglion prévertébral</text></g>
+<path data-k="s3" class="ln sym-l dash" d="M410 304 H 456" marker-end="url(#ah)"/>
+${B(460,280,164,50,"s3","Viscère abdominal","","symb")}
+</svg>`,
+steps:[
+{t:"Neurone pré-ganglionnaire",d:"Dans la corne latérale de la moelle thoraco-lombaire (T1-L2) : c'est ce qui définit le sympathique.",on:["pre"]},
+{t:"Racine ventrale",d:"La fibre sort du SNC par la racine ventrale, avec les fibres motrices somatiques.",on:["pre","rv"]},
+{t:"Rameau communicant",d:"Elle quitte la racine et rejoint la chaîne des ganglions paravertébraux.",on:["rc","chain"]},
+{t:"Cible au même étage",d:"Relais cholinergique (nicotinique) dans le ganglion de l'étage ; la fibre post-ganglionnaire repart par la racine spinale du même niveau.",on:["g2","s1"]},
+{t:"Cible à un autre étage",d:"La fibre monte dans la chaîne (qui dépasse T1-L2) et fait son relais plus haut. Pour la face : ganglion cervical supérieur (Claude Bernard-Horner).",on:["up","g1","s2"]},
+{t:"Viscère abdominal",d:"La fibre traverse le ganglion paravertébral sans synapse et fait son relais dans un ganglion prévertébral, en avant de l'aorte.",on:["prev","s3"]}
+]};
+
+DIAG.baro = {title:"Le baroréflexe quand la PA monte", kind:"stepper",
+svg:`<svg viewBox="0 0 640 350" role="img" aria-label="Baroréflexe">${DEFS}
+${B(16,20,190,54,"sinus","Sinus carotidien","barorécepteurs")}
+${A("M206 47 H 246","ix")}<text data-k="ix" class="sm" x="226" y="38" text-anchor="middle">nerf IX</text>
+${B(250,20,220,54,"centre","Tronc cérébral","centre cardio-régulateur")}
+${A("M300 74 C 260 100, 200 110, 170 136","para","para-l")}${A("M420 74 C 460 100, 480 110, 490 136","sym","sym-l")}
+${B(70,140,200,50,"para","Parasympathique ↑","nerf vague","parab")}
+${B(390,140,200,50,"sym","Sympathique ↓","","symb")}
+${B(16,250,180,54,"fc","Nœud sinusal","FC ↓")}
+${B(230,250,180,54,"force","Myocarde","force ↓ → VES ↓")}
+${B(444,250,180,54,"art","Artérioles","vasodilatation → R ↓")}
+${A("M140 190 V 246","para","para-l")}${A("M430 190 C 300 210, 150 220, 120 246","symfc","sym-l")}
+${A("M470 190 C 420 215, 340 225, 320 246","symf","sym-l")}${A("M534 190 V 246","syma","sym-l")}
+<path data-k="loop" class="ln acc dash" d="M534 304 C 520 340, 120 345, 100 304" marker-end="url(#ah)"/>
+<text data-k="loop" class="tx acc-t" x="320" y="342" text-anchor="middle">PA ↓ : rétrocontrôle</text>
+</svg>`,
+steps:[
+{t:"Détection",d:"La PA monte : la paroi du sinus carotidien s'étire, les barorécepteurs déchargent plus de PA.",on:["sinus"]},
+{t:"Afférence",d:"Le message (intéroception) part par le nerf glossopharyngien (IX).",on:["sinus","ix"]},
+{t:"Intégration",d:"Le centre cardio-régulateur du tronc cérébral intègre et ajuste la sortie végétative.",on:["centre"]},
+{t:"Frein ↑",d:"↑ Activité parasympathique (nerf vague) sur le nœud sinusal : la FC baisse.",on:["para","fc"]},
+{t:"Accélérateur ↓",d:"↓ Activité sympathique : FC ↓ et force de contraction ↓ (le myocarde contractile n'a qu'une innervation sympathique).",on:["sym","symfc","symf","fc","force"]},
+{t:"Vaisseaux",d:"↓ Tonus sympathique vasoconstricteur : vasodilatation, les résistances baissent.",on:["sym","syma","art"]},
+{t:"Rétrocontrôle",d:"DC ↓ et résistances ↓ : la PA redescend. Le réflexe marche dans les deux sens.",on:["loop","fc","force","art"]}
+]};
+// ===== SCHÉMAS INTERACTIFS PERSONNALISÉS =====
+DIAG.cochlee = {title:"Cochlée déroulée : onde et tonotopie", kind:"stepper",
+svg:`<svg viewBox="0 0 640 250" role="img" aria-label="Cochlée déroulée">${DEFS}
+<g data-k="et"><rect class="b" x="6" y="40" width="40" height="48" rx="6"/><text class="sm" x="26" y="106" text-anchor="middle">étrier</text></g>
+<g data-k="fov"><ellipse class="b win" cx="62" cy="64" rx="9" ry="22"/><text class="sm" x="84" y="24" text-anchor="middle">fenêtre ovale</text></g>
+<g data-k="rv"><path class="b" d="M74 36 H 572 Q 600 36 600 64 V 96 H 74 Z"/><text class="tx" x="300" y="72" text-anchor="middle">rampe vestibulaire</text></g>
+<g data-k="mb"><path class="mbm" d="M74 104 L 590 96 L 590 124 L 74 112 Z"/><text class="sm" x="330" y="136" text-anchor="middle">membrane basilaire (étroite à la base, large à l'apex)</text></g>
+<g data-k="rt"><path class="b" d="M74 146 H 600 V 182 Q 600 210 572 210 H 74 Z"/><text class="tx" x="300" y="186" text-anchor="middle">rampe tympanique</text></g>
+<g data-k="hel"><path class="ln acc dash" d="M606 72 C 630 100, 630 150, 606 176" marker-end="url(#ah)"/><text class="sm" x="612" y="24" text-anchor="end">apex (hélicotrème)</text></g>
+<g data-k="fro"><ellipse class="b win" cx="62" cy="178" rx="9" ry="20"/><text class="sm" x="62" y="230" text-anchor="middle">fenêtre ronde</text></g>
+<text class="sm mut" x="84" y="246">base</text>
+<g id="peakG" data-k="peak"><path id="peak" class="peak" d=""/><text id="peakT" class="tx acc-t" x="0" y="58" text-anchor="middle"></text></g>
+</svg>`,
+steps:[
+{t:"Onde aérienne → mécanique",d:"Le tympan vibre ; les osselets transmettent et amplifient ; l'étrier pousse la fenêtre ovale.",on:["et","fov"]},
+{t:"Onde liquidienne",d:"L'onde monte la rampe vestibulaire (liquide extracellulaire, pas l'endolymphe).",on:["fov","rv"]},
+{t:"Aller-retour",d:"Au sommet (apex), elle passe dans la rampe tympanique et redescend.",on:["hel","rt"]},
+{t:"Dissipation",d:"L'énergie se dissipe sur la fenêtre ronde, mobile : pas d'écho.",on:["rt","fro"]},
+{t:"Tonotopie",d:"Une seule zone de la membrane basilaire vibre selon la fréquence. Fais glisser le curseur : aigu près de la base, grave près de l'apex.",on:["mb","peak"]}
+],
+after(root){
+  const wrap=document.createElement('div');wrap.className='slider';
+  wrap.innerHTML=`<label for="freq">Fréquence du son</label><input id="freq" type="range" min="0" max="1000" value="780"><output id="freqO"></output>`;
+  root.appendChild(wrap);
+  const inp=wrap.querySelector('input'),out=wrap.querySelector('output');
+  const peak=root.querySelector('#peak'),pt=root.querySelector('#peakT');
+  function upd(){
+    const r=inp.value/1000, f=20*Math.pow(1000,r);
+    const x=74+(1-r)*516;
+    let d=`M74 108`;
+    for(let i=74;i<=590;i+=6){const g=Math.exp(-Math.pow((i-x)/26,2));d+=` L ${i} ${108-g*26}`;}
+    peak.setAttribute('d',d);
+    pt.setAttribute('x',Math.min(Math.max(x,110),560));
+    pt.textContent=f>=2000?'aigu':(f<=300?'grave':'médium');
+    out.textContent=(f>=1000?(f/1000).toFixed(1)+' kHz':Math.round(f)+' Hz')+(x<240?' · près de la base':(x>420?' · près de l\'apex':' · zone médiane'));
+  }
+  inp.addEventListener('input',upd);upd();
+}};
+
+// ---- Voies ascendantes : simulateur de lésion ----
+const VOIES = {
+ tact:[["M560 430 C 520 412, 480 396, 440 382","nerf","R"],["M440 382 L 396 376 L 392 256","cord","R"],["M392 256 L 330 244","dec","R"],["M330 244 L 268 233","dec","L"],["M268 233 L 262 152","tronc","L"],["M262 152 L 282 58","thal","L"]],
+ pain:[["M560 446 C 520 432, 480 420, 446 408","nerf","R"],["M446 408 L 406 402","entry","R"],["M406 402 L 330 394","entry","R"],["M330 394 L 252 387 L 248 292","cord","L"],["M248 292 L 240 162","tronc","L"],["M240 162 L 302 62","thal","L"]]
+};
+const LESIONS = [
+ {id:"none",l:"Aucune lésion"},
+ {id:"cordL",l:"Hémimoelle gauche",r:"cord",s:"L",x:262,y:350},
+ {id:"cordR",l:"Hémimoelle droite",r:"cord",s:"R",x:398,y:350},
+ {id:"troncL",l:"Tronc cérébral gauche (au-dessus du bulbe)",r:"tronc",s:"L",x:252,y:196},
+ {id:"thalL",l:"Thalamus gauche",r:"thal",s:"L",x:252,y:132},
+ {id:"nerfR",l:"Nerf périphérique droit",r:"nerf",s:"R",x:500,y:404}
+];
+function voieCut(mod,stimSide,les){
+  if(!les||!les.r) return -1;
+  for(let i=0;i<VOIES[mod].length;i++){
+    const [d,reg,s]=VOIES[mod][i]; const side = stimSide==="R"? s : (s==="R"?"L":"R");
+    if(reg===les.r && side===les.s) return i;
+  }
+  return -1;
+}
+DIAG.voies = {title:"Voies ascendantes : tact vs douleur, et lésions", kind:"custom",
+render(root){
+  let stim="R", les=LESIONS[0];
+  root.innerHTML=`<div class="ctrl"><div class="seg" role="group" aria-label="Côté stimulé"><button data-s="R" class="on">Stimulus à droite</button><button data-s="L">Stimulus à gauche</button></div>
+  <label class="sel">Lésion <select id="lesSel">${LESIONS.map(l=>`<option value="${l.id}">${l.l}</option>`).join('')}</select></label></div>
+  <div class="dgbox"><svg viewBox="0 0 660 470" role="img" aria-label="Voies du tact et de la douleur">${DEFS}
+  <line class="mid" x1="330" y1="20" x2="330" y2="460"/>
+  <text class="sm mut" x="320" y="16" text-anchor="end">gauche</text><text class="sm mut" x="340" y="16">droite</text>
+  <path class="b" d="M120 34 Q 330 4 540 34 L 540 78 Q 330 54 120 78 Z"/><text class="sm" x="330" y="64" text-anchor="middle">cortex (somesthésique, insula, cingulaire)</text>
+  <ellipse class="b" cx="256" cy="150" rx="44" ry="24"/><ellipse class="b" cx="404" cy="150" rx="44" ry="24"/>
+  <rect class="b" x="196" y="206" width="268" height="64" rx="18"/><text class="sm" x="330" y="282" text-anchor="middle">bulbe : noyaux des colonnes dorsales</text>
+  <rect class="b cordr" x="226" y="318" width="208" height="100" rx="30"/>
+  <text class="lv" x="8" y="60">Cortex</text><text class="lv" x="8" y="155">Thalamus</text><text class="lv" x="8" y="244">Tronc · bulbe</text><text class="lv" x="8" y="372">Moelle</text><text class="lv" x="8" y="452">Périphérie</text>
+  <g id="paths"></g><g id="xm"></g></svg></div>
+  <div class="legend"><span><i class="sw tact"></i>Tact (voie lemniscale)</span><span><i class="sw pain"></i>Douleur (voie antérolatérale)</span><span><i class="dot"></i>synapse (relais)</span></div>
+  <div class="verdict" id="verdict" aria-live="polite"></div>`;
+  const P=root.querySelector('#paths'),X=root.querySelector('#xm'),V=root.querySelector('#verdict');
+  function draw(){
+    const tr = stim==="L" ? ' transform="translate(660,0) scale(-1,1)"':'';
+    let h=`<g${tr}>`;
+    ["tact","pain"].forEach(m=>{
+      const c=voieCut(m,stim,les);
+      VOIES[m].forEach((s,i)=>{h+=`<path class="vp ${m} ${c>=0&&i>=c?'cut':''}" d="${s[0]}"/>`;});
+    });
+    h+=`<path class="vp pain coll" d="M246 250 C 270 246, 290 240, 306 232"/><text class="sm" x="312" y="228" ${stim==="L"?'transform="translate(624,0) scale(-1,1)" ':''}>FR · PAG</text>`;
+    [[392,256],[262,152],[406,402],[240,162]].forEach(p=>h+=`<circle class="syn" cx="${p[0]}" cy="${p[1]}" r="5"/>`);
+    h+=`<circle class="b gg" cx="474" cy="398" r="11"/><path class="b skin" d="M556 420 h 70 v 40 h -70 z"/>`;
+    h+=`</g>`;
+    P.innerHTML=h;
+    X.innerHTML = les.r ? `<g class="xmark"><path d="M${les.x-11} ${les.y-11} L ${les.x+11} ${les.y+11} M ${les.x+11} ${les.y-11} L ${les.x-11} ${les.y+11}"/></g>`:'';
+    const out=(m)=>{const lost=[];["R","L"].forEach(s=>{if(voieCut(m,s,les)>=0)lost.push(s==="R"?"à droite":"à gauche");});return lost.length?`<b>perdu ${lost.join(' et ')}</b>`:'conservé des deux côtés';};
+    let why='';
+    if(les.id==="cordL"||les.id==="cordR"){const c=les.s==="L"?"gauche":"droite",o=les.s==="L"?"droite":"gauche";why=`Le tact monte du même côté dans la moelle et ne croise qu'au bulbe : il est perdu à ${c}. La douleur a déjà croisé dans la moelle, juste après la corne postérieure : elle est perdue à ${o}, sous la lésion.`;}
+    else if(les.id==="troncL"||les.id==="thalL"){why="Au-dessus du bulbe, les deux voies ont déjà croisé : tout est perdu du côté opposé (à droite).";}
+    else if(les.id==="nerfR"){why="Avant tout relais : le territoire du nerf perd toutes les sensibilités, du même côté.";}
+    else why="Choisis une lésion. Le tact (lemniscal) croise au bulbe, la douleur (antérolatérale) croise dans la moelle : c'est ce qui crée les dissociations.";
+    V.innerHTML=`<div><span class="pill tact">Tact</span> ${out("tact")}</div><div><span class="pill pain">Douleur</span> ${out("pain")}</div><p>${why}</p>`;
+  }
+  root.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{stim=b.dataset.s;root.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b));draw();});
+  root.querySelector('#lesSel').onchange=e=>{les=LESIONS.find(l=>l.id===e.target.value);draw();};
+  draw();
+}};
+
+// ---- Voies visuelles : lésions et champs visuels ----
+const VLES = [
+ {id:"none",l:"Aucune lésion"},
+ {id:"nG",l:"Nerf optique gauche",x:256,y:118,lost:{G:["UL","UR","LL","LR"],D:[]},why:"Avant le chiasma, le nerf ne porte que l'œil gauche : cécité de l'œil gauche."},
+ {id:"chi",l:"Chiasma (partie centrale)",x:320,y:172,lost:{G:["UL","LL"],D:["UR","LR"]},why:"Seules les fibres nasales croisent au centre du chiasma. Or la rétine nasale voit le champ temporal : perte des deux champs temporaux (hémianopsie bitemporale)."},
+ {id:"tD",l:"Tractus optique droit",x:378,y:222,lost:{G:["UL","LL"],D:["UL","LL"]},why:"Après le chiasma, le tractus droit porte tout le champ visuel gauche (rétine temporale droite + nasale gauche) : hémianopsie latérale homonyme gauche."},
+ {id:"rsD",l:"Radiations supérieures droites (pariétal)",x:470,y:316,lost:{G:["LL"],D:["LL"]},why:"Les radiations supérieures portent la rétine supérieure, qui voit le bas du champ (inversion par le cristallin) : perte du quadrant inférieur gauche."},
+ {id:"riD",l:"Radiations inférieures droites (temporal)",x:380,y:344,lost:{G:["UL"],D:["UL"]},why:"Rétine inférieure = haut du champ : perte du quadrant supérieur gauche."},
+ {id:"oD",l:"Cortex occipital droit",x:396,y:418,lost:{G:["UL","LL"],D:["UL","LL"]},why:"Le cortex strié droit reçoit tout le champ gauche des deux yeux."}
+];
+function fieldSVG(lost){
+  const q={UL:"M50 50 L50 8 A42 42 0 0 0 8 50 Z",UR:"M50 50 L92 50 A42 42 0 0 0 50 8 Z",LL:"M50 50 L8 50 A42 42 0 0 0 50 92 Z",LR:"M50 50 L50 92 A42 42 0 0 0 92 50 Z"};
+  return Object.keys(q).map(k=>`<path class="fq ${lost.includes(k)?'lost':''}" d="${q[k]}"/>`).join('')+`<line class="mid" x1="50" y1="6" x2="50" y2="94"/><line class="mid" x1="6" y1="50" x2="94" y2="50"/>`;
+}
+DIAG.visionLesion = {title:"Voies visuelles : place une lésion", kind:"custom",
+render(root){
+  root.innerHTML=`<div class="ctrl"><label class="sel">Lésion <select id="vSel">${VLES.map(l=>`<option value="${l.id}">${l.l}</option>`).join('')}</select></label></div>
+  <div class="vgrid"><div class="dgbox"><svg viewBox="0 0 640 440" role="img" aria-label="Voies visuelles">${DEFS}
+  <circle class="b eye" cx="256" cy="48" r="32"/><circle class="b eye" cx="384" cy="48" r="32"/>
+  <text class="sm" x="210" y="40" text-anchor="end">œil gauche</text><text class="sm" x="430" y="40">œil droit</text>
+  <path class="ln" d="M256 80 C 262 120, 296 150, 320 172"/><path class="ln" d="M384 80 C 378 120, 344 150, 320 172"/>
+  <ellipse class="b" cx="320" cy="174" rx="30" ry="12"/><text class="sm" x="360" y="178">chiasma</text>
+  <path class="ln" d="M312 182 C 290 210, 268 228, 252 246"/><path class="ln" d="M328 182 C 350 210, 372 228, 388 246"/>
+  <ellipse class="b" cx="246" cy="256" rx="30" ry="16"/><ellipse class="b" cx="394" cy="256" rx="30" ry="16"/><text class="sm" x="320" y="262" text-anchor="middle">thalamus (CGL)</text>
+  <path class="ln" d="M236 270 C 150 300, 150 370, 230 404"/><path class="ln" d="M250 272 C 266 320, 262 370, 244 404"/>
+  <path class="ln" d="M404 270 C 490 300, 490 370, 410 404"/><path class="ln" d="M390 272 C 374 320, 378 370, 396 404"/>
+  <text class="sm" x="146" y="322" text-anchor="end">sup. (pariétal)</text><text class="sm" x="494" y="322">sup. (pariétal)</text>
+  <text class="sm" x="268" y="350">inf.</text><text class="sm" x="372" y="350" text-anchor="end">inf.</text>
+  <rect class="b" x="184" y="404" width="120" height="28" rx="8"/><rect class="b" x="336" y="404" width="120" height="28" rx="8"/>
+  <text class="sm" x="320" y="398" text-anchor="middle">cortex strié (occipital)</text>
+  <g id="vx"></g></svg></div>
+  <div class="fields"><div><svg viewBox="0 0 100 100" id="fG"></svg><span>Champ œil gauche</span></div><div><svg viewBox="0 0 100 100" id="fD"></svg><span>Champ œil droit</span></div><p class="note">Vue du patient : la moitié gauche du disque = son champ gauche. En rouge = perdu.</p></div></div>
+  <div class="verdict" id="vV" aria-live="polite"></div>`;
+  const sel=root.querySelector('#vSel');
+  function draw(){
+    const l=VLES.find(v=>v.id===sel.value);
+    root.querySelector('#vx').innerHTML=l.x?`<g class="xmark"><path d="M${l.x-11} ${l.y-11} L ${l.x+11} ${l.y+11} M ${l.x+11} ${l.y-11} L ${l.x-11} ${l.y+11}"/></g>`:'';
+    root.querySelector('#fG').innerHTML=fieldSVG(l.lost?l.lost.G:[]);
+    root.querySelector('#fD').innerHTML=fieldSVG(l.lost?l.lost.D:[]);
+    root.querySelector('#vV').innerHTML=`<p>${l.why||"Le champ gauche se projette sur la rétine nasale gauche et temporale droite ; le croisement partiel au chiasma regroupe les deux dans l'hémisphère droit."}</p><p class="note">Déficits déduits de la logique du cours (croisement partiel, inversion, radiations), pas des noms à apprendre.</p>`;
+  }
+  sel.onchange=draw;draw();
+}};
+
+// ---- Codage : potentiel récepteur, PA, tonique / phasique ----
+DIAG.codage = {title:"Codage : intensité, tonique et phasique", kind:"custom",
+render(root){
+  root.innerHTML=`<div class="ctrl"><div class="seg" role="group" aria-label="Type de réponse"><button data-m="t" class="on">Tonique</button><button data-m="a">Tonique adaptante</button><button data-m="p">Phasique</button></div>
+  <div class="slider in"><label for="intens">Intensité du stimulus</label><input id="intens" type="range" min="1" max="10" value="5"><output id="intO"></output></div></div>
+  <div class="dgbox"><svg viewBox="0 0 640 260" role="img" aria-label="Trains de potentiels d'action"><g id="cg"></g></svg></div>
+  <p class="note" id="cgN"></p>`;
+  let mode="t"; const inp=root.querySelector('#intens');
+  function draw(){
+    const I=+inp.value; root.querySelector('#intO').textContent=I+" / 10";
+    const x0=60,x1=620,on=150,off=480;
+    let h=`<text class="lv" x="8" y="40">Stimulus</text><text class="lv" x="8" y="120">Pot. récepteur</text><text class="lv" x="8" y="210">PA</text>`;
+    h+=`<path class="ln acc" d="M${x0} 50 H ${on} V ${50-I*2.6} H ${off} V 50 H ${x1}"/>`;
+    let rp=`M${x0} 130 H ${on}`;
+    for(let x=on;x<=off;x+=6){let a=I*5.5; if(mode==="a") a*=0.45+0.55*Math.exp(-(x-on)/90); if(mode==="p") a*=Math.exp(-(x-on)/22); rp+=` L ${x} ${130-a}`;}
+    if(mode==="p"){for(let x=off;x<=off+60;x+=6){rp+=` L ${x} ${130-I*4*Math.exp(-(x-off)/20)}`;}}
+    rp+=` L ${off+(mode==="p"?60:6)} 130 H ${x1}`;
+    h+=`<path class="ln sens" d="${rp}"/><line class="mid" x1="${x0}" y1="${130-14}" x2="${x1}" y2="${130-14}"/><text class="sm" x="${x1}" y="${130-18}" text-anchor="end">seuil</text>`;
+    h+=`<line class="ln" x1="${x0}" y1="226" x2="${x1}" y2="226"/>`;
+    const spikes=[];
+    if(mode==="p"){const n=Math.max(1,Math.round(I/2.5));for(let i=0;i<n;i++){spikes.push(on+4+i*9);spikes.push(off+4+i*9);}}
+    else{let x=on+4;while(x<off){spikes.push(x);let isi=70/I*1.6; if(mode==="a") isi*= 1+ (x-on)/110; x+=Math.max(isi,6);}}
+    spikes.forEach(x=>h+=`<path class="spk" d="M${x} 226 V 186"/>`);
+    root.querySelector('#cg').innerHTML=h;
+    root.querySelector('#cgN').textContent = mode==="p" ? "Phasique : des PA seulement quand le stimulus apparaît et disparaît. Ex. : tu ne sens plus ta montre." : (mode==="a" ? "Tonique adaptante : des PA tant que le stimulus dure, mais leur fréquence diminue. Ex. : on s'habitue aux vêtements (tact). La nociception, elle, ne s'adapte pas." : "Tonique : des PA tant que le stimulus dure. Plus le stimulus est intense, plus le potentiel récepteur (gradué) est grand et plus la fréquence de PA est élevée.");
+  }
+  root.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;root.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b));draw();});
+  inp.oninput=draw; draw();
+}};
+
+// ---- Carte du SNA : effets organe par organe ----
+const SNAMAP = [
+ ["Iris","Myosis","Mydriase"],["Muscle ciliaire","Contraction : cristallin bombé, vision de près","Relâchement : cristallin aplati, vision de loin"],
+ ["Glandes lacrymales","↑ Sécrétion","—"],["Muqueuse nasale","↑ Sécrétions","Vasoconstriction, ↓ sécrétions"],
+ ["Glandes salivaires","↑ Sécrétion abondante","Inhibe"],["Motilité digestive","↑ Motilité","↓ Motilité"],
+ ["Sphincters digestifs","Relâchement","↑ Tonus"],["Vésicule biliaire","Contraction","Inhibe"],
+ ["Pancréas exocrine","↑ Enzymes","Inhibe"],["Pancréas endocrine","↑ Insuline","↑ Glucagon"],
+ ["Foie","↑ Glycogène (stockage)","Glycogénolyse, néoglucogenèse"],["Adipocytes","—","↑ Lipolyse"],
+ ["Nœud sinusal","↓ Fréquence","↑ Fréquence"],["Myocarde contractile","—","↑ Force"],
+ ["Artérioles","Minime (sauf génitaux, salivaires)","Vasoconstriction"],["Bronches","Bronchoconstriction, ↑ mucus","Bronchodilatation"],
+ ["Détrusor (vessie)","Contraction","Relâchement"],["Sphincter interne","Relâchement : miction","Contraction : remplissage"],
+ ["Glandes sudoripares","—","↑ Sudation"],["Pilo-érecteurs","—","Contraction"],
+ ["Médullosurrénale","—","Sécrétion"],["Rein","—","↑ Rénine (β1)"]
+];
+DIAG.snaMap = {title:"Carte des effets du SNA", kind:"custom",
+render(root){
+  let mode="both"; const shown=new Set();
+  root.innerHTML=`<div class="ctrl"><div class="seg" role="group" aria-label="Affichage"><button data-m="both" class="on">Les deux</button><button data-m="para">Parasympathique</button><button data-m="sym">Sympathique</button><button data-m="quiz">Mode quiz</button></div></div>
+  <p class="note" id="smN">Clique une carte en mode quiz pour révéler. Un « — » signifie pas d'innervation (ou effet non décrit en cours) par cette branche.</p>
+  <div class="omap" id="om"></div>`;
+  const om=root.querySelector('#om');
+  function draw(){
+    om.innerHTML=SNAMAP.map((r,i)=>{
+      const hide = mode==="quiz" && !shown.has(i);
+      const p = `<div class="ef para"><span>Para</span>${hide?'<i>?</i>':r[1]}</div>`, s=`<div class="ef sym"><span>Sympa</span>${hide?'<i>?</i>':r[2]}</div>`;
+      return `<button class="org" data-i="${i}" ${mode==="quiz"?'':'tabindex="-1"'}><b>${r[0]}</b>${mode!=="sym"?p:''}${mode!=="para"?s:''}</button>`;
+    }).join('');
+  }
+  om.onclick=e=>{const b=e.target.closest('.org');if(!b||mode!=="quiz")return;const i=+b.dataset.i;shown.has(i)?shown.delete(i):shown.add(i);draw();};
+  root.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;shown.clear();root.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b));draw();});
+  draw();
+}};
+// ===== APPLICATION =====
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm=s=>String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[²⁺⁻]/g,m=>({"²":"2","⁺":"+","⁻":"-"}[m]));
+const DAY=864e5, IV=[0,1,2,4,8,16];
+const CHI=Object.fromEntries(CH.map(c=>[c.id,c]));
+CH.forEach(c=>{c.cards=c.cards.map((x,i)=>({id:c.id+"-c"+i,q:x[0],a:x[1],ch:c.id}));c.sections.forEach((s,i)=>s.id=c.id+"-s"+i);});
+const ALLCARDS=CH.flatMap(c=>c.cards);
+
+// ---- état et sauvegarde ----
+const LSK="atlasNeuroUE35";
+let S={t:0,cards:{},pb:{},q:{},view:{v:"home"}}, ANS={};
+try{const r=JSON.parse(localStorage.getItem(LSK)||"null");if(r){S=Object.assign(S,r.S||{});ANS=r.A||{};}}catch(e){}
+let DB=null, UID=null, saveT=null, writing=Promise.resolve(), ansT={};
+function lsave(){try{localStorage.setItem(LSK,JSON.stringify({S,A:ANS}));}catch(e){}}
+function save(){S.t=Date.now();lsave();clearTimeout(saveT);saveT=setTimeout(pushState,1500);setSave("enregistré");}
+function pushState(){if(!DB||!UID)return;const data=JSON.parse(JSON.stringify(S));writing=writing.then(()=>DB.doc(`data/users/${UID}/neuro`).set(data)).then(()=>setSave("synchronisé")).catch(()=>setSave("enregistré sur cet appareil"));}
+function saveAns(key,text){ANS[key]={x:text,t:Date.now()};lsave();clearTimeout(ansT[key]);ansT[key]=setTimeout(()=>{if(!DB||!UID)return;const v=ANS[key];writing=writing.then(()=>DB.doc(`data/users/${UID}/neuro/ans/${key}`).set(v)).catch(()=>{});},1800);}
+function setSave(t){const e=$("#saveS");if(e)e.textContent=t;}
+async function connect(){
+  try{
+    if(!window.claude||!claude.use)return;
+    const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
+    if(!db||!user)return; const id=await user.id(); if(!id)return;
+    DB=db;UID=id;
+    const snap=await DB.doc(`data/users/${UID}/neuro`).get();
+    let changed=false;
+    if(snap.exists){const d=snap.data();if(d&&d.t>S.t){const view=S.view;S=Object.assign({cards:{},pb:{},q:{}},d);S.view=view;changed=true;}else if(S.t>(d&&d.t||0))pushState();}
+    else if(S.t)pushState();
+    const as=await DB.collection(`data/users/${UID}/neuro/ans`).get();
+    as.docs.forEach(doc=>{const v=doc.data();if(v&&(!ANS[doc.id]||ANS[doc.id].t<v.t)){ANS[doc.id]=v;changed=true;}});
+    lsave(); setSave("synchronisé");
+    if(changed)render();
+  }catch(e){setSave("enregistré sur cet appareil");}
+}
+let SAMPLE=null;
+(async()=>{try{if(window.claude&&claude.use)SAMPLE=await claude.use("sample");}catch(e){} if(SAMPLE)$$(".aiBtn").forEach(b=>b.hidden=false);})();
+
+// ---- maîtrise ----
+function cardLevel(id){return (S.cards[id]&&S.cards[id].l)||0;}
+function mastery(c){
+  const cm=c.cards.reduce((a,x)=>a+Math.min(cardLevel(x.id),4)/4,0)/c.cards.length;
+  const pm=c.sections.reduce((a,s)=>a+((S.pb[s.id]??0)/2),0)/c.sections.length;
+  const qs=QS.filter(q=>q.ch===c.id);
+  const qm=qs.length?qs.reduce((a,q)=>a+((S.q[q.id]&&S.q[q.id].best)||0)/q.pts,0)/qs.length:null;
+  return qm===null?(cm*.55+pm*.45):(cm*.4+pm*.3+qm*.3);
+}
+const pct=x=>Math.round(x*100);
+function dueCards(list){const n=Date.now();return list.filter(c=>!S.cards[c.id]||S.cards[c.id].d<=n);}
+
+// ---- navigation ----
+function go(v,ch,tab,anchor){S.view={v,ch,tab:tab||(v==="ch"?"cours":undefined)};save();closeRail();render();const a=anchor&&document.getElementById(anchor);if(a)a.scrollIntoView({block:"start"});else window.scrollTo(0,0);}
+function closeRail(){$(".rail").classList.remove("open");const s=$(".scrim");if(s)s.remove();}
+function openRail(){$(".rail").classList.add("open");const s=document.createElement("div");s.className="scrim";s.onclick=closeRail;document.body.appendChild(s);}
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1800);}
+
+function renderRail(){
+  const v=S.view;
+  $("#nav").innerHTML=
+  `<button class="${v.v==="home"?"on":""}" data-go="home"><span class="nm">Tableau de bord</span></button>
+   <button class="${v.v==="revise"?"on":""}" data-go="revise"><span class="nm">Révision du jour <span class="hot">${dueCards(ALLCARDS).length} cartes</span></span></button>
+   <button class="${v.v==="exam"?"on":""}" data-go="exam"><span class="nm">Épreuve blanche</span></button>
+   <button class="${v.v==="pieges"?"on":""}" data-go="pieges"><span class="nm">Mes pièges</span></button>
+   <button class="${v.v==="notes"?"on":""}" data-go="notes"><span class="nm">Mes notes <span class="hot">${noteCount()} note${noteCount()>1?"s":""}</span></span></button>
+   <div class="lbl navsep">Chapitres</div>`+
+  CH.map(c=>{const m=mastery(c);return `<button class="${v.v==="ch"&&v.ch===c.id?"on":""}" data-ch="${c.id}"><span class="nm">${c.short}${c.hot?'<span class="hot">priorité annales</span>':''}</span><span><span class="bar" title="${pct(m)} %"><i style="width:${pct(m)}%"></i></span></span></button>`;}).join("");
+}
+$("#nav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.ch)go("ch",b.dataset.ch);else go(b.dataset.go);});
+
+function render(){
+  renderRail();
+  const v=S.view, M=$("#main");
+  if(v.v==="ch"&&CHI[v.ch])M.innerHTML=viewCh(CHI[v.ch],v.tab||"cours");
+  else if(v.v==="revise")M.innerHTML=viewRevise();
+  else if(v.v==="exam")M.innerHTML=viewExam();
+  else if(v.v==="pieges")M.innerHTML=viewPieges();
+  else if(v.v==="notes")M.innerHTML=viewNotes();
+  else M.innerHTML=viewHome();
+  mount(M);
+}
+
+// ---- accueil ----
+function trace(){
+  let d="M0 46";const W=1000;
+  for(let x=0;x<=W;x+=4){let y=46;const ph=x%250;
+    if(ph>60&&ph<70)y=46-(ph-60)*1.2; else if(ph>=70&&ph<78)y=34-(ph-70)*4; else if(ph>=78&&ph<92)y=2+(ph-78)*4.6; else if(ph>=92&&ph<110)y=66-(ph-92)*1.4; else if(ph>=110&&ph<140)y=41+(ph-110)*0.17;
+    d+=` L ${x} ${y.toFixed(1)}`;}
+  return `<svg class="trace" viewBox="0 0 1000 70" preserveAspectRatio="none" aria-hidden="true"><path class="base" d="M0 46 H1000"/><path d="${d}"/></svg>`;
+}
+function viewHome(){
+  const due=dueCards(ALLCARDS).length;
+  const ranked=[...CH].sort((a,b)=>(mastery(a)-(a.hot?.25:0))-(mastery(b)-(b.hot?.25:0)));
+  const nx=ranked[0];
+  const glob=CH.reduce((a,c)=>a+mastery(c),0)/CH.length;
+  return `<div class="col wide">
+  <div class="hero"><span class="lbl">UE 3.5 Bases de physiologie · DFGSP2 · Toulouse</span>
+  <h1>Atlas <em>Neuro</em></h1>${trace()}
+  <p class="lede">Tout le cours de neurophysiologie, de la synapse à la cochlée, construit à partir de la ronéo et des 5 diapos. Lis, manipule les schémas, restitue sur page blanche, puis entraîne-toi sur les annales corrigées au barème.</p></div>
+  <div class="facts"><div><b>10 pts</b><span>de neuro sur l'épreuve d'1 h, 100 % rédactionnelle</span></div><div><b>≈ 22 / 30</b><span>points de neuro des 3 annales portent sur le SNA</span></div><div><b>${due}</b><span>cartes à revoir aujourd'hui · maîtrise globale ${pct(glob)} %</span></div></div>
+  <div class="panel next"><span class="lbl">Prochaine étape conseillée</span><h2>${nx.title}</h2><p class="note">${nx.weight}</p>
+  <div class="row"><button class="btn pri" data-go="ch" data-ch="${nx.id}">Ouvrir le chapitre</button><button class="btn" data-go="revise">Révision du jour (${due})</button><button class="btn" data-go="exam">Épreuve blanche</button></div></div>
+  <div class="panel"><h2>Méthode</h2><ol class="chain" style="margin:0">
+  <li><b>Cours</b> : lis une section, puis ferme-la.</li><li><b>Schémas</b> : rejoue chaque mécanisme étape par étape, sans regarder le texte.</li>
+  <li><b>Page blanche</b> : réécris la section, puis compare. Les mots-clés attendus sont vérifiés automatiquement.</li>
+  <li><b>Annales</b> : rédige en temps limité (3 min par point), corrige-toi au barème, ou demande une correction à Claude.</li>
+  <li><b>Flashcards</b> : 10 minutes par jour ; les cartes ratées reviennent vite, les cartes sues s'espacent.</li></ol>
+  <p class="note">Le prof veut des mots-clés, mais surtout des explications développées et paraphrasées. Chaque flèche de ta copie doit avoir son mécanisme.</p></div>
+  <div><div class="lbl" style="margin-bottom:10px">Chapitres · maîtrise</div><div class="chgrid">${CH.map(c=>{const m=mastery(c);return `<button class="chcard ${c.hot?"hot":""}" data-go="ch" data-ch="${c.id}"><h3>${c.title}</h3><span class="bar"><i style="width:${pct(m)}%"></i></span><span class="meta"><span>${pct(m)} %</span><span>${c.cards.length} cartes · ${QS.filter(q=>q.ch===c.id).length} questions</span></span></button>`;}).join("")}</div></div>
+  <p class="note">Progression <span id="saveS" class="savestate">enregistrée</span>.</p></div>`;
+}
+
+// ---- chapitre ----
+function viewCh(c,tab){
+  const qs=QS.filter(q=>q.ch===c.id), due=dueCards(c.cards).length;
+  const tabs=[["cours","Cours"],["schemas","Schémas",c.diagrams.length],["blanche","Page blanche",c.sections.length],["annales","Annales",qs.length],["cartes","Flashcards",due]].filter(t=>t[0]!=="schemas"||t[2]);
+  const i=CH.indexOf(c), prev=CH[i-1], next=CH[i+1];
+  let body="";
+  if(tab==="cours") body=noteBlock(c.id+"-gen","Mes notes sur ce chapitre",true)+c.sections.map(s=>`<section class="sec" id="${s.id}"><h2>${s.h}</h2>${s.html}${figs(s.id)}${noteBlock(s.id)}</section>`).join("")+(c.diagrams.length?`<div class="row"><button class="btn" data-tab="schemas">Rejouer les schémas</button><button class="btn" data-tab="blanche">Passer à la page blanche</button></div>`:"")+pieges(c);
+  if(tab==="schemas") body=c.diagrams.map(d=>`<div class="dg" data-dg="${d}"><h3>${DIAG[d].title}</h3></div>`).join("");
+  if(tab==="blanche") body=`<p class="note">Une section à la fois : écris tout ce que tu sais, puis révèle le cours. Les mots-clés en gras du cours sont cherchés dans ta réponse.</p>`+c.sections.map(pbTask).join("");
+  if(tab==="annales") body=qs.length?qs.map(q=>qTask(q)).join(""):`<p class="empty">Pas de question d'annale sur ce chapitre : travaille-le en page blanche et en flashcards.</p>`;
+  if(tab==="cartes") body=`<div data-fc="${c.id}"></div>`;
+  return `<div class="col"><div class="chhead"><span class="lbl">Chapitre ${i+1} / ${CH.length} · ${c.src}</span><h1>${c.title}</h1><p class="why">${c.weight}</p></div>
+  <nav class="tabs" aria-label="Onglets du chapitre">${tabs.map(t=>`<button class="${t[0]===tab?"on":""}" data-tab="${t[0]}">${t[1]}${t[2]!==undefined?`<span class="n">${t[2]}</span>`:""}</button>`).join("")}</nav>
+  ${body}
+  <div class="row" style="justify-content:space-between">${prev?`<button class="btn sm" data-go="ch" data-ch="${prev.id}">← ${prev.short}</button>`:"<span></span>"}${next?`<button class="btn sm" data-go="ch" data-ch="${next.id}">${next.short} →</button>`:""}</div>
+  <p class="note">Progression <span id="saveS" class="savestate">enregistrée</span>.</p></div>`;
+}
+function pieges(c){return c.pieges&&c.pieges.length?`<div class="pieges"><h3>Pièges à éviter en copie</h3><ul>${c.pieges.map(p=>`<li>${p}</li>`).join("")}</ul></div>`:"";}
+
+function pbTask(s){
+  const r=S.pb[s.id], tag=r===undefined?"":`<span class="tag ${["bad","mid","ok"][r]}">${["Raté","Partiel","Su"][r]}</span>`;
+  return `<div class="task" data-pb="${s.id}"><div class="top"><h3>Restitue : ${s.h}</h3>${tag}</div>
+  <textarea id="t-${s.id}" placeholder="Écris de mémoire, avec les mécanismes…">${esc((ANS["pb-"+s.id]||{}).x||"")}</textarea>
+  <div class="row"><button class="btn pri" data-act="reveal">Révéler le cours</button></div><div class="reveal" hidden></div></div>`;
+}
+function qTask(q,opts={}){
+  const best=S.q[q.id]&&S.q[q.id].best;
+  return `<div class="task" data-q="${q.id}"><div class="top"><span class="tag ${q.real?"real":""}">${q.real?"Annale "+q.real:"Type annale"} · ${q.pts} pts</span>${best!==undefined?`<span class="tag ${best/q.pts>=.75?"ok":best/q.pts>=.45?"mid":"bad"}">meilleur ${fmt(best)} / ${q.pts}</span>`:""}</div>
+  ${q.ctx?`<p class="ctx">${q.ctx}</p>`:""}<h3>${q.q}</h3>
+  ${opts.noTimer?"":`<div class="row"><button class="btn sm" data-act="timer">Lancer le chrono (${q.pts*3} min)</button><span class="timer" data-min="${q.pts*3}"></span></div>`}
+  <textarea id="t-${q.id}" placeholder="Rédige ta réponse comme sur ta copie : phrases, mécanismes, mots-clés.">${esc((ANS["q-"+q.id]||{}).x||"")}</textarea>
+  <div class="row"><button class="btn pri" data-act="corr">Corriger au barème</button><button class="btn acc aiBtn" data-act="ai" ${SAMPLE?"":"hidden"}>Corriger avec Claude</button></div>
+  <div class="reveal" hidden></div></div>`;
+}
+const fmt=x=>(Math.round(x*100)/100).toString().replace(".",",");
+
+// ---- révision du jour ----
+function viewRevise(){
+  return `<div class="col"><div class="chhead"><span class="lbl">Tous chapitres · priorité au SNA</span><h1>Révision du jour</h1><p class="note">Les cartes dues aujourd'hui, mélangées entre les chapitres. Une carte ratée revient en fin de séance ; une carte sue s'espace (1, 2, 4, 8, 16 jours).</p></div><div data-fc="__all"></div>
+  <p class="note">Progression <span id="saveS" class="savestate">enregistrée</span>.</p></div>`;
+}
+// ---- épreuve blanche ----
+const EXAMS=[["2024-25 · session 1",["a24-noci","a24-dig"]],["2023-24 · session 2",["a23-cbh1","a23-cbh2"]],["2022-23 · session 2",["a22-coch","a22-chol"]]];
+function viewExam(){
+  const k=S.view.ex??null;
+  if(k===null) return `<div class="col"><div class="chhead"><span class="lbl">Conditions réelles</span><h1>Épreuve blanche de neuro</h1><p class="note">La moitié neuro de l'épreuve : 10 points en 30 minutes, sans notes. Choisis un sujet tombé ; le chrono démarre quand tu cliques.</p></div>
+  ${EXAMS.map((e,i)=>`<div class="task"><div class="top"><h3>Sujet ${e[0]}</h3><span class="tag real">10 pts · 30 min</span></div>${e[1].map(id=>{const q=QS.find(x=>x.id===id);return `<p class="note">${q.pts} pts : ${q.q}</p>`;}).join("")}<div class="row"><button class="btn pri" data-exam="${i}">Commencer</button></div></div>`).join("")}</div>`;
+  const e=EXAMS[k];
+  return `<div class="col"><div class="chhead"><span class="lbl">Sujet ${e[0]}</span><h1>Épreuve blanche</h1><div class="row"><span class="timer" id="examT" data-min="30"></span><button class="btn sm" data-exam="-1">Changer de sujet</button></div></div>
+  ${e[1].map(id=>qTask(QS.find(x=>x.id===id),{noTimer:true})).join("")}</div>`;
+}
+function viewPieges(){
+  return `<div class="col"><div class="chhead"><span class="lbl">Tes erreurs récurrentes et les pièges classiques</span><h1>Mes pièges</h1><p class="note">Relis cette page juste avant l'épreuve.</p></div>
+  ${CH.filter(c=>c.pieges&&c.pieges.length).map(c=>`<div class="pieges"><h3 style="color:var(--ink)">${c.short}</h3><ul>${c.pieges.map(p=>`<li>${p}</li>`).join("")}</ul><div class="row" style="margin-top:8px"><button class="btn sm" data-go="ch" data-ch="${c.id}">Revoir le chapitre</button></div></div>`).join("")}</div>`;
+}
+
+// ---- diapos ----
+function figs(id){const l=SLIDES[id];if(!l)return "";return `<div class="figs ${l.length>1?"two":""}">${l.map(f=>`<figure class="slide"><button class="zoom" data-zoom="slides/${f[0]}.jpg" data-cap="${esc(f[1])}" aria-label="Agrandir la diapo : ${esc(f[1])}"><img src="slides/${f[0]}.jpg" loading="lazy" alt="Diapo du cours : ${esc(f[1])}" width="1287" height="910"></button><figcaption><span class="lbl">Diapo</span> ${f[1]}</figcaption></figure>`).join("")}</div>`;}
+function openZoom(src,cap){const o=document.createElement("div");o.className="lightbox";o.setAttribute("role","dialog");o.setAttribute("aria-label",cap);o.innerHTML=`<figure><img src="${src}" alt="${esc(cap)}"><figcaption>${esc(cap)} · touche ou Échap pour fermer</figcaption></figure>`;const close=()=>{o.remove();document.removeEventListener("keydown",k);};const k=e=>{if(e.key==="Escape")close();};o.onclick=close;document.addEventListener("keydown",k);document.body.appendChild(o);}
+
+// ---- notes ----
+const noteTxt=id=>((ANS["n-"+id]||{}).x||"").trim();
+function noteCount(){return Object.keys(ANS).filter(k=>k.startsWith("n-")&&(ANS[k].x||"").trim()).length;}
+function noteHTML(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>");}
+function noteBlock(id,label,big){
+  const t=noteTxt(id);
+  if(!t)return `<div class="nadd" data-note="${id}"><button class="btn sm ghost" data-n="edit">＋ ${label||"Ajouter une note"}</button></div>`;
+  return `<div class="nblk ${big?"big":""}" data-note="${id}"><div class="nh"><span class="lbl">${label||"Ma note"}</span><button class="btn sm" data-n="edit">Modifier</button></div><div class="nb">${noteHTML(t)}</div></div>`;
+}
+function noteEditor(id,label){
+  return `<div class="nblk edit" data-note="${id}"><div class="nh"><span class="lbl">${label||"Ma note"}</span><span class="nsave savestate"></span></div><div class="noteEd"><textarea placeholder="Ta note : une reformulation, un moyen mnémotechnique, une remarque du prof… (**gras** accepté)">${esc(noteTxt(id)?ANS["n-"+id].x:"")}</textarea></div><div class="row"><button class="btn sm pri" data-n="done">Terminé</button><button class="btn sm" data-n="del">Effacer la note</button></div></div>`;
+}
+function noteAction(nb,b){
+  const id=nb.dataset.note, big=nb.classList.contains("big")||id.endsWith("-gen");
+  const label=big?"Mes notes sur ce chapitre":(nb.closest("#notesList")?nb.dataset.label:"");
+  if(b.dataset.n==="edit"){nb.outerHTML=noteEditor(id,label||undefined);const ta=document.querySelector(`[data-note="${id}"] textarea`);if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}return;}
+  if(b.dataset.n==="del"){if(b.dataset.c!=="1"){b.dataset.c="1";b.textContent="Confirmer l'effacement";return;}saveAns("n-"+id,"");}
+  if(b.dataset.n==="done"||b.dataset.n==="del"){
+    if(nb.closest("#notesList")){render();return;}
+    const tmp=document.createElement("div");tmp.innerHTML=noteBlock(id,big?"Mes notes sur ce chapitre":undefined,big);nb.replaceWith(tmp.firstElementChild);renderRail();toast(b.dataset.n==="del"?"Note effacée":"Note enregistrée");
+  }
+}
+function viewNotes(){
+  const groups=CH.map(c=>{const items=[[c.id+"-gen","Notes générales",c.id+"-gen-a"],...c.sections.map(s=>[s.id,s.h,s.id])].filter(x=>noteTxt(x[0]));return {c,items};}).filter(g=>g.items.length);
+  return `<div class="col"><div class="chhead"><span class="lbl">Toutes tes notes, rangées par chapitre</span><h1>Mes notes</h1><p class="note">Ajoute une note sous n'importe quelle section du cours (bouton « Ajouter une note »), ou en haut de chaque chapitre. Elles sont enregistrées avec ta progression.</p></div>
+  ${groups.length?`<input id="noteSearch" class="search" type="search" placeholder="Chercher dans mes notes…" aria-label="Chercher dans mes notes">`:""}
+  <div id="notesList" class="col" style="gap:18px">${groups.length?groups.map(g=>`<div class="ngroup"><h2 style="font-size:20px">${g.c.title}</h2>${g.items.map(x=>`<div class="nblk" data-note="${x[0]}" data-label="${esc(x[1])}" data-q="${esc(norm(x[1]+" "+noteTxt(x[0])))}"><div class="nh"><span class="lbl">${x[1]}</span><span class="row" style="gap:6px"><button class="btn sm" data-gonote="${g.c.id}|${x[0].endsWith("-gen")?"":x[0]}">Voir dans le cours</button><button class="btn sm" data-n="edit">Modifier</button></span></div><div class="nb">${noteHTML(noteTxt(x[0]))}</div></div>`).join("")}</div>`).join(""):`<div class="empty">Aucune note pour l'instant. Ouvre un chapitre, onglet Cours, et clique « Ajouter une note » sous une section.<div class="row" style="justify-content:center;margin-top:12px"><button class="btn pri" data-go="ch" data-ch="sna">Commencer par le SNA</button></div></div>`}</div>
+  <p class="note">Progression <span id="saveS" class="savestate">enregistrée</span>.</p></div>`;
+}
+function filterNotes(q){const n=norm(q.trim());$$("#notesList .nblk").forEach(b=>b.hidden=n&&!b.dataset.q.includes(n));$$("#notesList .ngroup").forEach(g=>g.hidden=!$$(".nblk",g).some(b=>!b.hidden));}
+
+// ---- montage des composants ----
+function mount(M){
+  $$("table.t",M).forEach(t=>{if(t.parentElement.classList.contains("tblwrap"))return;const w=document.createElement("div");w.className="tblwrap";t.before(w);w.appendChild(t);});
+  $$("[data-dg]",M).forEach(el=>mountDiag(el,DIAG[el.dataset.dg]));
+  $$("[data-fc]",M).forEach(mountFC);
+  const et=$("#examT",M); if(et) startTimer(et,30);
+}
+function mountDiag(el,D){
+  const box=document.createElement("div");el.appendChild(box);
+  if(D.kind==="custom"){D.render(box);return;}
+  el.classList.add("st");
+  box.innerHTML=`<div class="dgbox">${D.svg}</div><div class="steps"><div class="stepnow" aria-live="polite"></div><div class="row"><button class="btn sm" data-s="-1">← Précédent</button><div class="dots">${D.steps.map((s,i)=>`<button data-i="${i}" aria-label="Étape ${i+1}">${i+1}</button>`).join("")}</div><button class="btn sm" data-s="1">Suivant →</button><button class="btn sm" data-s="all">Tout afficher</button></div></div>`;
+  if(D.after)D.after(box);
+  let i=0;
+  function show(){
+    if(i<0){el.classList.remove("st");$$("[data-k]",box).forEach(n=>n.classList.remove("on"));$(".stepnow",box).innerHTML=`<span class="lbl">Vue d'ensemble</span><b>${D.title}</b>Clique une étape pour la rejouer.`;$$(".dots button",box).forEach(b=>b.className="");return;}
+    el.classList.add("st");const s=D.steps[i];
+    $$("[data-k]",box).forEach(n=>n.classList.toggle("on",s.on.includes(n.dataset.k)));
+    $(".stepnow",box).innerHTML=`<span class="lbl">Étape ${i+1} / ${D.steps.length}</span><b>${s.t}</b>${s.d}`;
+    $$(".dots button",box).forEach((b,j)=>b.className=j===i?"on":(j<i?"done":""));
+  }
+  box.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+    if(b.dataset.i!==undefined)i=+b.dataset.i;
+    else if(b.dataset.s==="all")i=-1;
+    else if(b.dataset.s){i=Math.min(D.steps.length-1,Math.max(0,(i<0?0:i)+ +b.dataset.s));}
+    else return; show();});
+  show();
+}
+
+// ---- flashcards ----
+function mountFC(el){
+  const key=el.dataset.fc;
+  let pool=key==="__all"?ALLCARDS:CHI[key].cards;
+  const order=key==="__all"?[...CH].sort((a,b)=>(b.hot?1:0)-(a.hot?1:0)).map(c=>c.id):null;
+  let q=dueCards(pool);
+  if(order)q.sort((a,b)=>order.indexOf(a.ch)-order.indexOf(b.ch));
+  if(key==="__all")q=q.slice(0,40);
+  let mode="due", done=0, again=new Set(), flip=false;
+  function counts(){const b=[0,0,0,0,0,0];pool.forEach(c=>b[Math.min(cardLevel(c.id),5)]++);return b;}
+  function draw(){
+    const b=counts(),mx=Math.max(...b,1);
+    const boxes=`<div class="lbl">Répartition des cartes par niveau</div><div class="boxes">${b.map((n,i)=>`<div style="height:${8+n/mx*48}px" title="${n} cartes"><i>N${i} · ${n}</i></div>`).join("")}</div><div style="height:14px"></div>`;
+    if(!q.length){el.innerHTML=boxes+`<div class="fc"><p class="empty">${done?`Séance terminée : ${done} cartes revues.`:"Aucune carte due pour l'instant."}</p><div class="row" style="justify-content:center"><button class="btn" data-x="allc">Revoir toutes les cartes${key==="__all"?"":" du chapitre"}</button></div></div>`;return;}
+    const c=q[0];
+    el.innerHTML=boxes+`<div class="fc"><div class="fcmeta"><span>${CHI[c.ch].short} · niveau ${cardLevel(c.id)}</span><span>${q.length} restante${q.length>1?"s":""}</span></div><div class="q">${c.q}</div>${flip?`<div class="a">${c.a}</div>`:""}
+    <div class="row">${flip?`<button class="btn" data-r="0">Raté</button><button class="btn" data-r="1">Hésité</button><button class="btn pri" data-r="2">Su</button>`:`<button class="btn pri" data-x="flip">Voir la réponse</button>`}</div></div>`;
+  }
+  el.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+    if(b.dataset.x==="flip"){flip=true;draw();return;}
+    if(b.dataset.x==="allc"){q=[...pool].sort(()=>Math.random()-.5);if(key==="__all")q=q.slice(0,40);flip=false;draw();return;}
+    if(b.dataset.r!==undefined){const c=q.shift(),r=+b.dataset.r,o=S.cards[c.id]||{l:0,d:0},n=Date.now();
+      if(r===0){o.l=0;o.d=n;if(!again.has(c.id)){again.add(c.id);q.push(c);}}
+      else if(r===1){o.l=Math.max(1,o.l);o.d=n+IV[o.l]*DAY;}
+      else{o.l=Math.min(5,o.l+1);o.d=n+IV[o.l]*DAY;}
+      S.cards[c.id]=o;done++;flip=false;save();renderRail();draw();}
+  });
+  document.addEventListener("keydown",function k(e){if(!document.body.contains(el)){document.removeEventListener("keydown",k);return;}
+    if(e.target.matches("textarea,input,select"))return;
+    if(e.key===" "&&!flip&&q.length){e.preventDefault();flip=true;draw();}
+    else if(flip&&["1","2","3"].includes(e.key)){const b=el.querySelector(`[data-r="${+e.key-1}"]`);if(b)b.click();}});
+  draw();
+}
+
+// ---- interactions globales ----
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.id==="menuBtn"){openRail();return;}
+  if(b.dataset.go&&!b.closest("#nav")){b.dataset.go==="ch"?go("ch",b.dataset.ch):go(b.dataset.go);return;}
+  if(b.dataset.tab){S.view.tab=b.dataset.tab;save();render();const t=$(".tabs");if(t&&t.getBoundingClientRect().top<0)t.scrollIntoView();return;}
+  if(b.dataset.exam!==undefined){S.view.ex=+b.dataset.exam<0?null:+b.dataset.exam;save();render();window.scrollTo(0,0);return;}
+  if(b.dataset.zoom){openZoom(b.dataset.zoom,b.dataset.cap);return;}
+  if(b.dataset.gonote){const [ch,anc]=b.dataset.gonote.split("|");go("ch",ch,"cours",anc);return;}
+  const nb=b.closest("[data-note]");
+  if(nb){noteAction(nb,b);return;}
+  const task=b.closest(".task");if(!task)return;
+  const act=b.dataset.act;
+  if(task.dataset.pb){
+    const s=CH.flatMap(c=>c.sections).find(x=>x.id===task.dataset.pb);
+    if(act==="reveal"){const rv=$(".reveal",task);rv.hidden=false;rv.innerHTML=pbReveal(s,$("textarea",task).value);b.textContent="Mettre à jour la comparaison";}
+    if(b.dataset.r!==undefined){S.pb[s.id]=+b.dataset.r;save();renderRail();$$(".rate button",task).forEach(x=>x.classList.toggle("on",x===b));
+      const top=$(".top",task);const old=$(".tag",top);if(old)old.remove();top.insertAdjacentHTML("beforeend",`<span class="tag ${["bad","mid","ok"][+b.dataset.r]}">${["Raté","Partiel","Su"][+b.dataset.r]}</span>`);toast("Auto-évaluation enregistrée");}
+    return;
+  }
+  if(task.dataset.q){
+    const q=QS.find(x=>x.id===task.dataset.q);
+    if(act==="timer"){startTimer($(".timer",task),q.pts*3);b.disabled=true;}
+    if(act==="corr"){showBareme(task,q);}
+    if(act==="ai"){aiCorrect(task,q,b);}
+  }
+});
+document.addEventListener("input",e=>{
+  if(e.target.matches(".noteEd textarea")){const id=e.target.closest("[data-note]").dataset.note;saveAns("n-"+id,e.target.value);const st=e.target.closest("[data-note]").querySelector(".nsave");if(st)st.textContent="enregistrée";renderRail();return;}
+  if(e.target.id==="noteSearch"){filterNotes(e.target.value);return;}
+  const t=e.target;if(t.tagName!=="TEXTAREA")return;const task=t.closest(".task");if(!task)return;
+  if(task.dataset.pb)saveAns("pb-"+task.dataset.pb,t.value);
+  if(task.dataset.q)saveAns("q-"+task.dataset.q,t.value);
+  if(e.target.closest(".bareme"))return;
+});
+document.addEventListener("change",e=>{const c=e.target;if(c.type!=="checkbox")return;const task=c.closest(".task[data-q]");if(task)scoreFrom(task,QS.find(x=>x.id===task.dataset.q));});
+
+function keywords(html){
+  const d=document.createElement("div");d.innerHTML=html;const seen=new Set();
+  return $$("b",d).map(b=>b.textContent.trim()).filter(k=>{const n=norm(k);if(n.length<3||seen.has(n))return false;seen.add(n);return true;});
+}
+function pbReveal(s,ans){
+  const kw=keywords(s.html), A=norm(ans);
+  const hit=kw.filter(k=>{const n=norm(k).replace(/[()]/g,"");const parts=n.split(/[\s'’,/]+/).filter(p=>p.length>3);return A.includes(n)||(parts.length>1&&parts.every(p=>A.includes(p)));});
+  const r=S.pb[s.id];
+  return `<div class="row"><span class="score">${hit.length} / ${kw.length}</span><span class="note">mots-clés du cours retrouvés dans ta réponse</span></div>
+  <div class="row">${kw.map(k=>`<span class="tag ${hit.includes(k)?"ok":"bad"}">${k}</span>`).join("")}</div>
+  <div class="model sec">${s.html}${figs(s.id)}</div>
+  <div><div class="lbl" style="margin-bottom:6px">Ton auto-évaluation</div><div class="rate">${["Raté","Partiel","Su"].map((t,i)=>`<button data-r="${i}" class="${r===i?"on":""}">${t}</button>`).join("")}</div></div>
+  <p class="note">Les mots-clés ne suffisent pas : vérifie que chaque étape a son mécanisme.</p>`;
+}
+function showBareme(task,q,ai){
+  const rv=$(".reveal",task);rv.hidden=false;
+  const prev=ai||null;
+  rv.innerHTML=`<div class="lbl">Barème : coche ce que ta copie contient vraiment</div><div class="bareme">${q.b.map((x,i)=>{const st=prev&&prev[i]?prev[i].statut:null;return `<label class="bitem ${st&&st!=="absent"?st:""}"><input type="checkbox" data-i="${i}" ${st==="ok"?"checked":""}><span>${x[1]}</span><span class="p">${fmt(x[0])} pt</span>${prev&&prev[i]&&prev[i].commentaire?`<span class="cm">${esc(prev[i].commentaire)}</span>`:""}</label>`;}).join("")}</div>
+  <div class="row"><span class="score" data-sc>0</span><span class="note">/ ${q.pts} pts</span></div>`;
+  scoreFrom(task,q,prev);
+}
+function scoreFrom(task,q,prev){
+  let s=0;$$(".bareme input",task).forEach(c=>{const i=+c.dataset.i;if(c.checked)s+=q.b[i][0];else if(prev&&prev[i]&&prev[i].statut==="partiel")s+=q.b[i][0]/2;c.closest(".bitem").classList.toggle("ok",c.checked);});
+  s=Math.round(s*4)/4;$("[data-sc]",task).textContent=fmt(s);
+  const o=S.q[q.id]||{};o.last=s;o.best=Math.max(o.best||0,s);S.q[q.id]=o;save();renderRail();
+}
+async function aiCorrect(task,q,btn){
+  const ans=$("textarea",task).value.trim();
+  if(ans.length<40){toast("Écris d'abord une vraie réponse");return;}
+  if(!SAMPLE){toast("Correction par Claude indisponible ici");return;}
+  btn.disabled=true;const old=btn.textContent;btn.textContent="Correction en cours…";
+  const prompt=`Tu es correcteur de l'épreuve rédactionnelle de physiologie (UE 3.5, 2e année de pharmacie, Toulouse). Le professeur exige des mots-clés mais surtout des explications développées et paraphrasées : une affirmation sans mécanisme ne vaut pas tous les points. Corrige franchement, sans complaisance, en français.
+${q.ctx?"Énoncé : "+q.ctx+"\n":""}Question (${q.pts} points) : ${q.q}
+Barème (index, points, critère) :
+${q.b.map((x,i)=>`${i}. [${x[0]} pt] ${x[1]}`).join("\n")}
+Copie de l'étudiant :
+"""${ans.slice(0,6000)}"""
+Pour chaque critère, dis si la copie le remplit : "ok" (présent et expliqué), "partiel" (mentionné sans mécanisme, imprécis ou incomplet) ou "absent". Signale aussi les erreurs factuelles.
+Réponds uniquement en JSON : {"items":[{"i":0,"statut":"ok|partiel|absent","commentaire":"une phrase courte"}],"erreurs":["..."],"conseil":"une ou deux phrases pour gagner les points manquants"}`;
+  try{
+    const r=await SAMPLE.json(prompt,{modelTier:"default"});
+    const items=[];(r.items||[]).forEach(it=>{if(typeof it.i==="number")items[it.i]=it;});
+    showBareme(task,q,items);
+    const rv=$(".reveal",task);
+    rv.insertAdjacentHTML("afterbegin",`<div class="ai"><span class="lbl">Correction de Claude</span>${(r.erreurs||[]).length?`<div><b>Erreurs :</b><ul>${r.erreurs.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:"<div>Pas d'erreur factuelle relevée.</div>"}${r.conseil?`<div><b>Conseil :</b> ${esc(r.conseil)}</div>`:""}<div class="note">Critère « partiel » = moitié des points. Ajuste les cases si tu n'es pas d'accord.</div></div>`);
+  }catch(e){
+    toast(e&&e.code==="rate_limited"?"Trop de demandes, réessaie dans un moment":(e&&e.code==="not_granted"?"Autorisation refusée":"La correction a échoué"));
+    if(e&&e.code==="not_granted")$$(".aiBtn").forEach(x=>x.hidden=true);
+  }
+  btn.disabled=false;btn.textContent=old;
+}
+const timers=new WeakMap();
+function startTimer(el,min){
+  if(!el||timers.has(el))return;const end=Date.now()+min*60000;
+  const id=setInterval(()=>{if(!document.body.contains(el)){clearInterval(id);return;}const r=Math.round((end-Date.now())/1000),a=Math.abs(r);
+    el.textContent=(r<0?"dépassé de ":"")+Math.floor(a/60)+" min "+String(a%60).padStart(2,"0")+" s";el.classList.toggle("late",r<0);},500);
+  timers.set(el,id);el.textContent=min+" min 00 s";
+}
+
+render();
+connect();
+</script>
+
+</body></html>

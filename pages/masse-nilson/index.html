@@ -1,0 +1,340 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Masse Nilson</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: one mobile-first column, scoreboard-style numbers, three tabs (Jour / Poids / Profil) */
+:root{
+  --bg:#EEF1F4; --surface:#FFFFFF; --ink:#16202B; --muted:#5B6878; --line:#D5DCE4;
+  --accent:#2747E0; --accent-soft:#E2E7FC;
+  --prot:#D9482B; --carb:#C98A0C; --fat:#2B8A6E; --good:#2B8A6E; --warn:#C98A0C;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F151C; --surface:#18212B; --ink:#E8EDF2; --muted:#93A0AF; --line:#2A3542;
+  --accent:#7D94FF; --accent-soft:#1F2A4D; --prot:#FF7A5C; --carb:#F0B53A; --fat:#4FC79F; --good:#4FC79F; --warn:#F0B53A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F151C; --surface:#18212B; --ink:#E8EDF2; --muted:#93A0AF; --line:#2A3542;
+  --accent:#7D94FF; --accent-soft:#1F2A4D; --prot:#FF7A5C; --carb:#F0B53A; --fat:#4FC79F; --good:#4FC79F; --warn:#F0B53A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:800;font-size:34px;letter-spacing:.01em;margin:0;text-transform:uppercase;line-height:1}
+h1 span{color:var(--accent)}
+h2{font-family:var(--display);font-weight:700;font-size:20px;text-transform:uppercase;letter-spacing:.04em;margin:0}
+.lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums}
+nav{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px;gap:4px}
+nav button{font:600 14px var(--body);border:0;background:transparent;color:var(--muted);padding:9px 6px;border-radius:7px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.daybar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.iconbtn{width:38px;height:38px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:18px;cursor:pointer}
+.daybar .d{font-weight:600;text-align:center}
+.score{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.ring{width:128px;height:128px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring .c b{font-family:var(--display);font-size:32px;line-height:1;font-variant-numeric:tabular-nums}
+.ring .c small{color:var(--muted);font-size:12px}
+.macros{display:flex;flex-direction:column;gap:10px;min-width:0}
+.mrow .top{display:flex;justify-content:space-between;font-size:13px}
+.mrow .top b{font-family:var(--display);font-size:16px;font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:3px}
+.bar i{display:block;height:100%;border-radius:4px;transition:width .3s}
+.status{font-size:14px;padding:10px 12px;border-radius:8px;background:var(--accent-soft)}
+.search{display:flex;gap:8px}
+input,select{font:500 15px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 11px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.foods{display:flex;flex-direction:column;max-height:290px;overflow-y:auto;border:1px solid var(--line);border-radius:8px}
+.food{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:9px 11px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;cursor:pointer;font:inherit}
+.food:last-child{border-bottom:0}
+.food:hover{background:var(--bg)}
+.food .n{min-width:0}
+.food .n small{display:block;color:var(--muted);font-size:12px}
+.food .k{font-family:var(--display);font-size:17px;font-variant-numeric:tabular-nums}
+.food .plus{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.log li{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line)}
+.log li:last-child{border-bottom:0}
+.log .n{min-width:0}
+.log .n small{display:block;color:var(--muted);font-size:12px}
+.del{border:0;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;width:30px;height:30px;border-radius:6px}
+.del:hover{color:var(--prot);background:var(--bg)}
+.empty{color:var(--muted);font-size:14px;padding:6px 0}
+.ex{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px}
+.btn{font:600 14px var(--body);border:0;border-radius:8px;padding:10px 14px;background:var(--accent);color:#fff;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);padding:7px 10px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--muted);font-weight:600}
+details summary{cursor:pointer;font-weight:600;color:var(--accent);font-size:14px}
+details[open] summary{margin-bottom:10px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kpi{background:var(--bg);border-radius:8px;padding:10px}
+.kpi b{display:block;font-family:var(--display);font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1}
+.chart{width:100%;height:auto;display:block}
+.note{font-size:13px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (max-width:420px){.score{grid-template-columns:1fr;justify-items:center}.macros{width:100%}.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Masse <span>Nilson</span></h1>
+    <div class="lbl" id="goalTag">Objectif : prise de masse</div>
+  </header>
+
+  <nav role="tablist">
+    <button role="tab" id="t-jour" aria-selected="true" data-tab="jour">Jour</button>
+    <button role="tab" id="t-poids" aria-selected="false" data-tab="poids">Poids</button>
+    <button role="tab" id="t-profil" aria-selected="false" data-tab="profil">Profil</button>
+  </nav>
+
+  <!-- JOUR -->
+  <section id="p-jour" class="wrap" style="gap:16px">
+    <div class="panel">
+      <div class="daybar">
+        <button class="iconbtn" id="prevDay" aria-label="Jour précédent">‹</button>
+        <div class="d" id="dayLabel"></div>
+        <button class="iconbtn" id="nextDay" aria-label="Jour suivant">›</button>
+      </div>
+      <div class="score">
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--bg)" stroke-width="12"/><circle id="ringArc" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .4s"/></svg>
+          <div class="c"><b id="kcalEaten">0</b><small id="kcalTarget">/ 0 kcal</small></div>
+        </div>
+        <div class="macros" id="macros"></div>
+      </div>
+      <div class="status" id="status"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Ajouter un aliment</h2>
+      <div class="search"><input id="q" type="search" placeholder="Chercher : riz, poulet, whey…" autocomplete="off"></div>
+      <div class="foods" id="foods"></div>
+      <details>
+        <summary>+ Aliment perso (lis l'étiquette)</summary>
+        <form id="customForm" style="display:flex;flex-direction:column;gap:10px">
+          <div class="field"><label for="cName">Nom et portion</label><input id="cName" required placeholder="ex. Gratin de mamie, 1 part"></div>
+          <div class="grid4">
+            <div class="field"><label for="cK">kcal</label><input id="cK" type="number" inputmode="decimal" min="0" required></div>
+            <div class="field"><label for="cP">Prot. g</label><input id="cP" type="number" inputmode="decimal" min="0" value="0"></div>
+            <div class="field"><label for="cC">Gluc. g</label><input id="cC" type="number" inputmode="decimal" min="0" value="0"></div>
+            <div class="field"><label for="cF">Lip. g</label><input id="cF" type="number" inputmode="decimal" min="0" value="0"></div>
+          </div>
+          <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input id="cSave" type="checkbox" checked style="width:auto"> Garder dans ma liste</label>
+          <button class="btn" type="submit">Ajouter au jour</button>
+        </form>
+      </details>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><h2>Mangé ce jour</h2><span class="lbl" id="logCount"></span></div>
+      <div class="ex" id="exBanner" hidden><span>Ces lignes sont des exemples.</span><button class="btn ghost" id="clearEx">Effacer les exemples</button></div>
+      <ul class="log" id="log"></ul>
+    </div>
+  </section>
+
+  <!-- POIDS -->
+  <section id="p-poids" class="wrap" style="gap:16px" hidden>
+    <div class="panel">
+      <h2>Pesée</h2>
+      <form id="wForm" class="search">
+        <input id="wDate" type="date" aria-label="Date">
+        <input id="wKg" type="number" step="0.1" min="30" max="250" inputmode="decimal" placeholder="kg" aria-label="Poids en kg" required>
+        <button class="btn" type="submit">OK</button>
+      </form>
+      <p class="note">Pèse-toi le matin à jeun, après les toilettes. Regarde la tendance sur 2–3 semaines, pas le chiffre d'un jour.</p>
+    </div>
+    <div class="panel">
+      <div class="kpis">
+        <div class="kpi"><span class="lbl">Actuel</span><b id="kNow">–</b></div>
+        <div class="kpi"><span class="lbl">Par semaine</span><b id="kRate">–</b></div>
+        <div class="kpi"><span class="lbl">Cible / sem.</span><b id="kTarget">–</b></div>
+      </div>
+      <svg class="chart" id="wChart" viewBox="0 0 520 220" role="img" aria-label="Courbe de poids"></svg>
+      <div class="status" id="wStatus"></div>
+      <div class="ex" id="wEx" hidden><span>Pesées d'exemple.</span><button class="btn ghost" id="clearWEx">Effacer les exemples</button></div>
+      <ul class="log" id="wLog"></ul>
+    </div>
+  </section>
+
+  <!-- PROFIL -->
+  <section id="p-profil" class="wrap" style="gap:16px" hidden>
+    <div class="panel">
+      <h2>Profil de Nilson</h2>
+      <form id="pForm" style="display:flex;flex-direction:column;gap:10px">
+        <div class="grid">
+          <div class="field"><label for="pSex">Sexe</label><select id="pSex"><option value="m">Homme</option><option value="f">Femme</option></select></div>
+          <div class="field"><label for="pAge">Âge</label><input id="pAge" type="number" min="14" max="90"></div>
+          <div class="field"><label for="pH">Taille (cm)</label><input id="pH" type="number" min="120" max="230"></div>
+          <div class="field"><label for="pW">Poids (kg)</label><input id="pW" type="number" step="0.1" min="30" max="250"></div>
+        </div>
+        <div class="field"><label for="pAct">Activité</label>
+          <select id="pAct">
+            <option value="1.375">Muscu 2–3×/sem, sinon assis</option>
+            <option value="1.55">Muscu 3–5×/sem</option>
+            <option value="1.725">Muscu 5–6×/sem ou job physique</option>
+            <option value="1.9">Très actif (sport + job physique)</option>
+          </select></div>
+        <div class="field"><label for="pSur">Surplus</label>
+          <select id="pSur">
+            <option value="250">Prise sèche : +250 kcal</option>
+            <option value="400">Standard : +400 kcal</option>
+            <option value="550">Rapide : +550 kcal (plus de gras)</option>
+          </select></div>
+        <button class="btn" type="submit">Recalculer les objectifs</button>
+      </form>
+    </div>
+    <div class="panel">
+      <h2>Objectifs du jour</h2>
+      <div class="kpis" id="targets"></div>
+      <p class="note" id="calcNote"></p>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const FOODS=[
+ ["Flocons d'avoine","80 g",300,11,48,6],["Lait entier","250 ml",160,8,12,9],["Banane","1 moyenne",105,1,27,0],
+ ["Beurre de cacahuète","2 c. à s. (30 g)",180,8,6,15],["Whey","1 dose (30 g)",120,24,3,2],["Œufs","3 entiers",234,19,1,16],
+ ["Pain (baguette)","100 g",270,9,55,2],["Riz cuit","200 g",260,5,57,1],["Pâtes cuites","200 g",314,11,61,2],
+ ["Pommes de terre","250 g",200,5,43,0],["Blanc de poulet","150 g",165*1.5|0,46,0,5],["Steak haché 5 %","125 g",156,26,0,6],
+ ["Saumon","150 g",300,30,0,20],["Thon en boîte au naturel","140 g",160,36,0,2],["Fromage blanc 0 %","200 g",90,15,8,0],
+ ["Skyr","150 g",95,15,6,0],["Emmental râpé","30 g",115,8,0,9],["Huile d'olive","1 c. à s. (10 g)",90,0,0,10],
+ ["Amandes","30 g",175,6,6,15],["Avocat","1/2",120,2,6,11],["Lentilles cuites","200 g",230,18,34,1],
+ ["Jambon blanc","2 tranches (80 g)",90,16,1,3],["Pomme","1 moyenne",80,0,19,0],["Chocolat noir 70 %","20 g",120,2,7,9],
+ ["Shaker masse maison","avoine 80 g + lait 500 ml + banane + whey",705,51,90,26]
+];
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem("mn_"+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem("mn_"+k,JSON.stringify(v))}catch(e){}}};
+const iso=d=>{const z=new Date(d);z.setMinutes(z.getMinutes()-z.getTimezoneOffset());return z.toISOString().slice(0,10)};
+const today=iso(new Date());
+const addDays=(s,n)=>{const d=new Date(s+"T12:00");d.setDate(d.getDate()+n);return iso(d)};
+
+let profile=store.get("profile",{sex:"m",age:19,h:178,w:70,act:1.55,sur:400});
+let custom=store.get("custom",[]);
+let logs=store.get("logs",null);
+let weights=store.get("weights",null);
+if(!logs){logs={};logs[today]=[[...FOODS[24],1],[...FOODS[7],1],[...FOODS[10],1],[...FOODS[6],1]].map(f=>({n:f[0],p:f[1],k:f[2],pr:f[3],c:f[4],f:f[5],ex:true}));}
+if(!weights){weights=[];const base=[69.4,69.6,69.5,69.8,69.9,70.0,70.1,70.0,70.3];base.forEach((w,i)=>weights.push({d:addDays(today,-(base.length-1-i)*3),kg:w,ex:true}));}
+let day=today;
+const save=()=>{store.set("logs",logs);store.set("weights",weights);store.set("profile",profile);store.set("custom",custom)};
+
+function targets(){
+  const {sex,age,h,w,act,sur}=profile;
+  const bmr=10*w+6.25*h-5*age+(sex==="m"?5:-161);
+  const tdee=bmr*act, kcal=Math.round((tdee+ +sur)/10)*10;
+  const prot=Math.round(w*1.8), fat=Math.round(w*1.0);
+  const carb=Math.max(0,Math.round((kcal-prot*4-fat*9)/4));
+  return {bmr:Math.round(bmr),tdee:Math.round(tdee),kcal,prot,fat,carb};
+}
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),1500)}
+
+function renderDay(){
+  const T=targets(), L=logs[day]||[];
+  const s=L.reduce((a,x)=>({k:a.k+x.k,p:a.p+x.pr,c:a.c+x.c,f:a.f+x.f}),{k:0,p:0,c:0,f:0});
+  const d=new Date(day+"T12:00");
+  $("dayLabel").textContent=(day===today?"Aujourd'hui · ":day===addDays(today,-1)?"Hier · ":"")+d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+  $("nextDay").disabled=day>=today;$("nextDay").style.opacity=day>=today?.35:1;
+  $("kcalEaten").textContent=Math.round(s.k);$("kcalTarget").textContent="/ "+T.kcal+" kcal";
+  const pct=Math.min(1,s.k/T.kcal);$("ringArc").setAttribute("stroke-dashoffset",326.7*(1-pct));
+  $("ringArc").setAttribute("stroke",s.k>T.kcal*1.1?"var(--warn)":"var(--accent)");
+  const m=[["Protéines",s.p,T.prot,"--prot"],["Glucides",s.c,T.carb,"--carb"],["Lipides",s.f,T.fat,"--fat"]];
+  $("macros").innerHTML=m.map(([n,v,t,c])=>`<div class="mrow"><div class="top"><span>${n}</span><span><b>${Math.round(v)}</b> / ${t} g</span></div><div class="bar"><i style="width:${Math.min(100,v/t*100)}%;background:var(${c})"></i></div></div>`).join("");
+  const rest=T.kcal-Math.round(s.k), pr=T.prot-Math.round(s.p);
+  let msg;
+  if(!L.length) msg="Rien de noté pour l'instant. Commence par le petit-déj.";
+  else if(rest>600) msg=`Il reste <b>${rest} kcal</b>${pr>0?` dont <b>${pr} g</b> de protéines`:""}. Un shaker masse (~700 kcal) règle ça vite.`;
+  else if(rest>0) msg=`Plus que <b>${rest} kcal</b>${pr>0?` et ${pr} g de protéines`:""}. Une collation suffit.`;
+  else if(rest>-300) msg=`Objectif atteint 💪 ${pr>0?`Il manque juste ${pr} g de protéines.`:"Protéines OK aussi."}`;
+  else msg=`Tu dépasses de ${-rest} kcal. Un jour comme ça ne change rien, mais si ça se répète tu prendras surtout du gras.`;
+  $("status").innerHTML=msg;
+  $("logCount").textContent=L.length?L.length+" aliment"+(L.length>1?"s":""):"";
+  $("exBanner").hidden=!L.some(x=>x.ex);
+  $("log").innerHTML=L.length?L.map((x,i)=>`<li><div class="n">${esc(x.n)}<small>${esc(x.p)} · P ${Math.round(x.pr)} · G ${Math.round(x.c)} · L ${Math.round(x.f)}</small></div><span class="num" style="font-size:17px">${Math.round(x.k)}</span><button class="del" data-i="${i}" aria-label="Retirer ${esc(x.n)}">×</button></li>`).join(""):`<li class="empty" style="border:0">Aucun aliment ce jour.</li>`;
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function allFoods(){return [...custom.map(c=>[...c,true]),...FOODS]}
+function renderFoods(){
+  const q=$("q").value.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+  const all=allFoods();
+  const list=all.map((f,i)=>[f,i]).filter(([f])=>!q||f[0].toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").includes(q));
+  $("foods").innerHTML=list.length?list.map(([f,idx])=>{return `<button class="food" data-f="${idx}"><span class="n">${esc(f[0])}${f[6]?' <span class="lbl" style="font-size:10px">perso</span>':""}<small>${esc(f[1])} · P ${f[3]} g</small></span><span class="k">${f[2]}</span><span class="plus" aria-hidden="true">+</span></button>`}).join(""):`<div class="empty" style="padding:10px">Pas trouvé. Ajoute-le en aliment perso ci-dessous.</div>`;
+}
+function addFood(f){(logs[day]=logs[day]||[]).push({n:f[0],p:f[1],k:f[2],pr:f[3],c:f[4],f:f[5]});save();renderDay();toast(f[0]+" ajouté")}
+
+function renderWeights(){
+  const T=targets();
+  const W=[...weights].sort((a,b)=>a.d<b.d?-1:1);
+  const tgtLo=(profile.w*0.0025).toFixed(2), tgtHi=(profile.w*0.005).toFixed(2);
+  $("kTarget").textContent="+"+tgtLo.replace(".",",")+"–"+tgtHi.replace(".",",");
+  $("wEx").hidden=!W.some(x=>x.ex);
+  if(!W.length){$("kNow").textContent="–";$("kRate").textContent="–";$("wChart").innerHTML="";$("wStatus").textContent="Ajoute une première pesée.";$("wLog").innerHTML="";return}
+  $("kNow").textContent=W[W.length-1].kg.toFixed(1).replace(".",",")+" kg";
+  // linear regression over last 28 days
+  const last=W.filter(x=>x.d>=addDays(W[W.length-1].d,-28));
+  let rate=null;
+  if(last.length>=3){const t0=new Date(last[0].d).getTime();const xs=last.map(x=>(new Date(x.d).getTime()-t0)/864e5),ys=last.map(x=>x.kg);const mx=xs.reduce((a,b)=>a+b)/xs.length,my=ys.reduce((a,b)=>a+b)/ys.length;const den=xs.reduce((a,x)=>a+(x-mx)**2,0);if(den>0)rate=xs.reduce((a,x,i)=>a+(x-mx)*(ys[i]-my),0)/den*7}
+  $("kRate").textContent=rate===null?"–":(rate>=0?"+":"")+rate.toFixed(2).replace(".",",")+" kg";
+  let st;
+  if(rate===null) st="Il faut au moins 3 pesées sur 4 semaines pour voir la tendance.";
+  else if(rate<tgtLo*0.6) st=`Ça monte trop lentement. Ajoute environ <b>150–200 kcal</b> par jour (un verre de lait + une poignée d'amandes).`;
+  else if(rate>tgtHi*1.4) st=`Ça monte vite : une partie sera du gras. Tu peux retirer <b>~150 kcal</b> par jour.`;
+  else st=`Rythme parfait. Garde le cap et continue de progresser à la salle.`;
+  $("wStatus").innerHTML=st;
+  // chart
+  const w=520,h=220,pl=40,pr=12,pt=14,pb=26;
+  const ts=W.map(x=>new Date(x.d+"T12:00").getTime()),ks=W.map(x=>x.kg);
+  let lo=Math.floor(Math.min(...ks)-0.5),hi=Math.ceil(Math.max(...ks)+0.5);
+  const t0=Math.min(...ts),t1=Math.max(...ts)||t0+1;
+  const X=t=>pl+(t1===t0?0.5:(t-t0)/(t1-t0))*(w-pl-pr),Y=k=>pt+(hi-k)/(hi-lo)*(h-pt-pb);
+  let g="";const step=Math.max(1,Math.ceil((hi-lo)/4));
+  for(let k=lo;k<=hi;k+=step)g+=`<line x1="${pl}" x2="${w-pr}" y1="${Y(k)}" y2="${Y(k)}" stroke="var(--line)"/><text x="${pl-6}" y="${Y(k)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="Barlow,sans-serif">${k}</text>`;
+  const fmt=t=>new Date(t).toLocaleDateString("fr-FR",{day:"numeric",month:"short"});
+  g+=`<text x="${pl}" y="${h-6}" font-size="11" fill="var(--muted)" font-family="Barlow,sans-serif">${fmt(t0)}</text><text x="${w-pr}" y="${h-6}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="Barlow,sans-serif">${fmt(t1)}</text>`;
+  const pts=W.map((x,i)=>`${X(ts[i])},${Y(x.kg)}`);
+  g+=`<polygon points="${pl},${h-pb} ${pts.join(" ")} ${X(ts[ts.length-1])},${h-pb}" fill="var(--accent)" opacity=".1"/>`;
+  g+=`<polyline points="${pts.join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  W.forEach((x,i)=>{const L=i===W.length-1;g+=`<circle cx="${X(ts[i])}" cy="${Y(x.kg)}" r="${L?5:3}" fill="${L?"var(--accent)":"var(--surface)"}" stroke="var(--accent)" stroke-width="2"/>`});
+  $("wChart").innerHTML=g;
+  $("wLog").innerHTML=[...W].reverse().slice(0,10).map(x=>`<li><div class="n">${new Date(x.d+"T12:00").toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}${x.ex?' <span class="lbl" style="font-size:10px">exemple</span>':""}</div><span class="num" style="font-size:17px">${x.kg.toFixed(1).replace(".",",")} kg</span><button class="del" data-d="${x.d}" aria-label="Supprimer la pesée">×</button></li>`).join("");
+}
+
+function renderProfile(){
+  $("pSex").value=profile.sex;$("pAge").value=profile.age;$("pH").value=profile.h;$("pW").value=profile.w;$("pAct").value=String(profile.act);$("pSur").value=String(profile.sur);
+  const T=targets();
+  $("targets").innerHTML=[["Calories",T.kcal+""],["Protéines",T.prot+" g"],["Glucides",T.carb+" g"]].map(([l,v])=>`<div class="kpi"><span class="lbl">${l}</span><b>${v}</b></div>`).join("")+`<div class="kpi"><span class="lbl">Lipides</span><b>${T.fat} g</b></div><div class="kpi"><span class="lbl">Maintien</span><b>${T.tdee}</b></div><div class="kpi"><span class="lbl">Métab. base</span><b>${T.bmr}</b></div>`;
+  $("calcNote").textContent=`Métabolisme de base (Mifflin-St Jeor) × activité = ${T.tdee} kcal pour rester stable, + ${profile.sur} kcal de surplus. Protéines 1,8 g/kg, lipides 1 g/kg, le reste en glucides. Ce sont des estimations : ajuste avec la courbe de poids.`;
+}
+
+function renderAll(){renderDay();renderFoods();renderWeights();renderProfile()}
+
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b));["jour","poids","profil"].forEach(t=>$("p-"+t).hidden=t!==b.dataset.tab);store.set("tab",b.dataset.tab)});
+$("prevDay").onclick=()=>{day=addDays(day,-1);renderDay()};
+$("nextDay").onclick=()=>{if(day<today){day=addDays(day,1);renderDay()}};
+$("q").oninput=renderFoods;
+$("foods").onclick=e=>{const b=e.target.closest(".food");if(b)addFood(allFoods()[+b.dataset.f])};
+$("log").onclick=e=>{const b=e.target.closest(".del");if(!b)return;logs[day].splice(+b.dataset.i,1);save();renderDay()};
+$("clearEx").onclick=()=>{logs[day]=(logs[day]||[]).filter(x=>!x.ex);save();renderDay();toast("Exemples effacés")};
+$("customForm").onsubmit=e=>{e.preventDefault();const f=[$("cName").value.trim(),"portion perso",+$("cK").value||0,+$("cP").value||0,+$("cC").value||0,+$("cF").value||0];if(!f[0])return;if($("cSave").checked){custom.unshift(f)}addFood(f);e.target.reset();$("cSave").checked=true;renderFoods()};
+$("wDate").value=today;$("wDate").max=today;
+$("wForm").onsubmit=e=>{e.preventDefault();const d=$("wDate").value||today,kg=parseFloat($("wKg").value);if(!kg)return;weights=weights.filter(x=>x.d!==d);weights.push({d,kg});if(d===[...weights].sort((a,b)=>a.d<b.d?-1:1).pop().d){profile.w=kg}save();$("wKg").value="";renderAll();toast("Pesée enregistrée")};
+$("wLog").onclick=e=>{const b=e.target.closest(".del");if(!b)return;weights=weights.filter(x=>x.d!==b.dataset.d);save();renderWeights()};
+$("clearWEx").onclick=()=>{weights=weights.filter(x=>!x.ex);save();renderWeights();toast("Exemples effacés")};
+$("pForm").onsubmit=e=>{e.preventDefault();profile={sex:$("pSex").value,age:+$("pAge").value||19,h:+$("pH").value||178,w:+$("pW").value||70,act:+$("pAct").value,sur:+$("pSur").value};save();renderAll();toast("Objectifs mis à jour")};
+
+const tab=store.get("tab","jour");const tb=document.querySelector(`nav button[data-tab="${tab}"]`);
+renderAll();if(tb)tb.click();
+</script>
+
+</body></html>

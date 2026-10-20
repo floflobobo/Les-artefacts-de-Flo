@@ -1,0 +1,1328 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Chinois Lù</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@500;700&display=swap">
+<style>
+/* Layout: one app column (max 560px) — sticky stats bar, winding lesson path, fixed bottom tabs, full-screen lesson overlay */
+:root{
+  --paper:#f2f5f2; --surface:#ffffff; --sunk:#e7ece8; --ink:#15201b; --muted:#5a6962; --line:#d6dfd9;
+  --jade:#12735a; --jade-ink:#ffffff; --jade-soft:#d9eee4; --seal:#c23f2b;
+  --good:#1b874a; --good-soft:#dbf1e2; --bad:#bf3636; --bad-soft:#f8dfdc; --gold:#b9770b; --gold-soft:#f6e8cc;
+  --f-han:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --f-brush:"Ma Shan Zheng","Kaiti SC","STKaiti","KaiTi",serif;
+  --f-ui:"Figtree","Segoe UI",system-ui,-apple-system,sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0e1412; --surface:#17201c; --sunk:#1f2a25; --ink:#e6eee9; --muted:#93a39b; --line:#2b3732;
+  --jade:#46c095; --jade-ink:#06231a; --jade-soft:#163a2d; --seal:#e0644d;
+  --good:#4cc47e; --good-soft:#153826; --bad:#ef6c6c; --bad-soft:#3d1c1c; --gold:#e6ae47; --gold-soft:#3a2d12;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0e1412; --surface:#17201c; --sunk:#1f2a25; --ink:#e6eee9; --muted:#93a39b; --line:#2b3732;
+  --jade:#46c095; --jade-ink:#06231a; --jade-soft:#163a2d; --seal:#e0644d;
+  --good:#4cc47e; --good-soft:#153826; --bad:#ef6c6c; --bad-soft:#3d1c1c; --gold:#e6ae47; --gold-soft:#3a2d12;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--jade);outline-offset:2px}
+.han{font-family:var(--f-han);font-weight:500}
+.pin{font-family:var(--f-ui);font-weight:500;color:var(--muted)}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:10px;padding-block:10px}
+.seal{width:38px;height:38px;border-radius:8px;background:var(--seal);color:#fff;display:grid;place-items:center;font-family:var(--f-brush);font-size:27px;line-height:1;flex:none;transform:rotate(-3deg)}
+.brand{display:flex;flex-direction:column;line-height:1.1;min-width:0}
+.brand b{font-size:17px;letter-spacing:.01em}
+.brand small{color:var(--muted);font-size:12px}
+.stats{margin-left:auto;display:flex;gap:6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip svg{width:16px;height:16px;flex:none}
+.chip.fire{color:var(--gold)}
+.chip.sync{font-weight:600;color:var(--muted);font-size:12px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.dot.on{background:var(--good)}
+
+/* views */
+main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.view{padding-block:18px 24px}
+h2{font-size:22px;margin:0 0 4px;text-wrap:balance;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 16px}
+
+/* goal card */
+.goal{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-bottom:22px}
+.ring{--p:0;width:52px;height:52px;border-radius:50%;flex:none;background:conic-gradient(var(--jade) calc(var(--p)*1%),var(--sunk) 0);display:grid;place-items:center}
+.ring span{width:40px;height:40px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}
+.goal p{margin:0}
+.goal .t{font-weight:700}
+.goal .m{color:var(--muted);font-size:13px}
+.goal .btn{margin-left:auto}
+
+/* path */
+.sec{margin:28px 0 8px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sec:first-of-type{margin-top:4px}
+.sec h3{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--jade)}
+.sec span{color:var(--muted);font-size:13px}
+.sec::after{content:"";flex:1;height:1px;background:var(--line);min-width:20px}
+.path{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0}
+.node{display:flex;flex-direction:column;align-items:center;gap:6px;width:150px;position:relative}
+.node .c{width:78px;height:78px;border-radius:50%;background:var(--surface);border:3px solid var(--line);display:grid;place-items:center;font-family:var(--f-han);font-size:26px;font-weight:700;box-shadow:0 5px 0 var(--line);transition:transform .12s}
+.node .c.sm{font-size:21px}
+.node:active .c{transform:translateY(3px);box-shadow:0 2px 0 var(--line)}
+.node.done .c{background:var(--jade);border-color:var(--jade);color:var(--jade-ink);box-shadow:0 5px 0 color-mix(in srgb,var(--jade) 60%,#000)}
+.node.next .c{border-color:var(--jade);border-width:4px;color:var(--jade)}
+.node .lbl{font-weight:700;font-size:13.5px;text-align:center;line-height:1.25}
+.node .meta{font-size:12px;color:var(--muted);margin-top:-4px}
+.node .bubble{position:absolute;top:-30px;background:var(--jade);color:var(--jade-ink);font-weight:800;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:8px;animation:bob 1.8s ease-in-out infinite}
+.node .bubble::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:var(--jade)}
+.node.next{margin-top:22px}
+@keyframes bob{50%{transform:translateY(-3px)}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:12px;font-weight:800;letter-spacing:.02em;background:var(--jade);color:var(--jade-ink);box-shadow:0 4px 0 color-mix(in srgb,var(--jade) 60%,#000);transition:transform .08s}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 color-mix(in srgb,var(--jade) 60%,#000)}
+.btn.ghost{background:var(--surface);color:var(--ink);border:2px solid var(--line);box-shadow:0 3px 0 var(--line)}
+.btn.wide{width:100%}
+.btn:disabled{opacity:.5;cursor:default}
+.icon-btn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--jade-soft);color:var(--jade)}
+.icon-btn svg{width:22px;height:22px}
+.icon-btn.big{width:76px;height:76px;border-radius:20px}
+.icon-btn.big svg{width:36px;height:36px}
+
+/* tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs .wrap{display:grid;grid-template-columns:repeat(4,1fr);padding-block:6px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:10px;font-size:12px;font-weight:700;color:var(--muted);position:relative}
+.tab .g{font-family:var(--f-han);font-size:21px;line-height:1.1}
+.tab[aria-selected="true"]{color:var(--jade);background:var(--jade-soft)}
+.badge{position:absolute;top:2px;right:calc(50% - 26px);background:var(--seal);color:#fff;font-size:10.5px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;padding:0 5px}
+
+/* panels & lists */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.kpi b{display:block;font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi span{font-size:12px;color:var(--muted)}
+.seg{display:flex;background:var(--sunk);border-radius:12px;padding:4px;gap:4px;margin:14px 0}
+.seg button{flex:1;padding:9px 6px;border-radius:9px;font-weight:700;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.search{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;margin-bottom:12px}
+.rows{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:11px 14px;border-top:1px solid var(--line);text-align:left;width:100%}
+.row:first-child{border-top:0}
+.row .h{font-family:var(--f-han);font-size:24px;min-width:48px}
+.row .h.long{font-size:17px;min-width:0}
+.row .tx{min-width:0}
+.row .tx b{display:block;font-weight:600}
+.row .tx span{color:var(--muted);font-size:13px}
+.row .due{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lvl{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:var(--line)}
+.lvl.l1{background:var(--gold)}.lvl.l2{background:var(--jade)}.lvl.l3{background:var(--good)}
+.empty{text-align:center;padding:30px 16px;color:var(--muted)}
+.empty .han{font-size:48px;color:var(--line);display:block;margin-bottom:6px}
+
+.radgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.rad{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 8px;text-align:center}
+.rad .han{font-size:34px;display:block;line-height:1.2}
+.rad small{display:block;font-size:12px;color:var(--muted);line-height:1.25}
+.rad .n{font-size:11px;color:var(--jade);font-weight:700;margin-top:4px}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(5,12,9,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--paper);width:100%;max-width:560px;max-height:86vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+.sheet h3{margin:0 0 2px;font-size:20px}
+.sheet .actions{display:flex;gap:10px;margin-top:16px}
+.sheet .actions .btn{flex:1}
+.wl{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.wl span{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px}
+.wl span .han{font-size:18px;margin-right:6px}
+
+/* overlay (lesson & review) */
+.overlay{position:fixed;inset:0;z-index:15;background:var(--paper);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.ol-head{display:flex;align-items:center;gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));max-width:600px;width:100%;margin:0 auto}
+.ol-head .x{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--muted)}
+.ol-head .x svg{width:22px;height:22px}
+.pbar{flex:1;height:14px;background:var(--sunk);border-radius:8px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:var(--jade);border-radius:8px;transition:width .3s}
+.ol-head .cnt{font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.ol-body{flex:1;overflow:auto;padding:12px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px))}
+.ol-inner{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.kicker{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--jade)}
+.q{font-size:20px;font-weight:700;margin:0;text-wrap:balance}
+.stage{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;text-align:center}
+.stage .han{font-size:76px;line-height:1.15}
+.stage .han.mid{font-size:52px}
+.stage .han.long{font-size:30px;line-height:1.45}
+.stage .pin{font-size:20px}
+.stage .fr{font-size:18px;font-weight:600}
+.stage .row2{display:flex;gap:10px;margin-top:4px}
+.parts{display:flex;flex-direction:column;gap:8px}
+.part{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.part .han{font-size:34px;line-height:1}
+.part p{margin:0;font-size:14px}
+.part .k{display:inline-block;margin-top:3px;font-size:12px;font-weight:700;color:var(--jade);background:var(--jade-soft);border-radius:6px;padding:1px 7px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts.one{grid-template-columns:1fr}
+.opt{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:14px 12px;font-weight:600;font-size:16px;box-shadow:0 3px 0 var(--line);min-height:62px;display:flex;align-items:center;justify-content:center;text-align:center;gap:8px;position:relative;min-width:0;overflow-wrap:anywhere}
+.opt .n{position:absolute;top:6px;left:8px;font-size:11px;color:var(--muted);font-weight:700}
+.opt .han{font-size:30px}
+.opt .han.long{font-size:19px}
+.opt.right{border-color:var(--good);background:var(--good-soft);box-shadow:0 3px 0 var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft);box-shadow:0 3px 0 var(--bad)}
+.opt:disabled{cursor:default}
+.ol-foot{border-top:1px solid var(--line);background:var(--surface);padding:14px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.ol-foot .in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.ol-foot.good{background:var(--good-soft);border-color:var(--good)}
+.ol-foot.bad{background:var(--bad-soft);border-color:var(--bad)}
+.ol-foot.good .btn{background:var(--good);box-shadow:0 4px 0 color-mix(in srgb,var(--good) 60%,#000)}
+.ol-foot.bad .btn{background:var(--bad);color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--bad) 60%,#000)}
+.fb{display:flex;gap:12px;align-items:center}
+.fb b{font-size:18px}
+.ol-foot.good .fb b{color:var(--good)}
+.ol-foot.bad .fb b{color:var(--bad)}
+.fb .ans{font-size:14px}
+.fb .ans .han{font-size:20px;margin-right:6px}
+.rate{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rate button{border-radius:12px;padding:10px 4px;font-weight:800;font-size:13px;border:2px solid var(--line);background:var(--surface);box-shadow:0 3px 0 var(--line);display:flex;flex-direction:column;align-items:center;gap:1px}
+.rate button small{font-weight:600;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.rate .r0{color:var(--bad)}.rate .r1{color:var(--gold)}.rate .r2{color:var(--jade)}.rate .r3{color:var(--good)}
+.end{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:20px}
+.end .seal{width:96px;height:96px;font-size:64px;border-radius:18px}
+.end h2{font-size:26px}
+.endk{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-top:6px}
+.note{font-size:13px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;z-index:40;max-width:calc(100% - 32px);text-align:center}
+.built{min-height:72px;border-bottom:2px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;padding:8px 0 10px;align-items:center}
+.built.right{border-color:var(--good)}.built.wrong{border-color:var(--bad)}
+.bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.tile{display:flex;flex-direction:column;align-items:center;padding:7px 12px;border:2px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:0 3px 0 var(--line);min-width:48px}
+.tile .han{font-size:24px;line-height:1.25}
+.tile small{font-size:12px;color:var(--muted);line-height:1.2}
+.tile.used{visibility:hidden}
+.tile:disabled{cursor:default}
+.pinbtn{font-size:13px;font-weight:700;color:var(--jade);padding:0 12px;border-radius:12px;background:var(--jade-soft);min-height:44px}
+.warn{background:var(--gold-soft);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--ink)}
+.warn b{display:block;color:var(--gold);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.exbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.exbox .han{font-size:22px}
+.exbox .pin{font-size:14px}
+.partrow{border-top:1px solid var(--line);padding:10px 0}
+.partrow .pl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.partrow.ok .pl{color:var(--good)}.partrow.cur .pl{color:var(--jade)}
+.partrow .wl{margin-top:6px}
+.ol-foot .warn{font-size:13px}
+@media (max-width:380px){.opt{font-size:14.5px}.stage .han{font-size:64px}.chip.sync span{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="seal" aria-hidden="true">路</div>
+  <div class="brand"><b>Lù</b><small>Chinois pour ton stage</small></div>
+  <div class="stats">
+    <span class="chip fire" title="Série de jours"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3.5-1.5 5.2-1.5 7.6 0 1.4 1 2.4 2.3 2.4 1.5 0 2.4-1.2 2.2-3 2.2 1.6 3.5 4.1 3.5 6.6C18.5 19.4 15.6 22 12 22s-6.5-2.6-6.5-6.4C5.5 10 10.7 7.6 12 2z"/></svg><span id="streak">0</span></span>
+    <button class="chip" id="soundBtn" title="Tester le son" aria-label="Tester le son"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z"/><path d="M15.5 8.5a5 5 0 010 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Son</button>
+    <span class="chip sync" id="sync" title="Sauvegarde"><i class="dot" id="syncdot"></i><span id="synctx">Local</span></span>
+  </div>
+</div></header>
+
+<main>
+  <section class="view wrap" id="v-path"></section>
+  <section class="view wrap" id="v-review" hidden></section>
+  <section class="view wrap" id="v-deck" hidden></section>
+  <section class="view wrap" id="v-keys" hidden></section>
+</main>
+
+<nav class="tabs" role="tablist"><div class="wrap">
+  <button class="tab" role="tab" data-v="path" aria-selected="true"><span class="g">路</span>Parcours</button>
+  <button class="tab" role="tab" data-v="review"><span class="g">记</span>Réviser<span class="badge" id="duebadge" hidden>0</span></button>
+  <button class="tab" role="tab" data-v="deck"><span class="g">卡</span>Mes cartes</button>
+  <button class="tab" role="tab" data-v="keys"><span class="g">部</span>Les clés</button>
+</div></nav>
+
+<div class="overlay" id="ol" hidden>
+  <div class="ol-head">
+    <button class="x" id="olx" aria-label="Quitter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="pbar"><i id="olbar"></i></div>
+    <span class="cnt" id="olcnt"></span>
+  </div>
+  <div class="ol-body"><div class="ol-inner" id="olbody"></div></div>
+  <div class="ol-foot" id="olfoot"><div class="in" id="olfootin"></div></div>
+</div>
+
+<div id="sheetroot"></div>
+
+<script>
+/* ============ CONTENT ============ */
+const RAW = [
+ {id:'u1',sec:'HSK 1',name:'Salutations',icon:'你好',lines:`
+你好|nǐ hǎo|bonjour
+您好|nín hǎo|bonjour (poli)
+谢谢|xièxie|merci
+不客气|bú kèqi|de rien
+再见|zàijiàn|au revoir
+对不起|duìbuqǐ|pardon, désolé
+没关系|méi guānxi|ce n’est pas grave
+请|qǐng|s’il vous plaît ; inviter`},
+ {id:'u2',sec:'HSK 1',name:'Les clés (1)',icon:'亻口',kind:'rad',lines:`
+亻|rén|personne (à gauche)|人
+口|kǒu|bouche|口
+氵|shuǐ|eau (trois gouttes)|水
+女|nǚ|femme|女
+心|xīn|cœur, sentiment|心
+日|rì|soleil, jour|日
+月|yuè|lune ; chair (à gauche)|月
+木|mù|arbre, bois|木
+目|mù|œil|目`},
+ {id:'u3',sec:'HSK 1',name:'Les gens',icon:'人',lines:`
+我|wǒ|je, moi
+你|nǐ|tu, toi
+他|tā|il, lui
+她|tā|elle
+我们|wǒmen|nous
+人|rén|personne, gens
+老师|lǎoshī|professeur (école)
+学生|xuésheng|étudiant, élève
+朋友|péngyou|ami`},
+ {id:'u4',sec:'HSK 1',name:'Verbes essentiels',icon:'是',lines:`
+是|shì|être
+有|yǒu|avoir ; il y a
+叫|jiào|s’appeler
+想|xiǎng|vouloir ; penser
+去|qù|aller
+来|lái|venir
+看|kàn|regarder, lire
+说|shuō|parler, dire
+学习|xuéxí|étudier`},
+ {id:'u5',sec:'HSK 1',name:'Les chiffres',icon:'一二',lines:`
+一|yī|un (1)
+二|èr|deux (2)
+三|sān|trois (3)
+四|sì|quatre (4)
+五|wǔ|cinq (5)
+六|liù|six (6)
+七|qī|sept (7)
+八|bā|huit (8)
+九|jiǔ|neuf (9)
+十|shí|dix (10)`},
+ {id:'u6',sec:'HSK 1',name:'Poser des questions',icon:'吗',lines:`
+什么|shénme|quoi, quel
+谁|shéi|qui
+哪儿|nǎr|où
+吗|ma|particule de question (oui/non)
+呢|ne|et… ? (particule)
+几|jǐ|combien (petit nombre)
+多少|duōshao|combien
+不|bù|ne… pas
+没有|méiyǒu|ne pas avoir`},
+ {id:'u7',sec:'HSK 1',name:'Les clés (2)',icon:'艹讠',kind:'rad',lines:`
+艹|cǎo|herbe, plante|草
+讠|yán|parole|言
+忄|xīn|cœur (à gauche)|心
+疒|bìng|maladie|病
+扌|shǒu|main|手
+宀|mián|toit|宝盖头
+辶|chuò|marcher, mouvement|走之
+饣|shí|nourriture|食
+门|mén|porte|门`},
+ {id:'u8',sec:'HSK 1',name:'Le temps',icon:'天',lines:`
+今天|jīntiān|aujourd’hui
+明天|míngtiān|demain
+昨天|zuótiān|hier
+现在|xiànzài|maintenant
+年|nián|année
+月|yuè|mois ; lune
+星期|xīngqī|semaine
+点|diǎn|heure (3点 = 3 h)
+时候|shíhou|moment`},
+ {id:'u9',sec:'HSK 1',name:'Lieux et pays',icon:'中国',lines:`
+中国|Zhōngguó|Chine
+法国|Fǎguó|France
+北京|Běijīng|Pékin
+中文|Zhōngwén|chinois (langue)
+学校|xuéxiào|école
+医院|yīyuàn|hôpital
+家|jiā|maison, famille
+医生|yīshēng|médecin`},
+ {id:'u10',sec:'HSK 1',name:'Manger et boire',icon:'吃',lines:`
+吃|chī|manger
+喝|hē|boire
+水|shuǐ|eau
+茶|chá|thé
+米饭|mǐfàn|riz cuit
+菜|cài|plat ; légume
+饭店|fàndiàn|restaurant
+苹果|píngguǒ|pomme`},
+ {id:'u11',sec:'HSK 2',name:'La journée',icon:'早',lines:`
+早上|zǎoshang|matin
+晚上|wǎnshang|soir
+每天|měitiān|chaque jour
+时间|shíjiān|temps (durée)
+已经|yǐjīng|déjà
+还|hái|encore
+准备|zhǔnbèi|préparer
+开始|kāishǐ|commencer
+忙|máng|occupé`},
+ {id:'u12',sec:'HSK 2',name:'Corps et santé',icon:'药',lines:`
+身体|shēntǐ|corps ; santé
+生病|shēngbìng|tomber malade
+药|yào|médicament
+眼睛|yǎnjing|yeux
+休息|xiūxi|se reposer
+累|lèi|fatigué
+疼|téng|avoir mal`},
+ {id:'u13',sec:'HSK 2',name:'Voyager',icon:'机',lines:`
+机场|jīchǎng|aéroport
+飞机|fēijī|avion
+出租车|chūzūchē|taxi
+宾馆|bīnguǎn|hôtel
+路|lù|route, chemin
+远|yuǎn|loin
+近|jìn|près
+旅游|lǚyóu|faire du tourisme`},
+ {id:'u14',sec:'HSK 2',name:'Communiquer',icon:'问',lines:`
+问|wèn|demander (une question)
+告诉|gàosu|dire à, informer
+知道|zhīdào|savoir
+懂|dǒng|comprendre
+介绍|jièshào|présenter
+帮助|bāngzhù|aider
+希望|xīwàng|espérer
+可以|kěyǐ|pouvoir (avoir le droit)
+能|néng|pouvoir (être capable)`},
+ {id:'u15',sec:'Stage de recherche',name:'Le laboratoire',icon:'实验',lines:`
+实验室|shíyànshì|laboratoire
+实验|shíyàn|expérience (de labo)
+研究|yánjiū|recherche ; rechercher
+研究员|yánjiūyuán|chercheur
+教授|jiàoshòu|professeur (université)
+大学|dàxué|université
+数据|shùjù|données
+实习|shíxí|stage ; faire un stage`},
+ {id:'u16',sec:'Stage de recherche',name:'Pharma et biologie',icon:'药学',lines:`
+药学|yàoxué|pharmacie (les études)
+药物|yàowù|médicament (substance)
+化学|huàxué|chimie
+生物|shēngwù|biologie
+细胞|xìbāo|cellule
+蛋白质|dànbáizhì|protéine
+心脏|xīnzàng|cœur (organe)
+血管|xuèguǎn|vaisseau sanguin
+疾病|jíbìng|maladie`},
+ {id:'u17',sec:'Stage de recherche',name:'Te présenter',icon:'我叫',kind:'phrase',lines:`
+我 叫 弗洛里安 。|Wǒ jiào Fúluòlǐ'ān.|Je m’appelle Florian.
+我 是 法国 人 。|Wǒ shì Fǎguó rén.|Je suis français.
+我 是 药学 专业 的 学生 。|Wǒ shì yàoxué zhuānyè de xuésheng.|Je suis étudiant en pharmacie.
+我 在 图卢兹 大学 学习 。|Wǒ zài Túlúzī Dàxué xuéxí.|J’étudie à l’université de Toulouse.
+我 学 了 一点儿 中文 。|Wǒ xué le yìdiǎnr Zhōngwén.|J’ai appris un peu de chinois.
+很 高兴 认识 您 。|Hěn gāoxìng rènshi nín.|Ravi de vous rencontrer.`},
+ {id:'u18',sec:'Stage de recherche',name:'Demander un stage',icon:'实习',kind:'phrase',lines:`
+张 教授 ， 您 好 ！|Zhāng jiàoshòu, nín hǎo!|Bonjour, professeur Zhang !
+我 对 您 的 研究 很 感 兴趣 。|Wǒ duì nín de yánjiū hěn gǎn xìngqù.|Vos recherches m’intéressent beaucoup.
+我 想 在 您 的 实验室 实习 一 个 月 。|Wǒ xiǎng zài nín de shíyànshì shíxí yí ge yuè.|Je voudrais faire un stage d’un mois dans votre laboratoire.
+请问 ， 有 实习 的 机会 吗 ？|Qǐngwèn, yǒu shíxí de jīhuì ma?|Excusez-moi, y a-t-il une possibilité de stage ?
+我 可以 把 简历 发 给 您 。|Wǒ kěyǐ bǎ jiǎnlì fā gěi nín.|Je peux vous envoyer mon CV.
+谢谢 您 的 帮助 ！|Xièxie nín de bāngzhù!|Merci pour votre aide !
+期待 您 的 回复 。|Qīdài nín de huífù.|Dans l’attente de votre réponse.`},
+];
+const SECS = {'HSK 1':'Les bases','HSK 2':'Le quotidien','Stage de recherche':'Ton objectif'};
+/* example sentences per unit: mots séparés par des espaces | pinyin (un mot par mot) | français | autre ordre accepté */
+const SENTS = {
+u1:`
+谢谢 ， 再见 ！|Xièxie, zàijiàn!|Merci, au revoir !
+对不起 ！ 没 关系 。|Duìbuqǐ! Méi guānxi.|Pardon ! Ce n’est pas grave.
+谢谢 ！ 不 客气 。|Xièxie! Bú kèqi.|Merci ! De rien.
+您 好 ， 请 进 。|Nín hǎo, qǐng jìn.|Bonjour, entrez je vous prie.`,
+u3:`
+我 是 学生 。|Wǒ shì xuésheng.|Je suis étudiant.
+她 是 老师 。|Tā shì lǎoshī.|Elle est professeure.
+他 是 我 朋友 。|Tā shì wǒ péngyou.|Il est mon ami.
+我们 是 朋友 。|Wǒmen shì péngyou.|Nous sommes amis.
+你 是 学生 ， 我 是 老师 。|Nǐ shì xuésheng, wǒ shì lǎoshī.|Tu es étudiant, je suis professeur.`,
+u4:`
+我 叫 弗洛里安 。|Wǒ jiào Fúluòlǐ'ān.|Je m’appelle Florian.
+我 学习 中文 。|Wǒ xuéxí Zhōngwén.|J’étudie le chinois.
+老师 说 中文 。|Lǎoshī shuō Zhōngwén.|Le professeur parle chinois.
+我 想 去 中国 。|Wǒ xiǎng qù Zhōngguó.|Je veux aller en Chine.
+他 有 中文 老师 。|Tā yǒu Zhōngwén lǎoshī.|Il a un professeur de chinois.`,
+u5:`
+我 有 三 个 朋友 。|Wǒ yǒu sān ge péngyou.|J’ai trois amis.
+我们 是 五 个 人 。|Wǒmen shì wǔ ge rén.|Nous sommes cinq.
+一 二 三 ， 我们 去 ！|Yī, èr, sān, wǒmen qù!|Un, deux, trois, on y va !`,
+u6:`
+你 叫 什么 名字 ？|Nǐ jiào shénme míngzi?|Comment tu t’appelles ?
+他 是 谁 ？|Tā shì shéi?|Qui est-ce ?
+你 是 学生 吗 ？|Nǐ shì xuésheng ma?|Tu es étudiant ?
+我 是 学生 ， 你 呢 ？|Wǒ shì xuésheng, nǐ ne?|Je suis étudiant, et toi ?
+你 去 哪儿 ？|Nǐ qù nǎr?|Où vas-tu ?
+我 不 是 老师 。|Wǒ bú shì lǎoshī.|Je ne suis pas professeur.`,
+u8:`
+今天 我 不 去 。|Jīntiān wǒ bú qù.|Aujourd’hui, je n’y vais pas.|我 今天 不 去 。
+明天 你 来 吗 ？|Míngtiān nǐ lái ma?|Tu viens demain ?|你 明天 来 吗 ？
+现在 三 点 。|Xiànzài sān diǎn.|Il est trois heures.
+你 什么 时候 去 ？|Nǐ shénme shíhou qù?|Quand est-ce que tu y vas ?`,
+u9:`
+我 是 法国 人 。|Wǒ shì Fǎguó rén.|Je suis français.
+我 想 去 北京 。|Wǒ xiǎng qù Běijīng.|Je veux aller à Pékin.
+他 是 医生 。|Tā shì yīshēng.|Il est médecin.
+你 家 在 哪儿 ？|Nǐ jiā zài nǎr?|Où habites-tu ?
+我 在 学校 学习 中文 。|Wǒ zài xuéxiào xuéxí Zhōngwén.|J’étudie le chinois à l’école.`,
+u10:`
+我 想 喝 茶 。|Wǒ xiǎng hē chá.|Je voudrais boire du thé.
+你 吃 什么 ？|Nǐ chī shénme?|Qu’est-ce que tu manges ?
+我 不 吃 米饭 。|Wǒ bù chī mǐfàn.|Je ne mange pas de riz.
+我们 去 饭店 吃 饭 。|Wǒmen qù fàndiàn chī fàn.|On va manger au restaurant.
+请 喝 水 。|Qǐng hē shuǐ.|Buvez de l’eau, je vous en prie.`,
+u11:`
+我 每天 学习 中文 。|Wǒ měitiān xuéxí Zhōngwén.|J’étudie le chinois tous les jours.|每天 我 学习 中文 。
+我 今天 很 忙 。|Wǒ jīntiān hěn máng.|Je suis très occupé aujourd’hui.|今天 我 很 忙 。
+你 晚上 有 时间 吗 ？|Nǐ wǎnshang yǒu shíjiān ma?|Tu as du temps ce soir ?|晚上 你 有 时间 吗 ？
+他 已经 去 北京 了 。|Tā yǐjīng qù Běijīng le.|Il est déjà parti à Pékin.
+我们 早上 八 点 开始 。|Wǒmen zǎoshang bā diǎn kāishǐ.|On commence à 8 h du matin.|早上 八 点 我们 开始 。`,
+u12:`
+我 生病 了 。|Wǒ shēngbìng le.|Je suis malade.
+我 很 累 ， 想 休息 。|Wǒ hěn lèi, xiǎng xiūxi.|Je suis fatigué, je veux me reposer.
+你 吃 药 了 吗 ？|Nǐ chī yào le ma?|Tu as pris ton médicament ?
+我 眼睛 疼 。|Wǒ yǎnjing téng.|J’ai mal aux yeux.`,
+u13:`
+机场 远 吗 ？|Jīchǎng yuǎn ma?|L’aéroport est loin ?
+我们 坐 出租车 去 机场 。|Wǒmen zuò chūzūchē qù jīchǎng.|On va à l’aéroport en taxi.
+宾馆 很 近 。|Bīnguǎn hěn jìn.|L’hôtel est tout près.
+我 想 去 中国 旅游 。|Wǒ xiǎng qù Zhōngguó lǚyóu.|Je veux faire du tourisme en Chine.`,
+u14:`
+我 不 懂 。|Wǒ bù dǒng.|Je ne comprends pas.
+我 不 知道 。|Wǒ bù zhīdào.|Je ne sais pas.
+请 你 帮助 我 。|Qǐng nǐ bāngzhù wǒ.|Aide-moi, s’il te plaît.
+我 可以 问 你 吗 ？|Wǒ kěyǐ wèn nǐ ma?|Je peux te poser une question ?
+你 能 说 中文 吗 ？|Nǐ néng shuō Zhōngwén ma?|Tu sais parler chinois ?
+我 介绍 一下 。|Wǒ jièshào yíxià.|Je me présente.`,
+u15:`
+他 是 研究员 。|Tā shì yánjiūyuán.|Il est chercheur.
+我 想 去 实验室 实习 。|Wǒ xiǎng qù shíyànshì shíxí.|Je veux faire un stage au labo.
+教授 在 实验室 。|Jiàoshòu zài shíyànshì.|Le professeur est au laboratoire.
+我们 今天 做 实验 。|Wǒmen jīntiān zuò shíyàn.|Aujourd’hui, on fait une expérience.|今天 我们 做 实验 。
+这 是 我 的 数据 。|Zhè shì wǒ de shùjù.|Voici mes données.`,
+u16:`
+我 学习 药学 。|Wǒ xuéxí yàoxué.|J’étudie la pharmacie.
+我 喜欢 化学 和 生物 。|Wǒ xǐhuan huàxué hé shēngwù.|J’aime la chimie et la biologie.|我 喜欢 生物 和 化学 。
+我们 研究 心脏 疾病 。|Wǒmen yánjiū xīnzàng jíbìng.|Nous étudions les maladies cardiaques.
+我们 研究 血管 细胞 。|Wǒmen yánjiū xuèguǎn xìbāo.|Nous étudions les cellules vasculaires.`,
+};
+
+/* mots qui se ressemblent : affiché à la présentation et après une erreur */
+const CONFUSE = {
+'他':'她 (tā aussi) veut dire « elle » : clé 女 femme. 他 a la clé 亻 personne.',
+'她':'他 (tā aussi) veut dire « il » : clé 亻 personne. 她 a la clé 女 femme.',
+'你':'您 (nín) est le « vous » poli : 你 avec 心 cœur dessous.',
+'你好':'您好 est la version polie : 您 = 你 + 心 cœur.',
+'您好':'你好 est la version courante, sans le 心 dessous.',
+'今天':'Le 1er caractère change tout : 今 aujourd’hui, 明 demain, 昨 hier.',
+'明天':'明 = soleil 日 + lune 月 : demain. 今天 = aujourd’hui, 昨天 = hier.',
+'昨天':'昨 commence par 日 : hier. 今天 = aujourd’hui, 明天 = demain.',
+'早上':'早 = tôt, le matin. 晚 = tard, le soir.',
+'晚上':'晚 = tard, le soir. 早 = tôt, le matin.',
+'来':'来 lái = venir (vers moi). 去 qù = aller (partir).',
+'去':'去 qù = aller (partir). 来 lái = venir (vers moi).',
+'远':'远 yuǎn = loin, 近 jìn = près. Les deux ont la clé 辶 marcher.',
+'近':'近 jìn = près, 远 yuǎn = loin. Les deux ont la clé 辶 marcher.',
+'知道':'知道 = savoir une information. 懂 = comprendre le sens.',
+'懂':'懂 = comprendre le sens. 知道 = savoir une information.',
+'可以':'可以 = avoir le droit. 能 = être capable.',
+'能':'能 = être capable. 可以 = avoir le droit.',
+'几':'几 pour un petit nombre (moins de 10). 多少 pour n’importe quel nombre.',
+'多少':'多少 pour n’importe quel nombre. 几 pour un petit nombre.',
+'不':'不 nie la plupart des verbes. 没有 nie 有 (avoir).',
+'没有':'没有 = ne pas avoir. Pour les autres verbes, on utilise 不.',
+'没关系':'没关系 = ce n’est pas grave. 不客气 = de rien.',
+'不客气':'不客气 = de rien (après un merci). 没关系 = ce n’est pas grave (après un pardon).',
+'对不起':'对不起 = pardon. On répond 没关系 « ce n’est pas grave ».',
+'实验':'实验 = une expérience. 实验室 = le laboratoire (室 = la pièce).',
+'实验室':'室 = la pièce : 实验室 est la pièce des expériences 实验.',
+'实习':'实习 = stage. 学习 = étudier. Le 2e caractère 习 est le même.',
+'学习':'学习 = étudier. 实习 = faire un stage.',
+'研究':'研究 = la recherche. 研究员 = le chercheur (员 = membre).',
+'研究员':'员 = la personne : 研究员 = chercheur. 研究 = la recherche.',
+'药':'药 = médicament (courant). 药物 = terme scientifique. 药学 = pharmacie.',
+'药物':'物 = chose, substance. 药 seul = médicament courant.',
+'药学':'学 = étude : 药学 = les études de pharmacie.',
+'老师':'老师 = prof d’école ou de langue. 教授 = professeur d’université.',
+'教授':'教授 = professeur d’université. 老师 = prof en général.',
+'学生':'学生 = étudiant. 学校 = école. 学习 = étudier. 学 = étudier.',
+'学校':'校 a la clé 木 : 学校 = l’école. 学生 = l’élève.',
+'医生':'医生 = le médecin. 医院 = l’hôpital.',
+'医院':'医院 = l’hôpital (院 = établissement). 医生 = le médecin.',
+'中国':'中国 = la Chine. 中文 = la langue chinoise.',
+'中文':'中文 = la langue. 中国 = le pays.',
+'二':'二 = 2 traits, 三 = 3 traits. Compte-les !',
+'三':'三 = 3 traits, 二 = 2 traits.',
+'r:日':'目 (œil) a deux traits à l’intérieur ; 日 (soleil) n’en a qu’un.',
+'r:目':'日 (soleil) n’a qu’un trait à l’intérieur ; 目 (œil) en a deux.',
+'r:心':'忄 est la forme de 心 quand il est à gauche du caractère.',
+'r:忄':'C’est 心 cœur, écrit debout quand il est à gauche.',
+'r:亻':'C’est 人 personne, écrit debout quand il est à gauche.',
+'r:氵':'C’est 水 eau, en trois gouttes à gauche.',
+'r:讠':'C’est 言 parole, simplifié, à gauche.',
+'r:饣':'C’est 食 nourriture, simplifié, à gauche.',
+'r:扌':'C’est 手 main, à gauche.',
+};
+
+/* character breakdowns: [explication, clé] */
+const CHARS = {
+'好':['女 femme + 子 enfant : une mère et son enfant, « bien »','女'],
+'你':['亻 personne + 尔 : « toi »','亻'],
+'他':['亻 personne + 也 : « lui »','亻'],
+'她':['女 femme + 也 : « elle »','女'],
+'们':['亻 personne + 门 (son mén) : marque du pluriel','亻'],
+'休':['亻 personne + 木 arbre : se reposer contre un arbre','亻'],
+'体':['亻 personne + 本 racine : le corps','亻'],
+'作':['亻 personne + 乍 (son zhà) : faire, travailler','亻'],
+'什':['亻 personne + 十','亻'],
+'化':['亻 personne + 匕 personne renversée : transformer','亻'],
+'吃':['口 bouche + 乞 : manger','口'],
+'喝':['口 bouche + 曷 : boire','口'],
+'吗':['口 bouche + 马 (son mǎ) : particule de question','口'],
+'呢':['口 bouche + 尼 (son ní) : particule','口'],
+'叫':['口 bouche + 丩 : appeler, crier','口'],
+'哪':['口 bouche + 那 (son nà) : lequel ?','口'],
+'知':['矢 flèche + 口 bouche : savoir','口'],
+'没':['氵 eau + 殳 : sombrer, « ne pas »','氵'],
+'法':['氵 eau + 去 aller : la loi, ce qui s’écoule égal','氵'],
+'明':['日 soleil + 月 lune : lumineux ; demain','日'],
+'时':['日 soleil + 寸 (son cùn) : le temps','日'],
+'早':['日 soleil au-dessus de 十 : tôt le matin','日'],
+'星':['日 + 生 (son shēng) : étoile','日'],
+'晚':['日 soleil + 免 (son miǎn) : le soir','日'],
+'昨':['日 jour + 乍 (son zhà) : hier','日'],
+'间':['门 porte + 日 soleil : la lumière entre les battants, l’intervalle','门'],
+'问':['门 porte + 口 bouche : demander à la porte','门'],
+'看':['手 main au-dessus de 目 œil : regarder','目'],
+'眼':['目 œil + 艮 (son gèn) : l’œil','目'],
+'睛':['目 œil + 青 (son qīng) : la pupille','目'],
+'想':['相 (son xiāng) + 心 cœur : penser, vouloir','心'],
+'您':['你 toi + 心 cœur : « vous » de politesse','心'],
+'感':['咸 + 心 cœur : ressentir','心'],
+'懂':['忄 cœur + 董 (son dǒng) : comprendre','忄'],
+'忙':['忄 cœur + 亡 (son wáng) : occupé','忄'],
+'脏':['月 chair + 庄 (son zhuāng) : organe','月'],
+'胞':['月 chair + 包 (son bāo) : enveloppe ; cellule','月'],
+'朋':['deux 月 côte à côte : compagnon','月'],
+'机':['木 bois + 几 (son jī) : machine','木'],
+'校':['木 bois + 交 (son jiāo) : école','木'],
+'茶':['艹 herbe + 人 + 木 : la plante à thé','艹'],
+'菜':['艹 herbe + 采 cueillir : légume, plat','艹'],
+'苹':['艹 herbe + 平 (son píng) : pomme','艹'],
+'药':['艹 herbe + 约 (son yuē) : les plantes qui soignent','艹'],
+'谢':['讠 parole + 射 (son shè) : remercier','讠'],
+'请':['讠 parole + 青 (son qīng) : prier, inviter','讠'],
+'说':['讠 parole + 兑 : parler','讠'],
+'识':['讠 parole + 只 : connaître','讠'],
+'病':['疒 maladie + 丙 (son bǐng) : maladie','疒'],
+'疾':['疒 maladie + 矢 flèche : maladie aiguë','疒'],
+'疼':['疒 maladie + 冬 (son dōng) : douleur','疒'],
+'据':['扌 main + 居 (son jū) : s’appuyer sur ; données','扌'],
+'授':['扌 main + 受 recevoir : transmettre, enseigner','扌'],
+'找':['扌 main + 戈 lance : chercher','扌'],
+'家':['宀 toit + 豕 cochon : la maison','宀'],
+'室':['宀 toit + 至 : une pièce','宀'],
+'实':['宀 toit + 头 : réel, concret','宀'],
+'宾':['宀 toit + 兵 : invité','宀'],
+'远':['辶 marcher + 元 (son yuán) : loin','辶'],
+'近':['辶 marcher + 斤 (son jīn) : près','辶'],
+'道':['辶 marcher + 首 tête : le chemin','辶'],
+'还':['辶 marcher + 不 : revenir ; encore','辶'],
+'饭':['饣 nourriture + 反 (son fǎn) : repas, riz','饣'],
+'馆':['饣 nourriture + 官 (son guān) : établissement','饣'],
+'人':['pictogramme : une personne qui marche',''],
+'大':['une personne bras écartés : grand',''],
+'天':['一 + 大 : ce qui est au-dessus de l’homme, le ciel',''],
+'中':['un trait qui traverse le centre : milieu',''],
+'国':['囗 enceinte + 玉 jade : le pays',''],
+'水':['pictogramme : un ruisseau',''],
+'心':['pictogramme : le cœur',''],
+'木':['pictogramme : un arbre',''],
+'月':['pictogramme : un croissant de lune',''],
+'日':['pictogramme : le soleil',''],
+'北':['deux personnes dos à dos : le nord',''],
+'生':['une pousse qui sort de terre : naître, vivre',''],
+'学':['un enfant 子 sous un toit : étudier',''],
+'研':['石 pierre + 开 : broyer, approfondir',''],
+'究':['穴 grotte + 九 (son jiǔ) : examiner à fond',''],
+'验':['马 cheval + 佥 : vérifier, tester',''],
+'物':['牛 bœuf + 勿 (son wù) : chose, matière',''],
+'医':['匚 boîte + 矢 flèche : soigner',''],
+'院':['阝 + 完 (son wán) : cour, établissement',''],
+'路':['足 pied + 各 (son gè) : la route',''],
+'血':['皿 récipient + une goutte : le sang',''],
+'管':['竹 bambou + 官 (son guān) : tube',''],
+'米':['des grains de riz autour d’une tige',''],
+'工':['pictogramme : une équerre, le travail',''],
+'一':['un trait : 1',''],'二':['deux traits : 2',''],'三':['trois traits : 3',''],
+'十':['une croix : 10',''],
+'口':['pictogramme : une bouche ouverte',''],
+'女':['pictogramme : une femme agenouillée',''],
+'目':['pictogramme : un œil dressé à la verticale',''],
+};
+
+const PUNCT=/^[，。！？、：；]$/;
+function parseSent(raw,p,f,alt){
+  const ht=raw.trim().split(/\s+/);
+  const pt=p.trim().split(/\s+/).map(x=>x.replace(/[.,!?;:…]/g,'')).filter(Boolean);
+  let wi=0;
+  const toks=ht.map(t=>PUNCT.test(t)?{h:t,punct:true}:{h:t,p:pt[wi++]||''});
+  if(wi!==pt.length) console.warn('pinyin mal aligné :',raw);
+  const key=ht.filter(t=>!PUNCT.test(t)).join('');
+  const alts=alt?[alt.trim().split(/\s+/).filter(t=>!PUNCT.test(t)).join('')]:[];
+  return {h:ht.join(''),p:p.trim(),f:f.trim(),toks,key,alts};
+}
+const UNITS = RAW.map(u=>{
+  const kind=u.kind||'word';
+  const items=u.lines.trim().split('\n').map(l=>{
+    const [h,p,f,x]=l.trim().split('|');
+    if(kind==='phrase'){const s=parseSent(h,p,f,x);return {...s,id:s.h,say:s.h,kind,unit:u.id}}
+    return {id:(kind==='rad'?'r:':'')+h,h,p,f,say:x||h,kind,unit:u.id};
+  });
+  const sents=(SENTS[u.id]||'').trim().split('\n').filter(Boolean).map(l=>{
+    const [h,p,f,a]=l.trim().split('|'); const s=parseSent(h,p,f,a);
+    return {...s,id:'s:'+s.h,say:s.h,kind:'sent',unit:u.id};
+  });
+  const size=kind==='word'?4:3, n=items.length, k=Math.ceil(n/size), parts=[]; let i=0;
+  for(let j=0;j<k;j++){const len=Math.floor(n/k)+(j<n%k?1:0);parts.push(items.slice(i,i+len));i+=len}
+  return {...u,kind,items,sents,parts};
+});
+const ITEMS={}; UNITS.forEach(u=>u.items.forEach(it=>{ITEMS[it.id]=it}));
+const ALLSENTS=UNITS.flatMap(u=>[...u.sents,...(u.kind==='phrase'?u.items:[])]);
+const RADS = UNITS.filter(u=>u.kind==='rad').flatMap(u=>u.items);
+const RADBY = Object.fromEntries(RADS.map(r=>[r.h,r]));
+function exampleFor(it){
+  if(it.kind!=='word') return null;
+  const c=UNITS.flatMap(u=>u.sents).filter(s=>s.toks.some(t=>t.h===it.h));
+  return c.length?c[0]:(UNITS.flatMap(u=>u.sents).find(s=>s.key.includes(it.h))||null);
+}
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.random()*a.length|0];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const today=()=>new Date().toLocaleDateString('en-CA');
+const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);return d.toLocaleDateString('en-CA')};
+const strip=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const isLong=it=>it.h.length>3;
+const MIN=6e4,HOUR=36e5,DAY=864e5;
+function fmtIn(ms){
+  if(ms<=0) return 'maintenant';
+  if(ms<HOUR) return Math.max(1,Math.round(ms/MIN))+' min';
+  if(ms<DAY) return Math.round(ms/HOUR)+' h';
+  const d=Math.round(ms/DAY);
+  return d<45? d+' j' : Math.round(d/30)+' mois';
+}
+let toastT;
+function toast(msg){
+  let t=$('.toast'); if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}
+  t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2600);
+}
+const ICON={
+  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  slow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16c0-4 3-7 7-7s7 3 7 7H3z"/><path d="M17 13h2.5a1.5 1.5 0 000-3H18M6 16v2M14 16v2"/></svg>',
+};
+
+/* ============ AUDIO ============ */
+let zhVoice=null, voiceWarned=false;
+function pickVoice(){
+  try{const vs=speechSynthesis.getVoices();
+    zhVoice=vs.find(v=>/zh[-_]CN/i.test(v.lang))||vs.find(v=>/^zh/i.test(v.lang)&&!/HK|TW/i.test(v.lang))||vs.find(v=>/^zh/i.test(v.lang))||null;}catch(e){}
+}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+let curUtt=null, lastAudioErr='';
+function speak(text,slow){
+  if(!('speechSynthesis' in window)){ lastAudioErr='API absente'; if(!voiceWarned){toast('L’audio n’est pas disponible ici : touche le bouton Son en haut pour le diagnostic');voiceWarned=true} return; }
+  try{
+    const ss=window.speechSynthesis;
+    if(!zhVoice) pickVoice();
+    const go=()=>{
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang='zh-CN'; if(zhVoice) u.voice=zhVoice; u.rate=slow?0.6:0.9; u.volume=1;
+      u.onerror=e=>{lastAudioErr=e.error||'erreur'; if(e.error!=='interrupted'&&e.error!=='canceled') toast('Son impossible ('+lastAudioErr+') : touche Son en haut')};
+      u.onstart=()=>{lastAudioErr=''};
+      curUtt=u; /* keep a reference: Chrome drops unreferenced utterances */
+      try{ss.resume()}catch(e){}
+      ss.speak(u);
+    };
+    if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,80)} else go();
+    if(!zhVoice&&!voiceWarned){voiceWarned=true;setTimeout(()=>{pickVoice();if(!zhVoice)toast('Aucune voix chinoise trouvée sur cet appareil : touche Son en haut')},900)}
+  }catch(e){lastAudioErr=String(e&&e.message||e)}
+}
+function soundSheet(){
+  const has='speechSynthesis' in window;
+  let vs=[]; try{vs=has?speechSynthesis.getVoices():[]}catch(e){}
+  const zh=vs.filter(v=>/^zh/i.test(v.lang));
+  openSheet(`<div class="kicker">Son</div><h3>Tester l’audio</h3>
+    <div class="parts" style="margin-top:12px">
+      <div class="part"><span class="han">${has?'✓':'✗'}</span><p>Synthèse vocale ${has?'disponible':'absente de ce navigateur'}</p></div>
+      <div class="part"><span class="han">${vs.length}</span><p>voix installées sur l’appareil</p></div>
+      <div class="part"><span class="han">${zh.length}</span><p>voix chinoise${zh.length>1?'s':''}${zh.length?' : '+zh.map(v=>v.name).slice(0,3).join(', '):''}</p></div>
+      ${lastAudioErr?`<div class="part"><span class="han">!</span><p>Dernière erreur : ${lastAudioErr}</p></div>`:''}
+    </div>
+    <p class="note" style="margin-top:12px">${!has?'Ouvre l’appli dans Chrome, Edge ou Safari.':!zh.length?'Aucune voix chinoise : sur Windows, Paramètres › Heure et langue › Voix › ajouter « Chinois (simplifié) ». Sur Mac, Réglages › Accessibilité › Contenu énoncé › Voix système › ajouter une voix chinoise. Sur Android, installe la voix chinoise dans Google Speech Services. Puis recharge la page.':'Vérifie aussi que le volume est monté et que le mode silencieux est coupé (iPhone).'}</p>
+    <div class="actions"><button class="btn ghost" data-close>Fermer</button><button class="btn" id="testS">Jouer 你好</button></div>`);
+  $('#testS').onclick=()=>{speak('你好');setTimeout(()=>{if(lastAudioErr)soundSheet()},1500)};
+}
+const audioOf=it=>it.kind==='rad'?it.say:it.h;
+
+/* ============ STATE & SYNC ============ */
+const KEY='lu-chinois-v1';
+const fresh=()=>({v:1,cards:{},units:{},xp:0,streak:{last:null,count:0},today:{d:null,xp:0},settings:{auto:true,dir:'h2f',pin:true},updated:0});
+function loadLocal(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===1)return Object.assign(fresh(),s)}catch(e){}return fresh()}
+let S=loadLocal();
+let dbRef=null, saving=false, again=false, cloudT=null;
+function setSync(mode){
+  $('#syncdot').classList.toggle('on',mode==='cloud');
+  $('#synctx').textContent=mode==='cloud'?'Synchronisé':mode==='wait'?'Connexion…':'Sur cet appareil';
+  $('#sync').title=mode==='cloud'?'Ta progression est sauvegardée sur ton compte':'Ta progression est gardée dans ce navigateur';
+}
+function save(){
+  S.updated=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  if(dbRef){clearTimeout(cloudT);cloudT=setTimeout(pushCloud,1200)}
+}
+async function pushCloud(){
+  if(!dbRef) return;
+  if(saving){again=true;return}
+  saving=true;
+  try{await dbRef.set(JSON.parse(JSON.stringify(S)));setSync('cloud')}
+  catch(e){ if(e&&(e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted')){dbRef=null;setSync('local')}
+    else if(e&&e.code==='unavailable'){setTimeout(pushCloud,2500+Math.random()*1500)} }
+  saving=false;
+  if(again){again=false;pushCloud()}
+}
+async function initCloud(){
+  setSync('wait');
+  for(let k=0;k<20&&!(window.claude&&window.claude.use);k++) await sleep(150);
+  if(!(window.claude&&window.claude.use)){setSync('local');return}
+  let db=null,user=null;
+  try{[db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')])}catch(e){}
+  if(!db||!user){setSync('local');return}
+  let id=null; try{id=await user.id()}catch(e){}
+  if(!id){setSync('local');return}
+  try{
+    const ref=db.doc('data/users/'+id+'/progress');
+    const snap=await ref.get();
+    dbRef=ref;
+    if(snap.exists){
+      const remote=Object.assign(fresh(),snap.data());
+      if((remote.updated||0)>=(S.updated||0)){S=JSON.parse(JSON.stringify(remote));try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){};renderAll()}
+      else pushCloud();
+    } else if(S.updated) pushCloud();
+    setSync('cloud');
+  }catch(e){dbRef=null;setSync('local')}
+}
+
+function addXP(n){
+  const t=today();
+  if(S.today.d!==t) S.today={d:t,xp:0};
+  S.today.xp+=n; S.xp+=n;
+  if(S.streak.last!==t){S.streak.count=S.streak.last===yesterday()?S.streak.count+1:1;S.streak.last=t}
+}
+const todayXP=()=>S.today.d===today()?S.today.xp:0;
+const streakNow=()=>(S.streak.last===today()||S.streak.last===yesterday())?S.streak.count:0;
+const GOAL=30;
+
+/* ============ SRS ============ */
+function newCard(){return {due:Date.now()+20*HOUR,ivl:0,ease:2.5,reps:0,lapses:0,added:Date.now()}}
+function schedule(c,q){
+  const now=Date.now();
+  if(q===0){c.lapses++;c.ease=Math.max(1.3,c.ease-0.2);c.ivl=0;c.due=now+10*MIN;return c}
+  let ivl;
+  if(c.ivl<1) ivl= q===3?4 : q===2?1 : 0.5;
+  else if(q===1) ivl=Math.max(1,c.ivl*1.2);
+  else if(q===2) ivl=c.ivl*c.ease;
+  else ivl=c.ivl*c.ease*1.3;
+  if(q===1)c.ease=Math.max(1.3,c.ease-0.15);
+  if(q===3)c.ease=c.ease+0.15;
+  c.ivl=Math.round(ivl*10)/10; c.reps++; c.due=now+c.ivl*DAY;
+  return c;
+}
+const preview=(c,q)=>fmtIn(schedule({...c},q).due-Date.now());
+const dueIds=()=>Object.keys(S.cards).filter(id=>ITEMS[id]&&S.cards[id].due<=Date.now()).sort((a,b)=>S.cards[a].due-S.cards[b].due);
+const level=c=>c.ivl>=21?3:c.ivl>=3?2:c.reps>0?1:0;
+
+/* ============ EXERCISES ============ */
+const TONES={a:'āáǎà',e:'ēéěè',i:'īíǐì',o:'ōóǒò',u:'ūúǔù','ü':'ǖǘǚǜ'};
+const MARK={}; for(const [b,s] of Object.entries(TONES))[...s].forEach((c,i)=>MARK[c]=[b,i]);
+function toneVariants(p){
+  const ch=[...p],out=new Set();
+  ch.forEach((c,i)=>{if(!MARK[c])return;const[b,t]=MARK[c];for(let k=0;k<4;k++){if(k===t)continue;const cp=ch.slice();cp[i]=TONES[b][k];out.add(cp.join(''))}});
+  out.delete(p); return [...out];
+}
+function radOf(it){
+  const c=[...it.h].filter(ch=>CHARS[ch]&&CHARS[ch][1]&&RADBY[CHARS[ch][1]]);
+  return c.length?pick(c):null;
+}
+function exTypes(it){
+  if(it.kind==='rad') return ['meaning','reverse'];
+  if(it.kind==='phrase'||it.kind==='sent') return ['smean','build','dict'];
+  const t=['meaning','pinyin','listen','reverse'];
+  if(toneVariants(it.p).length>=3) t.push('tone');
+  if(radOf(it)) t.push('radical');
+  return t;
+}
+/* what the learner already knows: their cards + what this lesson has introduced */
+let KNOWN=new Set();
+function refreshKnown(){KNOWN=new Set(Object.keys(S.cards))}
+const knownH=()=>new Set([...KNOWN].map(id=>ITEMS[id]&&ITEMS[id].h).filter(Boolean));
+function distract(it,n,key){
+  const seen=new Set([key(it)]),out=[];
+  const pool=(it.kind==='sent'||it.kind==='phrase')?ALLSENTS:Object.values(ITEMS).filter(x=>x.kind===it.kind);
+  const kn=x=>KNOWN.has(x.id), same=pool.filter(x=>x.unit===it.unit);
+  const order=[...shuffle(same.filter(kn)),...shuffle(pool.filter(kn)),...shuffle(same),...shuffle(pool)];
+  for(const x of order){const k=key(x);if(seen.has(k))continue;seen.add(k);out.push(x);if(out.length===n)break}
+  return out;
+}
+const pinOn=()=>S.settings.pin!==false;
+const hanOpt=(x)=>`<span class="han${isLong(x)?' long':''}">${x.h}</span>`;
+const sayBtns=(big)=>`<button class="icon-btn${big?' big':''}" data-say="1" aria-label="Écouter">${ICON.play}</button><button class="icon-btn" data-say="slow" aria-label="Écouter lentement">${ICON.slow}</button>`;
+const pinBtn=()=>`<button class="pinbtn" data-pintoggle>${pinOn()?'Masquer le pinyin':'Afficher le pinyin'}</button>`;
+const NOEXTRA=new Set(['不','吗','呢','还','已经','没有','请','很','也','都','了','的','几','多少','什么','谁','哪儿','是','有']);
+function makeEx(it,type){
+  const ex={type,it};
+  if(type==='meaning'){
+    ex.kicker=it.kind==='rad'?'Lire une clé':'Lecture';
+    ex.q=it.kind==='rad'?'Que représente cette clé ?':'Que signifie ce mot ?';
+    ex.stage=`<div class="han ${it.h.length>1?'mid':''}">${it.h}</div>`;
+    ex.opts=shuffle([{html:it.f,ok:true,x:it},...distract(it,3,x=>x.f).map(x=>({html:x.f,x}))]);
+  } else if(type==='pinyin'){
+    ex.kicker='Lecture'; ex.q='Comment se lit ce mot ?';
+    ex.stage=`<div class="han ${it.h.length>1?'mid':''}">${it.h}</div>`;
+    const tv=shuffle(toneVariants(it.p)).slice(0,1);
+    const others=distract(it,3-tv.length,x=>x.p.toLowerCase());
+    ex.opts=shuffle([{html:it.p,ok:true,x:it},...tv.map(p=>({html:p})),...others.map(x=>({html:x.p,x}))]);
+  } else if(type==='listen'){
+    ex.kicker='Écoute'; ex.q='Quel mot entends-tu ?';
+    ex.stage=`<div class="row2">${sayBtns(true)}</div>`;
+    ex.opts=shuffle([{html:hanOpt(it),ok:true,x:it},...distract(it,3,x=>strip(x.p)).map(x=>({html:hanOpt(x),x}))]);
+    ex.autoplay=true;
+  } else if(type==='tone'){
+    ex.kicker='Les tons'; ex.q='Écoute bien : quelle est la bonne prononciation ?';
+    ex.stage=`<div class="han ${it.h.length>1?'mid':''}">${it.h}</div><div class="row2">${sayBtns()}</div>`;
+    ex.opts=shuffle([{html:it.p,ok:true,x:it},...shuffle(toneVariants(it.p)).slice(0,3).map(p=>({html:p}))]);
+    ex.autoplay=true;
+  } else if(type==='reverse'){
+    ex.kicker=it.kind==='rad'?'Les clés':'Écriture';
+    ex.q=it.kind==='rad'?'Quelle clé signifie…':'Comment écrit-on…';
+    ex.stage=`<div class="fr">« ${it.f} »</div>`;
+    ex.opts=shuffle([{html:hanOpt(it),ok:true,x:it},...distract(it,3,x=>x.kind==='rad'?x.h:strip(x.p)+'|'+x.f).filter(x=>x.h!==it.h).map(x=>({html:hanOpt(x),x}))]);
+  } else if(type==='radical'){
+    const ch=radOf(it), r=CHARS[ch][1];
+    ex.kicker='Décomposer'; ex.q=`Quelle clé trouve-t-on dans ${ch} ?`;
+    ex.stage=`<div class="han">${ch}</div><div class="note">dans ${it.h} · ${it.p}</div>`;
+    const others=shuffle(RADS.filter(x=>x.h!==r&&![...ch].includes(x.h))).slice(0,3);
+    const lab=x=>`<span class="han">${x.h}</span> ${x.f.split(/[ ;(,]/)[0]}`;
+    ex.opts=shuffle([{html:lab(RADBY[r]),ok:true},...others.map(x=>({html:lab(x)}))]);
+    ex.explain=`${ch} : ${CHARS[ch][0]}`;
+  } else if(type==='smean'){
+    ex.kicker='Phrase'; ex.q='Que veut dire cette phrase ?'; ex.one=true;
+    ex.stage=`<div class="han long">${it.h}</div><div class="pin" data-pin ${pinOn()?'':'hidden'}>${it.p}</div><div class="row2">${sayBtns()}${pinBtn()}</div>`;
+    ex.opts=shuffle([{html:it.f,ok:true,x:it},...distract(it,3,x=>x.f).map(x=>({html:x.f,x}))]);
+  } else if(type==='build'||type==='dict'){
+    ex.kicker=type==='build'?'Construis la phrase':'Dictée';
+    ex.q=type==='build'?'Traduis en chinois :':'Écoute, puis remets les mots dans l’ordre';
+    ex.stage=type==='build'?`<div class="fr">« ${it.f} »</div><div class="row2">${pinBtn()}</div>`:`<div class="row2">${sayBtns(true)}${pinBtn()}</div>`;
+    ex.build=true; ex.autoplay=type==='dict'; ex.sel=[];
+    const words=it.toks.filter(t=>!t.punct);
+    const inS=new Set(words.map(w=>w.h));
+    let cand=Object.values(ITEMS).filter(x=>x.kind==='word'&&x.h.length<=3&&!inS.has(x.h)&&!NOEXTRA.has(x.h));
+    const kc=cand.filter(x=>KNOWN.has(x.id)); if(kc.length>=2) cand=kc;
+    const extra=shuffle(cand).slice(0,words.length>4?2:1).map(x=>({h:x.h,p:x.p}));
+    ex.tiles=shuffle([...words,...extra]).map((t,i)=>({h:t.h,p:t.p,i}));
+  }
+  return ex;
+}
+
+
+/* ============ VIEWS ============ */
+let view='path';
+function setView(v){
+  view=v;
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.v===v));
+  ['path','review','deck','keys'].forEach(k=>$('#v-'+k).hidden=k!==v);
+  renderAll(); window.scrollTo(0,0);
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>setView(t.dataset.v));
+
+function renderTop(){
+  $('#streak').textContent=streakNow();
+  const n=dueIds().length, b=$('#duebadge');
+  b.hidden=!n; b.textContent=n>99?'99+':n;
+}
+const partsDone=u=>{const d=S.units[u.id];return d?(d.parts!=null?Math.min(d.parts,u.parts.length):u.parts.length):0};
+const unitDone=u=>partsDone(u)>=u.parts.length;
+function nextUnit(){return UNITS.find(u=>!unitDone(u))}
+const nounOf=(u,n)=>u.kind==='rad'?'clé'+(n>1?'s':''):u.kind==='phrase'?'phrase'+(n>1?'s':''):'mot'+(n>1?'s':'');
+function renderPath(){
+  const nx=nextUnit(), x=todayXP(), pct=Math.min(100,Math.round(x/GOAL*100));
+  const due=dueIds().length;
+  let h=`<div class="goal"><div class="ring" style="--p:${pct}"><span>${Math.min(x,999)}</span></div>
+    <div><p class="t">${x>=GOAL?'Objectif du jour atteint':'Objectif du jour : '+GOAL+' XP'}</p>
+    <p class="m">${due?due+' carte'+(due>1?'s':'')+' à réviser':'Aucune carte à réviser pour l’instant'} · ${S.xp} XP au total</p></div>
+    ${due?'<button class="btn" id="goRev">Réviser</button>':''}</div>`;
+  const offs=[0,1,1.5,1,0,-1,-1.5,-1];
+  let sec=null,i=0;
+  UNITS.forEach(u=>{
+    if(u.sec!==sec){ if(sec)h+='</div>'; sec=u.sec; i=0;
+      h+=`<div class="sec"><h3>${u.sec}</h3><span>${SECS[u.sec]}</span></div><div class="path">`; }
+    const d=S.units[u.id], pd=partsDone(u), np=u.parts.length, done=unitDone(u), isNext=nx&&nx.id===u.id;
+    const meta=done?`Réussite ${d.best} %`:pd?`Partie ${pd+1} sur ${np}`:`${u.items.length} ${nounOf(u,u.items.length)}${np>1?' · '+np+' parties':''}`;
+    h+=`<button class="node ${done?'done':''} ${isNext?'next':''}" data-u="${u.id}" style="transform:translateX(${offs[i%8]*42}px)">
+      ${isNext?`<span class="bubble">${pd?'Continuer':'Commencer'}</span>`:''}
+      <span class="c ${u.icon.length>1?'sm':''}" ${pd&&!done?`style="background:conic-gradient(var(--jade-soft) ${Math.round(pd/np*100)}%,var(--surface) 0)"`:''}>${u.icon}</span>
+      <span class="lbl">${u.name}</span><span class="meta">${meta}</span></button>`;
+    i++;
+  });
+  h+='</div>';
+  $('#v-path').innerHTML=h;
+  $('#v-path').querySelectorAll('.node').forEach(n=>n.onclick=()=>unitSheet(UNITS.find(u=>u.id===n.dataset.u)));
+  const g=$('#goRev'); if(g) g.onclick=()=>setView('review');
+}
+function unitSheet(u){
+  const d=S.units[u.id], pd=partsDone(u), done=unitDone(u);
+  const partsH=u.parts.map((p,k)=>`<div class="partrow ${k<pd?'ok':k===pd?'cur':''}"><div class="pl">${k<pd?'✓ ':''}Partie ${k+1}</div>
+    <div class="wl">${p.map(it=>`<span><span class="han">${it.h}</span>${it.kind==='phrase'?'':it.f}</span>`).join('')}</div></div>`).join('');
+  openSheet(`<div class="kicker">${u.sec}</div><h3>${u.name}</h3>
+    <p class="sub" style="margin:0 0 6px">${u.kind==='rad'?'Les clés qui donnent un indice sur le sens des caractères.':u.kind==='phrase'?'Des phrases toutes faites pour ton stage.':'Chaque partie t’apprend quelques mots, puis tu les utilises dans des phrases.'}${done&&d?' Déjà terminée '+d.count+' fois.':''}</p>
+    ${partsH}
+    <div class="actions"><button class="btn ghost" data-close>Fermer</button><button class="btn" id="startU">${done?'Réviser l’unité':pd?'Partie '+(pd+1):'Commencer'}</button></div>`);
+  $('#startU').onclick=()=>{closeSheet();startLesson(u)};
+}
+
+function openSheet(html){
+  const r=$('#sheetroot');
+  r.innerHTML=`<div class="scrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  r.querySelector('.scrim').onclick=e=>{if(e.target.classList.contains('scrim')||e.target.hasAttribute('data-close'))closeSheet()};
+}
+function closeSheet(){$('#sheetroot').innerHTML=''}
+
+function phrasePool(){
+  return UNITS.filter(u=>partsDone(u)>0).flatMap(u=>[...u.sents,...(u.kind==='phrase'?u.items.filter(i=>S.cards[i.id]):[])]);
+}
+function renderReview(){
+  const ids=dueIds(), total=Object.keys(S.cards).length;
+  const dir=S.settings.dir||'h2f';
+  const pp=phrasePool().length;
+  let next='';
+  if(!ids.length&&total){const n=Math.min(...Object.values(S.cards).map(c=>c.due));next=`Prochaine carte dans ${fmtIn(n-Date.now())}.`}
+  const phr=pp?`<div class="panel" style="margin-top:16px"><b>Phrases</b>
+      <p class="note" style="margin:2px 0 12px">Comprendre, reconstruire et écrire en dictée des phrases avec les mots des unités commencées (${pp} phrases).</p>
+      <button class="btn ghost wide" id="phr">M’entraîner aux phrases</button></div>`:'';
+  $('#v-review').innerHTML=`<h2>Réviser</h2>
+    <p class="sub">La révision espacée te remontre chaque mot juste avant que tu l’oublies.</p>
+    ${total?`<div class="kpis"><div class="kpi"><b>${ids.length}</b><span>à revoir</span></div><div class="kpi"><b>${total}</b><span>cartes</span></div><div class="kpi"><b>${Object.values(S.cards).filter(c=>level(c)===3).length}</b><span>maîtrisées</span></div></div>
+    <div class="note">Sens de la carte</div>
+    <div class="seg" id="dirseg">
+      <button data-d="h2f" aria-pressed="${dir==='h2f'}">字 → sens</button>
+      <button data-d="f2h" aria-pressed="${dir==='f2h'}">Sens → 字</button>
+      <button data-d="aud" aria-pressed="${dir==='aud'}">Écoute</button>
+    </div>
+    ${ids.length?`<button class="btn wide" id="startRev">Réviser ${Math.min(ids.length,20)} carte${ids.length>1?'s':''}</button>`
+      :`<div class="panel"><b>Tout est à jour.</b> <span class="note">${next}</span></div>
+        <button class="btn ghost wide" id="practice" style="margin-top:12px">M’entraîner sur les cartes quand même</button>`}${phr}`
+    :`<div class="empty"><span class="han">记</span>Termine une leçon du parcours : ses mots arrivent ici automatiquement.<br><br><button class="btn" id="toPath">Aller au parcours</button></div>`}`;
+  const s=$('#dirseg'); if(s) s.querySelectorAll('button').forEach(b=>b.onclick=()=>{S.settings.dir=b.dataset.d;save();renderReview()});
+  const st=$('#startRev'); if(st) st.onclick=()=>startReview(ids.slice(0,20),false);
+  const pr=$('#practice'); if(pr) pr.onclick=()=>startReview(shuffle(Object.keys(S.cards).filter(id=>ITEMS[id])).slice(0,15),true);
+  const ph=$('#phr'); if(ph) ph.onclick=startPhrasePractice;
+  const tp=$('#toPath'); if(tp) tp.onclick=()=>setView('path');
+}
+
+
+let deckQ='';
+function renderDeck(){
+  const ids=Object.keys(S.cards).filter(id=>ITEMS[id]);
+  const q=strip(deckQ.trim());
+  const list=ids.filter(id=>{const it=ITEMS[id];return !q||it.h.includes(deckQ.trim())||strip(it.p).replace(/[\s']/g,'').includes(q.replace(/\s/g,''))||strip(it.f).includes(q)})
+    .sort((a,b)=>S.cards[a].due-S.cards[b].due);
+  const lvlName=['nouvelle','en cours','solide','maîtrisée'];
+  const was=document.activeElement&&document.activeElement.id==='dq';
+  $('#v-deck').innerHTML=`<h2>Mes cartes</h2><p class="sub">${ids.length} carte${ids.length>1?'s':''} · touche une carte pour l’écouter.</p>
+    ${ids.length?`<input class="search" id="dq" placeholder="Chercher : 好, hao, bien…" value="${deckQ.replace(/"/g,'&quot;')}">
+    <div class="rows">${list.map(id=>{const it=ITEMS[id],c=S.cards[id],l=level(c);
+      return `<button class="row" data-id="${id}"><span class="h ${isLong(it)?'long':''}">${it.h}</span>
+      <span class="tx"><b>${it.f}</b><span>${it.kind==='rad'?'clé · ':''}${it.p}</span></span>
+      <span class="due"><span class="lvl l${l}"></span>${lvlName[l]}<br>${c.due<=Date.now()?'à revoir':'dans '+fmtIn(c.due-Date.now())}</span></button>`}).join('')||'<div class="empty">Aucune carte ne correspond.</div>'}</div>`
+    :`<div class="empty"><span class="han">卡</span>Pas encore de cartes. Chaque mot appris dans une leçon s’ajoute ici.</div>`}`;
+  const inp=$('#dq'); if(inp){inp.oninput=()=>{deckQ=inp.value;renderDeck()}; if(was){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length)}}
+  $('#v-deck').querySelectorAll('.row[data-id]').forEach(r=>r.onclick=()=>speak(audioOf(ITEMS[r.dataset.id])));
+}
+
+function knownChars(){const s=new Set();Object.keys(S.cards).forEach(id=>{const it=ITEMS[id];if(it&&it.kind!=='rad')[...it.h].forEach(c=>s.add(c))});return s}
+function renderKeys(){
+  const known=knownChars();
+  $('#v-keys').innerHTML=`<h2>Les clés</h2>
+    <p class="sub">La plupart des caractères combinent une clé, qui donne un indice sur le sens, et une partie qui donne un indice sur le son. Touche une clé pour voir ses caractères.</p>
+    <div class="radgrid">${RADS.map(r=>{const n=Object.keys(CHARS).filter(c=>CHARS[c][1]===r.h).length;
+      return `<button class="rad" data-r="${r.h}"><span class="han">${r.h}</span><small>${r.f}</small><div class="n">${n} caractère${n>1?'s':''}</div></button>`}).join('')}</div>`;
+  $('#v-keys').querySelectorAll('.rad').forEach(b=>b.onclick=()=>{
+    const r=RADBY[b.dataset.r], cs=Object.keys(CHARS).filter(c=>CHARS[c][1]===r.h);
+    openSheet(`<div class="kicker">Clé · ${r.p}</div><h3><span class="han" style="font-size:40px">${r.h}</span> ${r.f}</h3>
+      <div class="parts" style="margin-top:12px">${cs.map(c=>`<div class="part"><span class="han">${c}</span><p>${CHARS[c][0]}${known.has(c)?' <span class="k">déjà vu</span>':''}</p></div>`).join('')}</div>
+      <div class="actions"><button class="btn ghost" data-close>Fermer</button><button class="btn" id="sayR">Écouter ${r.say}</button></div>`);
+    $('#sayR').onclick=()=>speak(r.say);
+  });
+}
+function renderAll(){renderTop(); if(view==='path')renderPath(); if(view==='review')renderReview(); if(view==='deck')renderDeck(); if(view==='keys')renderKeys();}
+
+/* ============ OVERLAY (lesson + review) ============ */
+let L=null, R=null;
+const ol=$('#ol'), body=$('#olbody'), foot=$('#olfoot'), footIn=$('#olfootin');
+function openOl(){ol.hidden=false;document.body.style.overflow='hidden'}
+function closeOl(){ol.hidden=true;document.body.style.overflow='';L=null;R=null;try{speechSynthesis.cancel()}catch(e){};renderAll()}
+$('#olx').onclick=()=>{
+  if(L&&!L.finished&&L.i>0){
+    setFoot('',`<div class="fb"><b style="color:var(--ink)">Quitter la leçon ?</b></div><div class="note">Tu perdras ta progression dans cette leçon.</div>
+      <div style="display:flex;gap:10px"><button class="btn ghost" style="flex:1" id="stay">Continuer</button><button class="btn" style="flex:1;background:var(--bad);color:#fff" id="quit">Quitter</button></div>`);
+    $('#stay').onclick=()=>renderStep(); $('#quit').onclick=closeOl;
+  } else { if(R&&R.n)save(); closeOl(); }
+};
+function setFoot(cls,html){foot.className='ol-foot '+cls;footIn.innerHTML=html}
+function bar(i,n){$('#olbar').style.width=Math.round(i/n*100)+'%';$('#olcnt').textContent=Math.min(i+1,n)+'/'+n}
+function wireSay(it){body.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>speak(audioOf(it),b.dataset.say==='slow'))}
+function partsHtml(it){
+  if(it.kind==='rad'){
+    const cs=Object.keys(CHARS).filter(c=>CHARS[c][1]===it.h).slice(0,4);
+    return cs.length?`<div class="kicker">On la trouve dans</div><div class="parts">${cs.map(c=>`<div class="part"><span class="han">${c}</span><p>${CHARS[c][0]}</p></div>`).join('')}</div>`:'';
+  }
+  const cs=[...new Set([...it.h])].filter(c=>CHARS[c]);
+  if(!cs.length) return '';
+  return `<div class="kicker">Décomposer les caractères</div><div class="parts">${cs.slice(0,it.kind==='phrase'?4:3).map(c=>`<div class="part"><span class="han">${c}</span><p>${CHARS[c][0]}${CHARS[c][1]?`<br><span class="k">clé ${CHARS[c][1]}</span>`:''}</p></div>`).join('')}</div>`;
+}
+function extraHtml(it){
+  let h='';
+  const cf=CONFUSE[it.id]; if(cf) h+=`<div class="warn"><b>À ne pas confondre</b>${cf}</div>`;
+  const s=exampleFor(it);
+  if(s) h+=`<div class="exbox"><div class="kicker">Exemple</div><div class="han">${s.h}</div><div class="pin">${s.p}</div><div>${s.f}</div></div>`;
+  return h;
+}
+function wirePin(){
+  body.querySelectorAll('[data-pintoggle]').forEach(b=>b.onclick=()=>{
+    S.settings.pin=!pinOn(); save();
+    body.querySelectorAll('[data-pin]').forEach(e=>e.hidden=!pinOn());
+    body.querySelectorAll('[data-pintoggle]').forEach(x=>x.textContent=pinOn()?'Masquer le pinyin':'Afficher le pinyin');
+  });
+}
+
+/* lesson: one part of a unit (3-4 new items), each practised right after it is introduced, then sentences */
+function startLesson(u){
+  const done=partsDone(u), isNew=done<u.parts.length;
+  const part=isNew?u.parts[done]:shuffle(u.items).slice(0,u.kind==='word'?6:4);
+  const q=[];
+  refreshKnown();
+  if(isNew){
+    part.forEach((it,k)=>{
+      q.push({intro:true,it});
+      if(it.kind==='phrase') q.push({it,t:'smean'},{it,t:'build'});
+      else if(it.kind==='rad') q.push({it,t:'meaning'},{it,t:'reverse'});
+      else q.push({it,t:'meaning'},{it,t:pick(['listen','pinyin'])});
+      if(k>=1){const pv=part[k-1];q.push({it:pv,t:pv.kind==='phrase'?'dict':pick(exTypes(pv))})}
+    });
+  }
+  shuffle(part).forEach(it=>q.push({it,t:it.kind==='phrase'?pick(['build','dict']):pick(exTypes(it))}));
+  if(u.sents.length){
+    const ph=new Set(part.map(i=>i.h)), kh=knownH(); part.forEach(i=>kh.add(i.h));
+    const unknown=s=>s.toks.filter(t=>!t.punct&&!kh.has(t.h)).length;
+    let cands=shuffle(u.sents).sort((a,b)=>{
+      const ua=a.toks.some(t=>ph.has(t.h))?0:1, ub=b.toks.some(t=>ph.has(t.h))?0:1;
+      return ua-ub||unknown(a)-unknown(b);
+    }).slice(0,2);
+    if(cands[0]) q.push({it:cands[0],t:'smean'},{it:cands[0],t:'build'});
+    if(cands[1]) q.push({it:cands[1],t:'smean'},{it:cands[1],t:isNew?'build':'dict'});
+  }
+  L={u,q,i:0,ok:0,tot:0,retried:new Set(),answered:false,finished:false,isNew,partIdx:done,part,practice:false};
+  openOl(); renderStep();
+}
+function startPhrasePractice(){
+  const pool=shuffle(phrasePool()).slice(0,8);
+  if(!pool.length) return;
+  refreshKnown();
+  const q=pool.map(s=>({it:s,t:pick(['smean','build','build','dict'])}));
+  L={u:null,q,i:0,ok:0,tot:0,retried:new Set(),answered:false,finished:false,practice:true};
+  openOl(); renderStep();
+}
+const tileHtml=t=>`<button class="tile" data-i="${t.i}"><span class="han">${t.h}</span><small data-pin ${pinOn()?'':'hidden'}>${t.p}</small></button>`;
+function drawBuild(ex){
+  const built=$('#built'), bank=$('#bank');
+  built.innerHTML=ex.sel.map(i=>tileHtml(ex.tiles[i])).join('')||'<span class="note">Touche les mots dans l’ordre</span>';
+  bank.querySelectorAll('.tile').forEach(b=>b.classList.toggle('used',ex.sel.includes(+b.dataset.i)));
+  built.querySelectorAll('.tile').forEach(b=>b.onclick=()=>{if(L.answered)return;ex.sel=ex.sel.filter(i=>i!==+b.dataset.i);drawBuild(ex)});
+  const c=$('#check'); if(c) c.disabled=!ex.sel.length;
+}
+function renderStep(){
+  if(!L) return;
+  if(L.i>=L.q.length) return finishLesson();
+  bar(L.i,L.q.length);
+  const st=L.q[L.i], it=st.it;
+  if(st.intro){
+    KNOWN.add(it.id);
+    body.innerHTML=`<div class="kicker">${it.kind==='rad'?'Nouvelle clé':it.kind==='phrase'?'Nouvelle phrase':'Nouveau mot'}</div>
+      <div class="stage"><div class="han ${isLong(it)?'long':it.h.length>2?'mid':''}">${it.h}</div><div class="pin">${it.p}</div><div class="fr">${it.f}</div>
+      <div class="row2">${sayBtns()}</div></div>
+      ${extraHtml(it)}${partsHtml(it)}`;
+    wireSay(it); if(S.settings.auto) speak(audioOf(it));
+    setFoot('',`<button class="btn wide" id="cont">J’ai compris</button>`);
+    $('#cont').onclick=()=>{L.i++;renderStep()};
+    return;
+  }
+  const ex=st.ex||(st.ex=makeEx(it,st.t));
+  L.answered=false;
+  const inner=ex.build
+    ?`<div class="built" id="built" aria-label="Ta phrase"></div><div class="bank" id="bank">${ex.tiles.map(tileHtml).join('')}</div>`
+    :`<div class="opts ${ex.one?'one':''}">${ex.opts.map((o,k)=>`<button class="opt" data-k="${k}"><span class="n">${k+1}</span>${o.html}</button>`).join('')}</div>`;
+  body.innerHTML=`<div class="kicker">${ex.kicker}${L.practice?' · entraînement':''}</div><p class="q">${ex.q}</p><div class="stage">${ex.stage}</div>${inner}`;
+  wireSay(it); wirePin();
+  if(ex.autoplay) setTimeout(()=>speak(audioOf(it)),150);
+  if(ex.build){
+    ex.sel=[];
+    body.querySelectorAll('#bank .tile').forEach(b=>b.onclick=()=>{
+      const i=+b.dataset.i; if(L.answered||ex.sel.includes(i)) return;
+      ex.sel.push(i); if(S.settings.auto&&ex.type==='build') speak(ex.tiles[i].h); drawBuild(ex);
+    });
+    setFoot('',`<button class="btn wide" id="check" disabled>Vérifier</button>`);
+    drawBuild(ex);
+    $('#check').onclick=()=>{
+      if(L.answered||!ex.sel.length) return;
+      const ans=ex.sel.map(i=>ex.tiles[i].h).join('');
+      const ok=ans===it.key||it.alts.includes(ans);
+      $('#built').classList.add(ok?'right':'wrong');
+      body.querySelectorAll('.tile').forEach(b=>b.disabled=true);
+      resolve(ok,ok?null:ans);
+    };
+  } else {
+    body.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.k));
+    setFoot('',`<div class="note" style="text-align:center">Choisis une réponse${matchMedia('(hover:hover)').matches?' (touches 1 à 4)':''}</div>`);
+  }
+}
+function answer(k){
+  if(!L||L.answered) return;
+  const ex=L.q[L.i].ex, ok=!!ex.opts[k].ok;
+  body.querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(ex.opts[j].ok)b.classList.add('right');else if(j===k)b.classList.add('wrong')});
+  resolve(ok,ex.opts[k].x||null);
+}
+function resolve(ok,chosen){
+  const st=L.q[L.i], ex=st.ex, it=st.it;
+  L.answered=true; L.tot++; if(ok)L.ok++;
+  if(!ok&&!L.retried.has(L.i)){L.retried.add(L.q.length);L.q.push({it,t:st.t})}
+  if(S.settings.auto&&(!['listen','tone','dict'].includes(ex.type)||!ok)) speak(audioOf(it));
+  let more='';
+  if(!ok&&chosen&&typeof chosen==='object'&&chosen!==it) more+=`<div class="note">Tu as choisi : <span class="han">${chosen.h}</span> ${chosen.p} · ${chosen.f}</div>`;
+  if(!ok&&typeof chosen==='string') more+=`<div class="note">Ta réponse : <span class="han">${chosen}</span></div>`;
+  if(ex.explain) more+=`<div class="note">${ex.explain}</div>`;
+  if(!ok&&CONFUSE[it.id]) more+=`<div class="warn"><b>À ne pas confondre</b>${CONFUSE[it.id]}</div>`;
+  const ans=`<div class="ans"><span class="han">${it.h}</span>${it.p} · ${it.f}</div>`;
+  setFoot(ok?'good':'bad',`<div class="fb"><div><b>${ok?pick(['Bravo !','Exact !','Parfait !','Très bien !']):'Pas tout à fait'}</b>${ans}${more}</div></div>
+    <button class="btn wide" id="cont">Continuer</button>`);
+  $('#cont').onclick=()=>{L.i++;renderStep()};
+}
+function finishLesson(){
+  L.finished=true;
+  const pct=L.tot?Math.round(L.ok/L.tot*100):100;
+  bar(1,1); $('#olcnt').textContent='';
+  if(L.practice){
+    const xp=L.ok*2; addXP(xp); save();
+    body.innerHTML=`<div class="end"><div class="seal">句</div><h2>Entraînement terminé</h2>
+      <p class="sub">Phrases</p>
+      <div class="endk"><div class="kpi"><b>+${xp}</b><span>XP</span></div><div class="kpi"><b>${pct} %</b><span>réussite</span></div><div class="kpi"><b>${L.q.length}</b><span>exercices</span></div></div></div>`;
+    setFoot('',`<button class="btn wide" id="cont">Continuer</button>`);
+    $('#cont').onclick=closeOl; return;
+  }
+  const u=L.u;
+  let added=0; if(L.isNew) L.part.forEach(it=>{if(!S.cards[it.id]){S.cards[it.id]=newCard();added++}});
+  const prev=S.units[u.id]||{best:0,count:0};
+  const parts=L.isNew?L.partIdx+1:partsDone(u);
+  const finished=parts>=u.parts.length;
+  S.units[u.id]={best:finished?Math.max(pct,prev.best||0):pct,count:(prev.count||0)+1,last:Date.now(),parts};
+  const xp=10+L.ok*2; addXP(xp); save();
+  const more=L.isNew&&!finished;
+  body.innerHTML=`<div class="end"><div class="seal">${pct>=90?'优':pct>=70?'好':'加'}</div>
+    <h2>${pct>=90?'Excellent !':pct>=70?'Bien joué !':'Continue comme ça !'}</h2>
+    <p class="sub">${u.name}${L.isNew?` · partie ${L.partIdx+1} sur ${u.parts.length}`:''}${pct<70?' · tu peux la refaire pour consolider':''}</p>
+    <div class="endk"><div class="kpi"><b>+${xp}</b><span>XP</span></div><div class="kpi"><b>${pct} %</b><span>réussite</span></div><div class="kpi"><b>${added}</b><span>nouvelles cartes</span></div></div>
+    <p class="note">${added?`${added} ${nounOf(u,added)} ajouté${u.kind==='rad'||u.kind==='phrase'?'e':''}${added>1?'s':''} à tes flashcards. Première révision demain.`:'Ces cartes étaient déjà dans ton paquet.'}</p></div>`;
+  setFoot('',more?`<div style="display:flex;gap:10px"><button class="btn ghost" style="flex:1" id="cont">Pause</button><button class="btn" style="flex:1" id="nextp">Partie ${parts+1}</button></div>`:`<button class="btn wide" id="cont">Continuer</button>`);
+  $('#cont').onclick=closeOl;
+  const np=$('#nextp'); if(np) np.onclick=()=>startLesson(u);
+}
+
+
+/* review */
+function startReview(ids,practice){
+  if(!ids.length) return;
+  R={ids,i:0,practice,flipped:false,n:0,dir:S.settings.dir||'h2f'};
+  openOl(); renderCard();
+}
+function renderCard(){
+  if(!R) return;
+  if(R.i>=R.ids.length) return finishReview();
+  bar(R.i,R.ids.length);
+  const it=ITEMS[R.ids[R.i]], c=S.cards[it.id];
+  const say=`<div class="row2"><button class="icon-btn${R.dir==='aud'&&!R.flipped?' big':''}" data-say="1" aria-label="Écouter">${ICON.play}</button><button class="icon-btn" data-say="slow" aria-label="Écouter lentement">${ICON.slow}</button></div>`;
+  const hanCls=isLong(it)?'long':it.h.length>2?'mid':'';
+  let front;
+  if(R.dir==='h2f') front=`<div class="han ${hanCls}">${it.h}</div>`;
+  else if(R.dir==='f2h') front=`<div class="fr">« ${it.f} »</div>`;
+  else front=say;
+  const back=`<div class="han ${hanCls}">${it.h}</div><div class="pin">${it.p}</div><div class="fr">${it.f}</div>${say}`;
+  body.innerHTML=`<div class="kicker">${R.practice?'Entraînement libre':'Révision'}${it.kind==='rad'?' · clé':''}</div>
+    <p class="q">${R.flipped?'Tu avais trouvé ?':R.dir==='h2f'?'Que veut dire ceci, et comment le lit-on ?':R.dir==='f2h'?'Comment l’écrit-on en chinois ?':'Qu’entends-tu ?'}</p>
+    <div class="stage" style="min-height:220px;justify-content:center">${R.flipped?back:front}</div>${R.flipped?extraHtml(it)+partsHtml(it):''}`;
+  wireSay(it);
+  if(!R.flipped&&R.dir==='aud') setTimeout(()=>speak(audioOf(it)),150);
+  if(R.flipped&&S.settings.auto&&R.dir!=='aud') speak(audioOf(it));
+  if(!R.flipped){
+    setFoot('',`<button class="btn wide" id="flip">Afficher la réponse</button>`);
+    $('#flip').onclick=()=>{R.flipped=true;renderCard()};
+  } else if(R.practice){
+    setFoot('',`<button class="btn wide" id="cont">Suivante</button>`);
+    $('#cont').onclick=()=>rate(-1);
+  } else {
+    const L4=['Encore','Difficile','Bien','Facile'];
+    setFoot('',`<div class="rate">${L4.map((l,q)=>`<button class="r${q}" data-q="${q}">${l}<small>${preview(c,q)}</small></button>`).join('')}</div>`);
+    footIn.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>rate(+b.dataset.q));
+  }
+}
+function rate(q){
+  if(!R||!R.flipped) return;
+  const id=R.ids[R.i];
+  if(q>=0){schedule(S.cards[id],q); if(q===0) R.ids.push(id); addXP(1); R.n++; save();}
+  R.i++; R.flipped=false; renderCard();
+}
+function finishReview(){
+  const n=R.n, practice=R.practice;
+  bar(1,1); $('#olcnt').textContent='';
+  body.innerHTML=`<div class="end"><div class="seal">记</div><h2>${practice?'Entraînement terminé':'Révision terminée'}</h2>
+    <p class="sub">${practice?'Ça ne change pas tes dates de révision.':`${n} réponse${n>1?'s':''} · +${n} XP`}</p></div>`;
+  setFoot('',`<button class="btn wide" id="cont">Continuer</button>`);
+  $('#cont').onclick=closeOl; R.ids=[];
+}
+
+/* keyboard */
+document.addEventListener('keydown',e=>{
+  if(ol.hidden||e.target.tagName==='INPUT') return;
+  const ck=$('#check'); const cont=$('#cont')||$('#flip')||(ck&&!ck.disabled?ck:null);
+  if(L&&!L.answered&&/^[1-4]$/.test(e.key)&&body.querySelector('.opt')){answer(+e.key-1);return}
+  if(R&&R.flipped&&!R.practice&&/^[1-4]$/.test(e.key)){rate(+e.key-1);return}
+  if((e.key==='Enter'||e.key===' ')&&cont&&document.activeElement.tagName!=='BUTTON'){e.preventDefault();cont.click()}
+});
+
+$('#soundBtn').onclick=soundSheet;
+renderAll();
+initCloud();
+setInterval(renderTop,60000);
+</script>
+
+</body></html>

@@ -1,0 +1,330 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Séries génératrices kawaii</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
+<script>
+window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" async></script>
+<style>
+/* Layout : un carnet de cours rose bonbon, une colonne de cartes « mochi » arrondies, la mascotte Mochi qui commente chaque chapitre */
+:root {
+  color-scheme: light;
+  --bg: #fff0f6;
+  --paper: #ffffff;
+  --pink: #ff6fae;
+  --pink-deep: #d63384;
+  --pink-soft: #ffd6e8;
+  --lilac: #f3d9ff;
+  --ink: #5a2142;
+  --ink-soft: #8c4f72;
+  --font-display: "Mochiy Pop One", "Zen Maru Gothic", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+  --font-body: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+}
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 20px 20px, var(--pink-soft) 3px, transparent 4px),
+    radial-gradient(circle at 60px 60px, var(--lilac) 3px, transparent 4px);
+  background-size: 80px 80px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+}
+.wrap {
+  max-width: 820px;
+  margin: 0 auto;
+  padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; line-height: 1.25; margin: 0; }
+h1 { font-size: clamp(2rem, 6vw, 3.2rem); color: var(--pink-deep); }
+h2 { font-size: clamp(1.3rem, 3.6vw, 1.75rem); color: var(--pink-deep); }
+h3 { font-size: 1.1rem; color: var(--ink); }
+p { margin: 0; }
+.hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: center;
+  background: var(--paper);
+  border: 3px solid var(--pink);
+  border-radius: 36px;
+  padding: 28px;
+  box-shadow: 0 8px 0 var(--pink-soft);
+}
+.hero > div { min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.tag {
+  align-self: flex-start;
+  background: var(--pink);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  padding: 4px 14px;
+  border-radius: 999px;
+}
+.hero .sub { color: var(--ink-soft); }
+.mochi { width: 150px; height: auto; animation: boing 2.6s ease-in-out infinite; }
+@keyframes boing { 0%,100% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-8px) scale(1.03, 0.97); } }
+@media (prefers-reduced-motion: reduce) { .mochi { animation: none; } }
+@media (max-width: 560px) { .hero { grid-template-columns: 1fr; } .mochi { width: 110px; justify-self: center; grid-row: 1; } }
+
+.mantra {
+  background: linear-gradient(135deg, var(--pink-soft), var(--lilac));
+  border-radius: 28px;
+  padding: 20px 24px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-align: center;
+}
+.card {
+  background: var(--paper);
+  border-radius: 32px;
+  padding: 28px;
+  border: 2px solid var(--pink-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.card-head { display: flex; align-items: center; gap: 12px; }
+.num {
+  flex: none;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--pink);
+  color: #fff;
+  font-family: var(--font-display);
+  display: grid; place-items: center;
+  font-size: 1.1rem;
+}
+.math { overflow-x: auto; padding: 4px 0; }
+.box {
+  border-radius: 22px;
+  padding: 14px 18px;
+  background: var(--bg);
+  border: 2px dashed var(--pink);
+  display: flex; flex-direction: column; gap: 8px;
+  min-width: 0;
+}
+.box b.lbl {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--pink-deep);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+.warn { background: #fff7fb; border-style: solid; border-color: var(--pink-deep); }
+.say {
+  display: flex; gap: 10px; align-items: flex-start;
+  color: var(--ink-soft); font-size: 0.95rem;
+}
+.say svg { flex: none; width: 34px; height: 34px; }
+.say p { background: var(--pink-soft); border-radius: 18px 18px 18px 4px; padding: 8px 14px; color: var(--ink); }
+.tbl { overflow-x: auto; border-radius: 20px; border: 2px solid var(--pink-soft); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { padding: 10px 14px; text-align: left; vertical-align: middle; }
+th { background: var(--pink); color: #fff; font-family: var(--font-display); font-weight: 400; font-size: 0.85rem; letter-spacing: 0.03em; }
+tr:nth-child(even) td { background: var(--bg); }
+ul, ol { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 6px; }
+li::marker { color: var(--pink); font-weight: 700; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.step { background: var(--bg); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 6px; text-align: center; }
+.step .big { font-family: var(--font-display); color: var(--pink-deep); font-size: 1.05rem; }
+@media (max-width: 620px) { .steps { grid-template-columns: 1fr; } }
+footer { text-align: center; color: var(--ink-soft); font-size: 0.9rem; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="mochi" viewBox="0 0 120 110">
+      <path d="M60 4l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1z" fill="#ffd166" stroke="#e7a92c" stroke-width="2" stroke-linejoin="round"/>
+      <ellipse cx="60" cy="72" rx="52" ry="36" fill="#ffb3d1" stroke="#d63384" stroke-width="3"/>
+      <ellipse cx="44" cy="58" rx="12" ry="7" fill="#fff" opacity="0.6"/>
+      <circle cx="44" cy="72" r="5" fill="#5a2142"/>
+      <circle cx="76" cy="72" r="5" fill="#5a2142"/>
+      <circle cx="46" cy="70" r="1.6" fill="#fff"/>
+      <circle cx="78" cy="70" r="1.6" fill="#fff"/>
+      <ellipse cx="32" cy="84" rx="8" ry="5" fill="#ff6fae" opacity="0.7"/>
+      <ellipse cx="88" cy="84" rx="8" ry="5" fill="#ff6fae" opacity="0.7"/>
+      <path d="M54 82q6 6 12 0" fill="none" stroke="#5a2142" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="wrap">
+
+  <header class="hero">
+    <div>
+      <span class="tag">MP · SÉRIES ENTIÈRES</span>
+      <h1>Les séries génératrices ♡</h1>
+      <p class="sub">Le cours complet, version toute douce. Mochi, ta mascotte, t'accompagne de chapitre en chapitre (◕‿◕)</p>
+    </div>
+    <svg class="mochi" role="img" aria-label="Mochi, la mascotte"><use href="#mochi"/></svg>
+  </header>
+
+  <p class="mantra">✿ Le mantra : on range la suite dans une fonction, on calcule côté fonctions, et on relit la réponse dans les coefficients ✿</p>
+
+  <section class="card">
+    <div class="card-head"><span class="num">1</span><h2>Le pitch : une suite, une fonction</h2></div>
+    <p>Une série génératrice transforme une suite \((a_n)\) en une seule fonction \(f\), dont les coefficients de Taylor sont exactement les \(a_n\).</p>
+    <div class="math">\[ (a_n)_{n\ge 0} \;\longmapsto\; f(x)=\sum_{n=0}^{+\infty} a_n x^n \]</div>
+    <p>\(x^n\) sert d'étiquette pour la case n, et \(a_n\) est ce qu'on range dedans. Les opérations sur les fonctions (multiplier, dériver) deviennent des opérations sur les suites (convoler, multiplier par n).</p>
+    <div class="steps">
+      <div class="step"><span class="big">1. Encoder</span><span>suite → \(f(x)\), en vérifiant \(R&gt;0\)</span></div>
+      <div class="step"><span class="big">2. Calculer</span><span>dériver, multiplier, décomposer</span></div>
+      <div class="step"><span class="big">3. Identifier</span><span>lire \(a_n\) grâce à l'unicité</span></div>
+    </div>
+    <div class="say"><svg aria-hidden="true"><use href="#mochi"/></svg><p>Quand le chemin direct sur la suite bloque, on fait un petit détour par les fonctions !</p></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><span class="num">2</span><h2>Le terrain de jeu : séries entières et rayon</h2></div>
+    <div class="box"><b class="lbl">LEMME D'ABEL</b><p>Si \((a_n z_0^n)\) est bornée, alors \(\sum a_n z^n\) converge absolument pour tout \(|z|&lt;|z_0|\). Preuve : \(|a_n z^n|\le M\,|z/z_0|^n\), terme d'une série géométrique convergente.</p></div>
+    <p><b>Rayon de convergence.</b></p>
+    <div class="math">\[ R=\sup\{\,r\ge 0 \;:\; (a_n r^n)_n \text{ bornée}\,\}\in[0,+\infty] \]</div>
+    <p>Convergence absolue pour \(|z|&lt;R\), divergence grossière pour \(|z|&gt;R\). Sur le cercle \(|z|=R\), tout peut arriver.</p>
+    <ul>
+      <li><b>d'Alembert</b> : si \(|a_{n+1}/a_n|\to\ell\), alors \(R=1/\ell\).</li>
+      <li><b>Comparaison</b> : si \(|a_n|\le|b_n|\), alors \(R_a\ge R_b\) ; si \(a_n\sim b_n\), alors \(R_a=R_b\).</li>
+      <li><b>Hadamard</b> (hors programme mais pratique) : \(1/R=\limsup |a_n|^{1/n}\).</li>
+    </ul>
+    <p>Sur \(]-R,R[\), la somme est \(C^\infty\), et on dérive ou intègre terme à terme sans changer le rayon :</p>
+    <div class="math">\[ f'(x)=\sum_{n\ge1} n\,a_n x^{n-1}, \qquad \int_0^x f=\sum_{n\ge0}\frac{a_n}{n+1}x^{n+1} \]</div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><span class="num">3</span><h2>Les séries génératrices à connaître par cœur</h2></div>
+    <p>Si \(\sum a_n x^n\) a un rayon \(R&gt;0\), sa série génératrice est \(f(x)=\sum a_n x^n\) sur \(]-R,R[\). Pour les suites qui croissent comme \(n!\), on utilise la version exponentielle \(\sum \frac{a_n}{n!}x^n\).</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Suite \(a_n\)</th><th>Série génératrice</th><th>Rayon</th></tr></thead>
+      <tbody>
+        <tr><td>\(1\)</td><td>\(\frac{1}{1-x}\)</td><td>1</td></tr>
+        <tr><td>\(r^n\)</td><td>\(\frac{1}{1-rx}\)</td><td>\(1/|r|\)</td></tr>
+        <tr><td>\(n\)</td><td>\(\frac{x}{(1-x)^2}\)</td><td>1</td></tr>
+        <tr><td>\(\binom{n+k}{k}\), k fixé</td><td>\(\frac{1}{(1-x)^{k+1}}\)</td><td>1</td></tr>
+        <tr><td>\(\binom{N}{n}\), N fixé</td><td>\((1+x)^N\)</td><td>\(+\infty\)</td></tr>
+        <tr><td>\(1/n!\)</td><td>\(e^x\)</td><td>\(+\infty\)</td></tr>
+        <tr><td>\((-1)^{n+1}/n\), \(n\ge1\)</td><td>\(\ln(1+x)\)</td><td>1</td></tr>
+      </tbody>
+    </table></div>
+    <p>La ligne binomiale s'obtient en dérivant k fois \(\frac{1}{1-x}=\sum x^n\) :</p>
+    <div class="math">\[ \frac{1}{(1-x)^{k+1}}=\sum_{n=0}^{+\infty}\binom{n+k}{k}x^n \]</div>
+    <div class="say"><svg aria-hidden="true"><use href="#mochi"/></svg><p>Celle-là, garde-la près de ton cœur : elle sert après chaque décomposition en éléments simples ♡</p></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><span class="num">4</span><h2>Le dico de traduction suite ↔ fonction</h2></div>
+    <p>Égalités valables pour \(|x|&lt;\min(R_a,R_b)\).</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Sur la fonction</th><th>Sur la suite</th><th>Rayon</th></tr></thead>
+      <tbody>
+        <tr><td>\(\lambda f+\mu g\)</td><td>\(\lambda a_n+\mu b_n\)</td><td>\(\ge\min(R_a,R_b)\)</td></tr>
+        <tr><td>\(f\cdot g\)</td><td>\(c_n=\sum_{k=0}^n a_k b_{n-k}\)</td><td>\(\ge\min(R_a,R_b)\)</td></tr>
+        <tr><td>\(\frac{f(x)}{1-x}\)</td><td>\(a_0+\dots+a_n\)</td><td>\(\ge\min(R_a,1)\)</td></tr>
+        <tr><td>\(x f(x)\)</td><td>\(0,a_0,a_1,\dots\)</td><td>\(R_a\)</td></tr>
+        <tr><td>\(\frac{f(x)-a_0}{x}\)</td><td>\(a_1,a_2,\dots\)</td><td>\(R_a\)</td></tr>
+        <tr><td>\(x f'(x)\)</td><td>\(n a_n\)</td><td>\(R_a\)</td></tr>
+        <tr><td>\(f(\lambda x)\)</td><td>\(\lambda^n a_n\)</td><td>\(R_a/|\lambda|\)</td></tr>
+        <tr><td>\(\frac{f(x)+f(-x)}{2}\)</td><td>indices pairs seulement</td><td>\(R_a\)</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box"><b class="lbl">THÉORÈME · PRODUIT DE CAUCHY</b>
+      <div class="math">\[ \Big(\sum a_n x^n\Big)\Big(\sum b_n x^n\Big)=\sum\Big(\sum_{k=0}^n a_k b_{n-k}\Big)x^n \]</div>
+      <p>valable pour \(|x|&lt;\min(R_a,R_b)\), via le produit de Cauchy de séries absolument convergentes.</p>
+    </div>
+    <div class="box warn"><b class="lbl">ATTENTION</b><p>Le rayon d'un produit n'est qu'<b>au moins</b> le minimum : \(\frac{1}{1-x}\cdot(1-x)=1\) a un rayon infini.</p></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><span class="num">5</span><h2>Le théorème qui fait tout marcher : l'unicité</h2></div>
+    <div class="box"><b class="lbl">FORMULE DE TAYLOR</b>
+      <p>Si \(f(x)=\sum a_n x^n\) sur \(]-R,R[\) avec \(R&gt;0\) :</p>
+      <div class="math">\[ a_n=\frac{f^{(n)}(0)}{n!} \]</div>
+      <p>On dérive n fois terme à terme puis on évalue en 0 : seul le terme de degré n survit.</p>
+    </div>
+    <p><b>Unicité.</b> Si \(\sum a_n x^n=\sum b_n x^n\) sur un voisinage de 0, alors \(a_n=b_n\) pour tout n. Il suffit même qu'elles coïncident sur une suite de réels non nuls tendant vers 0.</p>
+    <ul>
+      <li>f paire ⟹ coefficients impairs nuls ; f impaire ⟹ coefficients pairs nuls.</li>
+      <li>Deux calculs d'une même fonction donnent une identité. Avec \((1+x)^m(1+x)^p=(1+x)^{m+p}\) :</li>
+    </ul>
+    <div class="math">\[ \sum_{k=0}^n\binom{m}{k}\binom{p}{n-k}=\binom{m+p}{n} \quad\text{(Vandermonde)} \]</div>
+    <div class="box warn"><b class="lbl">PIÈGE</b><p>\(C^\infty\) ne suffit pas : \(x\mapsto e^{-1/x^2}\) (avec 0 en 0) a toutes ses dérivées nulles en 0 mais n'est pas nulle.</p></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><span class="num">6</span><h2>Les deux méthodes qui tombent aux concours</h2></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Fonction</th><th>Développement</th><th>Rayon</th></tr></thead>
+      <tbody>
+        <tr><td>\(e^x\)</td><td>\(\sum \frac{x^n}{n!}\)</td><td>\(+\infty\)</td></tr>
+        <tr><td>\(\cos x\)</td><td>\(\sum (-1)^n\frac{x^{2n}}{(2n)!}\)</td><td>\(+\infty\)</td></tr>
+        <tr><td>\(\sin x\)</td><td>\(\sum (-1)^n\frac{x^{2n+1}}{(2n+1)!}\)</td><td>\(+\infty\)</td></tr>
+        <tr><td>\(\ln(1+x)\)</td><td>\(\sum_{n\ge1} (-1)^{n+1}\frac{x^n}{n}\)</td><td>1</td></tr>
+        <tr><td>\(\arctan x\)</td><td>\(\sum (-1)^n\frac{x^{2n+1}}{2n+1}\)</td><td>1</td></tr>
+        <tr><td>\((1+x)^\alpha\), \(\alpha\notin\mathbb N\)</td><td>\(\sum \frac{\alpha(\alpha-1)\cdots(\alpha-n+1)}{n!}x^n\)</td><td>1</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>♡ Méthode 1 : récurrence → fraction rationnelle (Fibonacci)</h3>
+    <p>\(F_0=0\), \(F_1=1\), \(F_{n+2}=F_{n+1}+F_n\), et \(f(x)=\sum F_n x^n\).</p>
+    <ol>
+      <li><b>R &gt; 0 d'abord !</b> Par récurrence \(0\le F_n\le 2^n\), donc \(R\ge 1/2\).</li>
+      <li><b>Traduire</b> la récurrence avec le dico :
+        <div class="math">\[ f(x)-x=x f(x)+x^2 f(x)\;\Longrightarrow\; f(x)=\frac{x}{1-x-x^2} \]</div></li>
+      <li><b>Décomposer</b> avec \(\varphi=\frac{1+\sqrt5}{2}\), \(\psi=\frac{1-\sqrt5}{2}\) :
+        <div class="math">\[ f(x)=\frac{1}{\sqrt5}\left(\frac{1}{1-\varphi x}-\frac{1}{1-\psi x}\right) \]</div></li>
+      <li><b>Identifier</b> :
+        <div class="math">\[ F_n=\frac{\varphi^n-\psi^n}{\sqrt5} \]</div></li>
+    </ol>
+    <div class="say"><svg aria-hidden="true"><use href="#mochi"/></svg><p>Réflexe mignon : le rayon d'une fraction rationnelle, c'est la distance de 0 au pôle le plus proche. Ici \(1/\varphi\approx 0{,}618\) !</p></div>
+
+    <h3>♡ Méthode 2 : équation différentielle (\((1+x)^\alpha\))</h3>
+    <p>\(g(x)=(1+x)^\alpha\) est l'unique solution sur \(]-1,1[\) de \((1+x)g'=\alpha g\), \(g(0)=1\).</p>
+    <ol>
+      <li><b>Analyse</b> : en injectant \(\sum a_n x^n\), on trouve \(a_{n+1}=\frac{\alpha-n}{n+1}a_n\), \(a_0=1\).</li>
+      <li><b>Rayon</b> : \(\alpha\notin\mathbb N\) donc \(a_n\ne0\) et \(|a_{n+1}/a_n|\to1\) : \(R=1\).</li>
+      <li><b>Synthèse</b> : la série résout le même problème de Cauchy linéaire, donc elle vaut g par unicité.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><span class="num">7</span><h2>Pièges, bord du disque et checklist finale</h2></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Série (R = 1)</th><th>En x = 1</th><th>En x = −1</th></tr></thead>
+      <tbody>
+        <tr><td>\(\sum x^n\)</td><td>diverge</td><td>diverge</td></tr>
+        <tr><td>\(\sum x^n/n\)</td><td>diverge</td><td>converge</td></tr>
+        <tr><td>\(\sum x^n/n^2\)</td><td>converge</td><td>converge</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box"><b class="lbl">ABEL RADIAL (EXERCICE CLASSIQUE)</b><p>Si \(\sum a_n\) converge, alors \(f(x)\to\sum a_n\) quand \(x\to1^-\). D'où \(\ln 2=1-\frac12+\frac13-\cdots\). La réciproque est fausse : \(\frac{1}{1+x}\to\frac12\) mais \(\sum(-1)^n\) diverge.</p></div>
+    <div class="box warn"><b class="lbl">PIÈGES FRÉQUENTS</b>
+      <ul>
+        <li>Calculer avant d'avoir prouvé \(R&gt;0\).</li>
+        <li>Croire que le rayon d'un produit vaut exactement le minimum.</li>
+        <li>Oublier les premiers termes dans un décalage d'indice.</li>
+        <li>Conclure sur le bord avec le rayon seul.</li>
+      </ul>
+    </div>
+    <h3>✓ À savoir refaire seul</h3>
+    <ol>
+      <li>Calculer un rayon par d'Alembert ou par comparaison.</li>
+      <li>Réciter les deux tableaux, rayons compris.</li>
+      <li>Traduire une opération suite ↔ fonction.</li>
+      <li>Traiter une récurrence linéaire : borne, fraction, éléments simples, identification.</li>
+      <li>Développer via une équa diff : analyse → rayon → synthèse.</li>
+    </ol>
+  </section>
+
+  <footer>Bon courage pour les colles ! Mochi croit en toi (ﾉ◕ヮ◕)ﾉ*:・ﾟ✧</footer>
+</main>
+
+</body></html>

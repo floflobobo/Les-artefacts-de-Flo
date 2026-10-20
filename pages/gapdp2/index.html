@@ -1,0 +1,354 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>GAPDP2 Ligne G</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800;900&family=Sora:wght@400;600;700;800&family=Josefin+Sans:wght@400;600;700&family=Figtree:wght@400;600;800&family=Kalam:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout : page maquette neutre ; à gauche un écran de jeu (format téléphone) habillé par le thème choisi, à droite l'accueil en plan de métro et les notes */
+:root{
+  --pg-bg:#f3f4f6; --pg-ink:#16181d; --pg-muted:#5b616e; --pg-line:#d5d8de; --pg-card:#ffffff; --pg-accent:#3b4cca;
+  --f-ui:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--pg-bg:#121418;--pg-ink:#e8eaee;--pg-muted:#9aa1ad;--pg-line:#2c313a;--pg-card:#1a1d23;--pg-accent:#8f9bff;color-scheme:dark}}
+:root[data-theme="dark"]{--pg-bg:#121418;--pg-ink:#e8eaee;--pg-muted:#9aa1ad;--pg-line:#2c313a;--pg-card:#1a1d23;--pg-accent:#8f9bff;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--pg-bg);color:var(--pg-ink);font-family:var(--f-ui);font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--pg-accent);outline-offset:2px}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:22px 48px;display:grid;gap:22px}
+.head h1{margin:0;font-size:clamp(28px,5vw,40px);line-height:1.1;text-wrap:balance}
+.head p{margin:6px 0 0;color:var(--pg-muted);max-width:62ch}
+.skins{display:flex;flex-wrap:wrap;gap:8px}
+.skin{display:flex;align-items:center;gap:10px;padding:8px 12px 8px 8px;border:1.5px solid var(--pg-line);background:var(--pg-card);border-radius:10px;text-align:left}
+.skin[aria-pressed="true"]{border-color:var(--pg-accent);box-shadow:0 0 0 2px var(--pg-accent) inset}
+.sw{display:grid;grid-template-columns:repeat(3,10px);grid-template-rows:repeat(2,10px);gap:2px;padding:4px;border-radius:6px}
+.sw i{border-radius:50%}
+.skin b{display:block;font-size:14px}
+.skin small{display:block;color:var(--pg-muted);font-size:12px;line-height:1.3}
+.cols{display:grid;gap:22px;align-items:start}
+@media(min-width:960px){.cols{grid-template-columns:430px minmax(0,1fr)}}
+.side{display:grid;gap:18px;min-width:0}
+.card{background:var(--pg-card);border:1.5px solid var(--pg-line);border-radius:12px;padding:16px;display:grid;gap:10px;min-width:0}
+.card h2{margin:0;font-size:20px}
+.card ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg-muted)}
+
+/* ===================== THÈMES DU JEU (chaque thème fixe toutes ses couleurs) ===================== */
+.sk{
+  --bg:#ffffff; --surface:#ffffff; --ink:#1d1d1b; --muted:#6b6b6b; --rule:#c9c9c9;
+  --glu:#e2001a; --lip:#f2a900; --nrj:#00a650; --azo:#0072bc; --heme:#a3007d; --lp:#7a5c3e;
+  --accent:#1d1d1b; --ok:#0b8a42; --bad:#d4151c; --okbg:#e7f6ec; --badbg:#fdeaea;
+  --fill:#ffffff; --sign-bg:#1d1d1b; --sign-ink:#ffffff; --band-a:#f1f4f7; --band-b:#ffffff; --band-ink:#7d8590;
+  --font:"Overpass",system-ui,sans-serif; --font-sign:"Overpass",system-ui,sans-serif; --sign-style:normal; --sign-weight:700; --radius:6px; --upper:none;
+  background:var(--bg); color:var(--ink); font-family:var(--font);
+}
+.game{border-radius:22px; border:10px solid #22252b; overflow:hidden; display:flex; flex-direction:column; height:780px; max-height:86vh; position:relative}
+.sk[data-skin="nuit"]{
+  --bg:#0e1a2b; --surface:#152439; --ink:#eef3fa; --muted:#94a6bf; --rule:#34465f;
+  --glu:#ff5a5f; --lip:#ffc145; --nrj:#3ddc97; --azo:#4fb3ff; --heme:#f472d0; --lp:#c8a27a;
+  --accent:#ffc145; --ok:#3ddc97; --bad:#ff6b6b; --okbg:#123a2f; --badbg:#3f1c24;
+  --fill:#0e1a2b; --sign-bg:#eef3fa; --sign-ink:#0e1a2b; --band-a:#13233a; --band-b:#0e1a2b; --band-ink:#7f93ae;
+  --font:"Sora",system-ui,sans-serif; --font-sign:"Sora",system-ui,sans-serif; --radius:10px;
+}
+.sk[data-skin="vintage"]{
+  --bg:#e8edf1; --surface:#f4f7f9; --ink:#1f2d3d; --muted:#5d6b7a; --rule:#b8c3cd;
+  --glu:#c8102e; --lip:#e5a800; --nrj:#00843d; --azo:#0019a8; --heme:#9b0058; --lp:#894e24;
+  --accent:#0019a8; --ok:#00843d; --bad:#c8102e; --okbg:#dceee3; --badbg:#f6dde0;
+  --fill:#f4f7f9; --sign-bg:#0019a8; --sign-ink:#ffffff; --band-a:#dde5ec; --band-b:#e8edf1; --band-ink:#5d6b7a;
+  --font:"Josefin Sans",system-ui,sans-serif; --font-sign:"Josefin Sans",system-ui,sans-serif; --radius:2px; --upper:uppercase;
+}
+.sk[data-skin="blouse"]{
+  --bg:#f2faf8; --surface:#ffffff; --ink:#0d3a42; --muted:#5b7c82; --rule:#c4dcd8;
+  --glu:#0f9d8f; --lip:#ff7a59; --nrj:#7cb342; --azo:#5c6bc0; --heme:#e0457b; --lp:#a07850;
+  --accent:#ff7a59; --ok:#119e6b; --bad:#e04848; --okbg:#e1f5ec; --badbg:#fde6e6;
+  --fill:#ffffff; --sign-bg:#ffffff; --sign-ink:#0d3a42; --band-a:#e3f3f0; --band-b:#f2faf8; --band-ink:#5b7c82;
+  --font:"Figtree",system-ui,sans-serif; --font-sign:"Figtree",system-ui,sans-serif; --radius:14px;
+}
+.sk[data-skin="fluo"]{
+  --bg:#fffefb; --surface:#ffffff; --ink:#1b1b2f; --muted:#6c6c80; --rule:#d9d9e3;
+  --glu:#ff2d87; --lip:#ff9f1c; --nrj:#2ec4b6; --azo:#4361ee; --heme:#9b5de5; --lp:#8d6e63;
+  --accent:#4361ee; --ok:#11a36b; --bad:#e63946; --okbg:#ddf8ea; --badbg:#ffe3e6;
+  --fill:#ffffff; --sign-bg:#fff35c; --sign-ink:#1b1b2f; --band-a:#f3f5ff; --band-b:#fffefb; --band-ink:#6c6c80;
+  --font:"Figtree",system-ui,sans-serif; --font-sign:"Kalam",cursive; --sign-style:normal; --sign-weight:700; --radius:4px;
+}
+.game[data-skin="blouse"] .sign{box-shadow:0 2px 8px rgba(13,58,66,.12);border:1.5px solid var(--rule)}
+.game[data-skin="fluo"] .sign{transform:rotate(-1.5deg)}
+.game[data-skin="fluo"] .stn.done .nm{justify-self:start;background:linear-gradient(transparent 55%, color-mix(in srgb,var(--lc) 35%, transparent) 55%)}
+.game[data-skin="nuit"] .bar.on{box-shadow:0 0 12px var(--lc)}
+.game[data-skin="nuit"] .stn.cur .dot{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 30%,transparent),0 0 18px var(--accent)}
+
+/* ---------- HUD ---------- */
+.ghud{padding:12px 14px 10px;border-bottom:2px solid var(--ink);display:grid;gap:8px;background:var(--surface)}
+.gtop{display:flex;align-items:center;gap:10px}
+.bullet{width:34px;height:34px;border-radius:50%;background:var(--lc);color:#fff;display:grid;place-items:center;font-weight:900;font-size:18px;flex:none}
+.game[data-skin="vintage"] .bullet{border-radius:0;clip-path:none}
+.gtitle{font-weight:800;font-size:19px;line-height:1.1;text-transform:var(--upper);letter-spacing:.01em;min-width:0}
+.gtitle small{display:block;font-weight:600;font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0}
+.meters{display:flex;align-items:center;gap:12px;font-size:14px}
+.hearts{color:var(--bad);font-size:18px;letter-spacing:2px}
+.hearts .gone{color:var(--rule)}
+.combo{font-weight:800;color:var(--accent)}
+.pts{margin-left:auto;font-family:var(--f-mono);font-weight:700}
+.prog{height:5px;background:var(--rule);border-radius:3px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--lc);transition:width .4s}
+
+/* ---------- la ligne ---------- */
+.line{flex:1;overflow-y:auto;padding:4px 0 18px;position:relative}
+.band{position:relative;padding:14px 14px 10px 0}
+.band.a{background:var(--band-a)}
+.band.b{background:var(--band-b)}
+.band .zone{position:absolute;right:12px;top:8px;font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--band-ink)}
+.membrane{position:relative;height:30px;border-top:3px double var(--band-ink);border-bottom:3px double var(--band-ink);display:flex;align-items:center;gap:10px;background:repeating-linear-gradient(90deg,transparent 0 10px,color-mix(in srgb,var(--band-ink) 18%,transparent) 10px 12px)}
+.membrane .bar{position:absolute;left:31px;top:-3px;bottom:-3px}
+.membrane span{margin-left:58px;font-size:12px;font-weight:700;color:var(--band-ink);background:var(--bg);padding:0 6px;border-radius:4px}
+.row{display:grid;grid-template-columns:70px minmax(0,1fr);align-items:center;min-height:30px}
+.rail{position:relative;align-self:stretch}
+.bar{position:absolute;left:31px;width:9px;top:0;bottom:0;background:var(--rule);border-radius:2px}
+.bar.on{background:var(--lc)}
+.bar.off{background:repeating-linear-gradient(var(--rule) 0 8px,transparent 8px 13px)}
+.stn .rail{min-height:40px}
+.dot{position:absolute;left:21px;top:50%;width:29px;height:29px;margin-top:-14.5px;border-radius:50%;background:var(--fill);border:5px solid var(--rule);z-index:1}
+.stn.done .dot{border-color:var(--lc)}
+.stn.bad .dot{border-color:var(--bad)}
+.stn.cur .dot{border-color:var(--accent);animation:ring 1.4s infinite}
+.stn.first .bar{top:50%}
+.stn.last .bar{bottom:50%}
+.nm{font-weight:800;font-size:17px;line-height:1.15;text-transform:var(--upper);letter-spacing:.01em;overflow-wrap:anywhere;padding-right:10px}
+.stn.fut .nm{color:var(--muted);font-weight:600;font-size:14px;font-family:var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+.stn.cur .nm{color:var(--accent)}
+.nm .fix{display:block;color:var(--ok);font-size:13px}
+.nm .was{text-decoration:line-through;color:var(--bad);font-weight:600}
+.seg .rail{min-height:64px}
+.segc{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px 8px 0}
+.sign{font-family:var(--font-sign);font-style:var(--sign-style);font-weight:var(--sign-weight);font-size:14px;background:var(--sign-bg);color:var(--sign-ink);padding:5px 10px;border-radius:var(--radius);max-width:100%;overflow-wrap:anywhere}
+.sign.q{background:transparent;color:var(--muted);border:2px dashed var(--rule);font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.sign.ask{background:transparent;color:var(--accent);border:2.5px solid var(--accent);font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;animation:ring 1.4s infinite}
+.sign.bad{background:var(--badbg);color:var(--ink);border:2px solid var(--bad)}
+.sign .fix{display:block;color:var(--ok);font-size:12px}
+.sign .was{text-decoration:line-through;opacity:.7}
+.cof{width:38px;height:38px;border-radius:50%;border:3px solid var(--ink);background:var(--fill);display:grid;place-items:center;font-family:var(--f-mono);font-size:9.5px;font-weight:700;line-height:1;text-align:center}
+.cof.fut{border-color:var(--rule);color:var(--muted)}
+.train{position:absolute;left:21px;top:50%;width:29px;height:40px;margin-top:-20px;border-radius:9px 9px 6px 6px;background:var(--accent);z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:6px 5px 14px;animation:arrive .5s ease-out}
+.train i{background:var(--bg);border-radius:2px}
+.train::after{content:"";position:absolute;left:6px;right:6px;bottom:5px;height:3px;border-radius:2px;background:var(--bg);opacity:.7}
+
+/* ---------- pupitre ---------- */
+.desk{border-top:2px solid var(--ink);background:var(--surface);padding:12px 14px 14px;display:grid;gap:10px}
+.qq{margin:0;font-weight:700;font-size:15px}
+.qq small{display:block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.opt{text-align:left;padding:9px 10px;border:1.5px solid var(--ink);border-radius:var(--radius);background:var(--bg);font-weight:600;font-size:13.5px;line-height:1.25;min-height:44px;font-family:var(--font)}
+.opt:hover{background:color-mix(in srgb,var(--accent) 12%,var(--bg))}
+.fb{border-left:5px solid var(--bad);background:var(--badbg);padding:8px 10px;border-radius:4px;font-size:14px}
+.fb b{color:var(--bad)}
+.fbrow{display:flex;justify-content:flex-end}
+.go{border:0;background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:var(--radius);font-weight:800;font-family:var(--font)}
+.end{text-align:center;display:grid;gap:6px;padding:6px 0}
+.end b{font-size:22px}
+.end .st{font-size:30px;color:var(--lip);letter-spacing:4px}
+
+/* ---------- mini plan ---------- */
+.plan{border-radius:12px;overflow:hidden;border:1.5px solid var(--pg-line)}
+.plan svg{display:block;width:100%;height:auto}
+.plan .ln{fill:none;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.plan .s{stroke-width:3.5}
+.plan text{font-size:11px;font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--pg-muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:#fff;font-style:normal;font-weight:900;font-size:11px}
+
+@keyframes ring{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 25%,transparent)}}
+@keyframes arrive{from{transform:translateY(-34px);opacity:.3}to{transform:none;opacity:1}}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.shake{animation:shake .3s}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <span class="eyebrow">GAPDP2 · maquette</span>
+    <h1>La néoglucogenèse en ligne de métro</h1>
+    <p>Joue les stations restantes pour voir la rame avancer, et change de thème en haut. Chaque thème remplace le quadrillage par une ambiance complète : couleurs, typographie, panneaux.</p>
+  </header>
+  <div class="skins" id="skins" role="group" aria-label="Thème du jeu"></div>
+  <div class="cols">
+    <div class="game sk" id="game" data-skin="tisseo"></div>
+    <div class="side">
+      <section class="card">
+        <span class="eyebrow">Accueil</span>
+        <h2>La carte devient un plan de métro</h2>
+        <div class="plan" id="plan"></div>
+        <div class="legend" id="legend"></div>
+        <p style="margin:0;color:var(--pg-muted);font-size:14px">Chaque monde est une ligne, chaque voie une station. Les stations pleines sont maîtrisées. Toutes les lignes se croisent au Carrefour, la grande correspondance, qui reste le boss final.</p>
+      </section>
+      <section class="card">
+        <span class="eyebrow">En jeu</span>
+        <h2>Ce qui change dans une voie</h2>
+        <ul>
+          <li>Les <b>molécules sont des stations</b> et les <b>enzymes des panneaux</b> sur les tronçons.</li>
+          <li>Chaque bonne réponse fait <b>avancer la rame</b> d'un tronçon ; la partie déjà parcourue se colore.</li>
+          <li>Les <b>cofacteurs</b> deviennent des pastilles de correspondance (ATP, NADH, GTP…).</li>
+          <li>Les <b>compartiments</b> sont des zones de fond : quand la voie passe de la mitochondrie au cytosol, la ligne <b>traverse la membrane</b>.</li>
+          <li>Chaque monde a sa <b>lettre de ligne</b> : G, L, É, N, H, P.</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const SKINS = [
+  {id:"tisseo", n:"Signalétique", d:"Blanc net, couleurs franches, panneaux noirs", c:["#ffffff","#e2001a","#f2a900","#00a650","#0072bc","#1d1d1b"]},
+  {id:"nuit", n:"Métro de nuit", d:"Bleu nuit, lignes lumineuses, panneaux blancs", c:["#0e1a2b","#ff5a5f","#ffc145","#3ddc97","#4fb3ff","#eef3fa"]},
+  {id:"vintage", n:"Plan 1933", d:"Papier bleu-gris, lettres capitales, années 30", c:["#e8edf1","#c8102e","#e5a800","#00843d","#0019a8","#1f2d3d"]},
+  {id:"blouse", n:"Blouse blanche", d:"Clinique et doux, menthe et corail", c:["#f2faf8","#0f9d8f","#ff7a59","#7cb342","#5c6bc0","#0d3a42"]},
+  {id:"fluo", n:"Surligneur", d:"Fiche de révision, fluo et panneaux manuscrits", c:["#fffefb","#ff2d87","#ff9f1c","#2ec4b6","#4361ee","#fff35c"]}
+];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* La voie (données du jeu) : stations et tronçons, avec zone */
+const STNS = ["Pyruvate","Oxaloacétate","Malate","Oxaloacétate (cytosol)","Phosphoénolpyruvate","Fructose-1,6-bisP","Fructose-6-P","Glucose-6-P","Glucose libéré dans le sang"];
+const SEGS = [
+  {e:"Pyruvate carboxylase", c:["ATP"], z:"m"},
+  {e:"Malate déshydrogénase", c:["NADH"], z:"m"},
+  {e:"Malate déshydrogénase", c:["NADH"], z:"c", cross:true},
+  {e:"PEP carboxykinase (PEPCK)", c:["GTP"], z:"c"},
+  {e:"Enzymes réversibles de la glycolyse", c:["ATP"], z:"c"},
+  {e:"Fructose-1,6-bisphosphatase", c:[], z:"c"},
+  {e:"Glucose-6-P isomérase", c:[], z:"c"},
+  {e:"Glucose-6-phosphatase", c:[], z:"c"}
+];
+const TRAPS = {e:["Pyruvate kinase","Malate carboxykinase","Pyruvate déshydrogénase","Phosphofructokinase-1","Fructose-1-phosphatase","Hexokinase","Citrate lyase"],
+               m:["Acétyl-CoA","Lactate","Citrate","Fructose-2,6-bisP","Glycérol-3-P","Glucose-1-P"]};
+const WHY = {2:"Le malate traverse la membrane mitochondriale, l'OAA non : c'est la navette malate.", 3:"PEPCK : du GTP, pas de l'ATP, et pas de biotine.", 5:"Son nom = son substrat. Une phosphatase ne consomme pas d'ATP.", 7:"Foie (et rein) uniquement : le muscle n'en a pas."};
+
+// questions restantes : à partir du tronçon 2 (index 2), on alterne enzyme puis station
+let Q = [];
+for (let s=2; s<SEGS.length; s++){ Q.push({t:"e", i:s, ans:SEGS[s].e}); Q.push({t:"m", i:s+1, ans:STNS[s+1]}); }
+const st = {k:0, hearts:2, combo:2, pts:240, fb:null, done:false, hit:false, errs:{}};
+// état initial : stations 0-2 faites (une erreur en station 1), tronçons 0-1 faits
+const segOK = new Set([0,1]), stnOK = new Set([0,1,2]);
+const stnBad = {1:"Phosphoénolpyruvate"};
+
+function shuffle(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+let opts = [];
+function makeOpts(){
+  const q = Q[st.k]; if (!q) return [];
+  const pool = q.t==="e" ? TRAPS.e.concat(SEGS.map(s=>s.e)) : TRAPS.m.concat(STNS);
+  const out = []; for (const t of shuffle(pool.slice())){ if (t!==q.ans && !out.includes(t)) out.push(t); if (out.length===3) break; }
+  return shuffle(out.concat([q.ans]));
+}
+
+function lineHTML(){
+  const q = Q[st.k];
+  const curSeg = q && q.t==="e" ? q.i : -1, curStn = q && q.t==="m" ? q.i : -1;
+  const trainSeg = q ? (q.t==="e" ? q.i : q.i-1) : -1;
+  const segDone = i => segOK.has(i) || (st.errs["e"+i]!==undefined);
+  const stnDone = i => stnOK.has(i) || (st.errs["m"+i]!==undefined);
+  const station = (i) => {
+    const cls = ["row","stn", i===0?"first":"", i===STNS.length-1?"last":"",
+      stnDone(i) ? ((stnBad[i]||st.errs["m"+i]) ? "bad done" : "done") : i===curStn ? "cur" : "fut"].join(" ");
+    const was = stnBad[i] || st.errs["m"+i];
+    const name = stnDone(i) ? (was ? `<span class="was">${esc(was)}</span><span class="fix">${esc(STNS[i])}</span>` : esc(STNS[i])) : i===curStn ? "Station ?" : "Station";
+    const on = stnDone(i);
+    return `<div class="${cls}"><div class="rail"><div class="bar ${on?"on":"off"}"></div><div class="dot"></div></div><div class="nm">${name}</div></div>`;
+  };
+  const segment = (i) => {
+    const s = SEGS[i]; const done = segDone(i);
+    const err = st.errs["e"+i];
+    const sign = done ? (err ? `<span class="sign bad"><span class="was">${esc(err)}</span><span class="fix">${esc(s.e)}</span></span>` : `<span class="sign">${esc(s.e)}</span>`)
+      : i===curSeg ? `<span class="sign ask">Enzyme ?</span>` : `<span class="sign q">Enzyme</span>`;
+    const cofs = s.c.map(c=>`<span class="cof ${done?"":"fut"}">${esc(c)}</span>`).join("");
+    const train = i===trainSeg ? `<div class="train"><i></i><i></i></div>` : "";
+    return `<div class="row seg"><div class="rail"><div class="bar ${done?"on":"off"}"></div>${train}</div><div class="segc">${sign}${cofs}</div></div>`;
+  };
+  let mito = `<div class="band a"><span class="zone">Mitochondrie</span>`, cyto = `<div class="band b"><span class="zone">Cytosol</span>`;
+  // mitochondrie : stations 0,1,2 et tronçons 0,1
+  mito += station(0) + segment(0) + station(1) + segment(1) + station(2) + `</div>`;
+  const mem = `<div class="membrane"><div class="bar ${segDone(2)?"on":"off"}"></div><span>↕ le malate traverse la membrane</span></div>`;
+  for (let i=2;i<SEGS.length;i++) cyto += segment(i) + station(i+1);
+  cyto += `</div>`;
+  return mito + mem + cyto;
+}
+
+function deskHTML(){
+  if (st.done) return `<div class="desk"><div class="end"><span class="st">★★☆</span><b>Terminus : glucose</b><span style="color:var(--muted);font-size:14px">${st.pts} pts · la 3ᵉ étoile demande le mode Major sans perdre de cœur</span><div class="fbrow" style="justify-content:center"><button class="go" id="reset">Rejouer la maquette</button></div></div></div>`;
+  const q = Q[st.k];
+  if (st.fb) return `<div class="desk"><div class="fb"><b>Raté.</b> Bonne réponse : <b style="color:var(--ink)">${esc(q.ans)}</b>.${st.fb.why?" "+esc(st.fb.why):""}</div><div class="fbrow"><button class="go" id="cont">Continuer</button></div></div>`;
+  const prompt = q.t==="e" ? `Quelle enzyme pour ${STNS[q.i]} → ${STNS[q.i+1]} ?` : `Prochaine station après ${STNS[q.i-1]} ?`;
+  return `<div class="desk"><p class="qq"><small>${q.t==="e"?"Enzyme":"Station"} · ${st.k+1} / ${Q.length}</small>${esc(prompt)}</p>
+    <div class="opts">${opts.map((o,i)=>`<button class="opt" data-o="${i}">${esc(o)}</button>`).join("")}</div></div>`;
+}
+
+function render(scroll){
+  const g = document.getElementById("game");
+  const hearts = [0,1,2].map(i=>`<span class="${i<st.hearts?"":"gone"}">♥</span>`).join("");
+  const done = 3 + 2 + st.k; const total = STNS.length + SEGS.length;
+  g.style.setProperty("--lc","var(--glu)");
+  g.innerHTML = `<div class="ghud"><div class="gtop"><span class="bullet">G</span><span class="gtitle">Néoglucogenèse<small>Ligne G · Glucides · Interne</small></span></div>
+    <div class="meters"><span class="hearts ${st.hit?"shake":""}">${hearts}</span><span class="combo">×${Math.min(5,1+Math.floor(st.combo/3))}${st.combo>1?" · combo "+st.combo:""}</span><span class="pts">${st.pts} pts</span></div>
+    <div class="prog"><i style="width:${Math.round(100*Math.min(done,total)/total)}%"></i></div></div>
+    <div class="line" id="line">${lineHTML()}</div>${deskHTML()}`;
+  if (scroll){ const t = g.querySelector(".stn.cur, .sign.ask"); const box = document.getElementById("line"); if (t && box) box.scrollTop = Math.max(0, t.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - box.clientHeight/2); }
+}
+
+document.getElementById("game").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id==="reset"){ st.k=0; st.hearts=2; st.combo=2; st.pts=240; st.fb=null; st.done=false; st.errs={}; opts=makeOpts(); render(true); return; }
+  if (b.id==="cont"){ st.fb=null; st.hit=false; next(); return; }
+  if (b.dataset.o===undefined) return;
+  const q = Q[st.k], pick = opts[+b.dataset.o];
+  if (pick===q.ans){ st.combo++; st.pts += 20*Math.min(5,1+Math.floor(st.combo/3)); next(); }
+  else { st.combo=0; st.hearts=Math.max(0,st.hearts-1); st.hit=true; st.errs[q.t+q.i]=pick; st.fb={why:WHY[q.i]||""}; render(false); }
+});
+function next(){
+  const q = Q[st.k]; if (q.t==="e") segOK.add(q.i); else stnOK.add(q.i);
+  if (st.errs[q.t+q.i]!==undefined){ /* déjà marqué en erreur, reste rouge */ }
+  st.k++; if (st.k>=Q.length){ st.done=true; render(true); return; }
+  opts = makeOpts(); render(true);
+}
+
+/* ---------- mini plan d'accueil ---------- */
+function planHTML(){
+  const L = [
+    {k:"glu", d:"M30 46 H200 L250 96 V160", s:[[30,46,"Glycogène",1,30,28,"start"],[115,46,"Glycolyse",1,115,28,"middle"],[200,46,"Néoglucogenèse",0,200,28,"middle"]]},
+    {k:"azo", d:"M430 46 H342 L262 126 V160", s:[[430,46,"Urée",0,430,28,"end"],[342,46,"Transamination",1,342,28,"middle"]]},
+    {k:"nrj", d:"M256 160 H430", s:[[330,160,"Krebs",1,330,186,"middle"],[430,160,"Chaîne resp.",0,430,186,"end"]]},
+    {k:"lip", d:"M256 160 V206 L296 246 H430", s:[[256,206,"β-oxydation",1,270,211,"start"],[325,246,"Cétogenèse",0,325,273,"middle"],[430,246,"Cholestérol",0,430,273,"end"]]},
+    {k:"heme", d:"M250 166 L190 226 H30", s:[[190,226,"Synthèse hème",0,190,253,"middle"],[30,226,"Bilirubine",0,30,253,"start"]]}
+  ];
+  let svg = `<svg viewBox="0 0 460 290" role="img" aria-label="Plan de métro des voies"><rect width="460" height="290" fill="var(--bg)"/>`;
+  L.forEach(x => svg += `<path class="ln" d="${x.d}" stroke="var(--${x.k})"/>`);
+  L.forEach(x => x.s.forEach(([cx,cy,n,m,lx,ly,an]) => {
+    svg += `<circle class="s" cx="${cx}" cy="${cy}" r="7" fill="${m?"var(--"+x.k+")":"var(--fill)"}" stroke="var(--ink)"/>`;
+    svg += `<text x="${lx}" y="${ly}" text-anchor="${an}" fill="var(--ink)" font-family="var(--font)">${esc(n)}</text>`;
+  }));
+  svg += `<rect x="228" y="146" width="52" height="30" rx="8" fill="var(--fill)" stroke="var(--ink)" stroke-width="4"/><text x="220" y="166" text-anchor="end" fill="var(--ink)" font-family="var(--font)" style="font-size:12px;font-weight:900">LE CARREFOUR</text></svg>`;
+  return svg;
+}
+function renderSide(){
+  const skin = document.getElementById("game").dataset.skin;
+  const plan = document.getElementById("plan");
+  plan.className = "plan sk"; plan.setAttribute("data-skin", skin);
+  plan.innerHTML = planHTML();
+  document.getElementById("legend").innerHTML = [["glu","G","Glucides"],["lip","L","Lipides"],["nrj","É","Énergie"],["azo","N","Azote"],["heme","H","Hème"],["lp","P","Lipoprotéines"]]
+    .map(([k,l,n])=>`<span><i style="background:${getComputedStyle(document.getElementById("game")).getPropertyValue("--"+k)}">${l}</i>${n}</span>`).join("");
+}
+
+function renderSkins(){
+  const cur = document.getElementById("game").dataset.skin;
+  document.getElementById("skins").innerHTML = SKINS.map(s=>`<button class="skin" data-skin="${s.id}" aria-pressed="${s.id===cur}">
+    <span class="sw" style="background:${s.c[0]};border:1px solid var(--pg-line)">${s.c.slice(1).map(c=>`<i style="background:${c}"></i>`).join("")}</span>
+    <span><b>${esc(s.n)}</b><small>${esc(s.d)}</small></span></button>`).join("");
+}
+document.getElementById("skins").addEventListener("click", e => {
+  const b = e.target.closest("button[data-skin]"); if (!b) return;
+  document.getElementById("game").dataset.skin = b.dataset.skin;
+  try { localStorage.setItem("gp_maquette_skin", b.dataset.skin); } catch(err){}
+  renderSkins(); renderSide(); render(false);
+});
+try { const s = localStorage.getItem("gp_maquette_skin"); if (s && SKINS.some(x=>x.id===s)) document.getElementById("game").dataset.skin = s; } catch(e){}
+opts = makeOpts(); renderSkins(); render(true); renderSide();
+</script>
+
+</body></html>

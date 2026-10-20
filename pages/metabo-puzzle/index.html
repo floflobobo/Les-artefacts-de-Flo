@@ -1,0 +1,1288 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Métabo Puzzle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@1,8..60,500;1,8..60,600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout : carte métabolique sur papier millimétré — accueil (mondes + classement) puis plateau vertical + bac à pièces collant en bas */
+:root{
+  --paper:#edf2f0; --grid:#d5dfdc; --card:#ffffff; --ink:#13232a; --muted:#56696e; --line:#9db1b0;
+  --glu:#0d6a87; --glu-soft:#d3ebf2; --lip:#9a5700; --lip-soft:#f5e3c6;
+  --nrj:#5d6b12; --nrj-soft:#e8ecc9; --azo:#3d47b5; --azo-soft:#dfe1fa; --heme:#a3214f; --heme-soft:#f6d9e3; --lp:#7b3fa0; --lp-soft:#ecdcf5;
+  --ok:#1b7a4b; --ok-soft:#d5efdf; --bad:#b2261d; --bad-soft:#f8dbd7; --sel:#5a3cc6; --sel-soft:#e7e1fb;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-enz:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0d161a; --grid:#17242a; --card:#132027; --ink:#e2ebe9; --muted:#8ea2a5; --line:#3a5259;
+  --glu:#5ec4e2; --glu-soft:#11323e; --lip:#f2a744; --lip-soft:#382811;
+  --nrj:#bccd5c; --nrj-soft:#272c0c; --azo:#a3abff; --azo-soft:#1c2050; --heme:#ff86ad; --heme-soft:#3d1222; --lp:#d6a2f7; --lp-soft:#2e1a3c;
+  --ok:#5fd393; --ok-soft:#113224; --bad:#ff8b81; --bad-soft:#3a1613; --sel:#ab98ff; --sel-soft:#25204a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0d161a; --grid:#17242a; --card:#132027; --ink:#e2ebe9; --muted:#8ea2a5; --line:#3a5259;
+  --glu:#5ec4e2; --glu-soft:#11323e; --lip:#f2a744; --lip-soft:#382811;
+  --nrj:#bccd5c; --nrj-soft:#272c0c; --azo:#a3abff; --azo-soft:#1c2050; --heme:#ff86ad; --heme-soft:#3d1222; --lp:#d6a2f7; --lp-soft:#2e1a3c;
+  --ok:#5fd393; --ok-soft:#113224; --bad:#ff8b81; --bad-soft:#3a1613; --sel:#ab98ff; --sel-soft:#25204a; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background-color:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;background-attachment:fixed}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 40px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.05}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* ---------- accueil ---------- */
+.hero{display:grid;gap:14px;padding-block:8px 22px;border-bottom:2px solid var(--ink);margin-bottom:22px}
+.hero h1{font-size:clamp(46px,9vw,92px);font-weight:800;letter-spacing:-.01em;text-transform:uppercase}
+.hero h1 .arrow{color:var(--glu)}
+.hero p{margin:0;max-width:60ch;color:var(--muted);font-size:16px}
+.home{display:grid;gap:28px}
+@media(min-width:1000px){.home{grid-template-columns:minmax(0,1fr) 330px;align-items:start}}
+.setup{display:grid;gap:16px;background:var(--card);border:1.5px solid var(--ink);padding:16px}
+.setup label{display:grid;gap:6px;font-weight:600}
+.setup input{font:inherit;padding:10px 12px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);max-width:320px;width:100%}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.mode{text-align:left;padding:10px 12px;border:1.5px solid var(--line);background:var(--paper);display:grid;gap:2px}
+.mode b{font-family:var(--f-display);font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+.mode span{font-size:13px;color:var(--muted)}
+.mode[aria-pressed="true"]{border-color:var(--sel);background:var(--sel-soft);box-shadow:inset 4px 0 0 var(--sel)}
+.world{display:grid;gap:12px}
+.world-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1.5px solid var(--line);padding-bottom:6px}
+.world-head h2{font-size:34px;text-transform:uppercase;color:var(--w)}
+.levels{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.lvl{text-align:left;background:var(--card);border:1.5px solid var(--line);padding:12px;display:grid;gap:8px;align-content:start;min-width:0;transition:transform .12s,border-color .12s}
+.lvl:hover{border-color:var(--w);transform:translateY(-2px)}
+.lvl h3{font-size:22px;text-transform:uppercase;letter-spacing:.01em}
+.lvl .sub{font-size:13px;color:var(--muted);margin:0}
+.lvl .num{font-family:var(--f-mono);font-size:11px;color:var(--w);letter-spacing:.08em}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font-family:var(--f-mono);font-size:11px;padding:2px 6px;border:1px solid var(--line);color:var(--muted)}
+.pill.done{border-color:var(--w);color:var(--w);font-weight:700}
+.locked{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.lockcard{border:1.5px dashed var(--line);padding:10px;color:var(--muted);display:grid;gap:2px}
+.lockcard b{font-family:var(--f-display);font-size:20px;text-transform:uppercase;color:var(--ink)}
+.board-aside{display:grid;gap:12px;background:var(--card);border:1.5px solid var(--ink);padding:16px}
+@media(min-width:1000px){.board-aside{position:sticky;top:calc(16px + env(safe-area-inset-top,0px))}}
+.board-aside h2{font-size:30px;text-transform:uppercase}
+.lb{list-style:none;margin:0;padding:0;display:grid}
+.lb li{display:grid;grid-template-columns:2.2em minmax(0,1fr) auto;gap:8px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--grid)}
+.lb li .who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.lb li.me{background:var(--sel-soft);padding-inline:6px;margin-inline:-6px}
+.lb .rk{font-family:var(--f-mono);color:var(--muted)}
+.lb .pts{font-family:var(--f-mono);font-weight:700}
+.mytotal{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);padding-top:8px}
+.mytotal .big{font-family:var(--f-display);font-size:34px;font-weight:800}
+.note{font-size:13px;color:var(--muted);margin:0}
+.note.warn{color:var(--bad)}
+
+/* ---------- plateau ---------- */
+.playbar{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:2px solid var(--ink);padding-top:env(safe-area-inset-top,0px)}
+.playbar .in{max-width:900px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.playbar h1{font-size:clamp(20px,6vw,26px);text-transform:uppercase;flex:1 1 150px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--w)}
+.back{border:1.5px solid var(--ink);background:var(--card);padding:6px 10px;font-weight:600}
+.badge{font-family:var(--f-mono);font-size:12px;padding:3px 8px;border:1.5px solid var(--sel);color:var(--sel);font-weight:700}
+.timer{font-family:var(--f-mono);font-weight:700;font-size:15px}
+.play{max-width:900px;margin:0 auto;padding-inline:16px;padding-block:18px 24px;display:grid;gap:26px}
+.intro{margin:0;color:var(--muted)}
+.chain{display:grid;justify-items:start;gap:0;min-width:0}
+.clabel{font-family:var(--f-display);font-size:20px;text-transform:uppercase;margin-bottom:8px;color:var(--w)}
+.mol{font-weight:700;padding:8px 14px;border:2px solid var(--w);background:var(--card);border-radius:999px;max-width:100%}
+.mol.fx{background:var(--wsoft)}
+.step{display:grid;grid-template-columns:28px minmax(0,1fr);min-height:56px;margin-left:22px;width:calc(100% - 22px)}
+.rail{position:relative}
+.rail::before{content:"";position:absolute;left:12px;top:0;bottom:8px;border-left:2.5px solid var(--w)}
+.rail::after{content:"";position:absolute;left:6.5px;bottom:0;border:7px solid transparent;border-top:9px solid var(--w);border-bottom:0}
+.tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-block:10px;min-width:0}
+.enz{font-family:var(--f-enz);font-style:italic;font-weight:600;font-size:16px}
+.tag{font-family:var(--f-mono);font-size:12px;padding:2px 7px;border:1px solid var(--line);background:var(--card)}
+.slot{min-height:38px;min-width:120px;max-width:100%;padding:6px 12px;border:2px dashed var(--line);background:var(--card);text-align:left;color:var(--muted);overflow-wrap:anywhere}
+.slot.enz{color:var(--ink)}
+.slot.filled{border-style:solid;border-color:var(--ink);color:var(--ink)}
+.slot.mol{border-radius:999px}
+.slot.want{border-color:var(--sel);background:var(--sel-soft);color:var(--sel)}
+.slot.ok{border:2px solid var(--ok);background:var(--ok-soft);color:var(--ink)}
+.slot.bad{border:2px solid var(--bad);background:var(--bad-soft);color:var(--ink)}
+.slot .fix{display:block;font-family:var(--f-body);font-style:normal;font-weight:700;color:var(--ok);font-size:13px}
+.slot .was{text-decoration:line-through;opacity:.75}
+.ph{font-family:var(--f-mono);font-size:12px;font-style:normal;letter-spacing:.06em;text-transform:uppercase}
+.gridwrap{overflow-x:auto;min-width:0}
+table{border-collapse:collapse;width:100%;background:var(--card);border:1.5px solid var(--ink)}
+th{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:8px;border-bottom:1.5px solid var(--ink);color:var(--muted);white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--grid);vertical-align:middle}
+td:first-child{font-weight:600}
+td .slot{min-width:110px;width:100%}
+.tray{position:sticky;bottom:0;z-index:5;background:var(--card);border-top:2px solid var(--ink);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tray .in{max-width:900px;margin:0 auto;padding:10px 16px;display:grid;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;max-height:min(34vh,260px);overflow-y:auto}
+.chip{padding:6px 10px;border:1.5px solid var(--ink);background:var(--paper);font-weight:600;font-size:14px;text-align:left}
+.chip[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:var(--card)}
+.trayfoot{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.cta{background:var(--ink);color:var(--paper);border:0;padding:10px 18px;font-family:var(--f-display);font-size:20px;text-transform:uppercase;letter-spacing:.04em}
+.cta.alt{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.result{background:var(--card);border:2px solid var(--ink);padding:16px;display:grid;gap:12px}
+.result .score{font-family:var(--f-display);font-size:64px;font-weight:800;line-height:1}
+.result ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.result .acts{display:flex;gap:8px;flex-wrap:wrap}
+.tip{border-left:4px solid var(--w);padding-left:10px;margin:0}
+.typer{display:grid;gap:8px}
+.typectx{font-size:13px;color:var(--muted);margin:0;overflow-wrap:anywhere}
+.typectx b{color:var(--ink)}
+.sugs{display:flex;flex-wrap:wrap;gap:6px;min-height:34px;max-height:min(22vh,150px);overflow-y:auto}
+.sug{padding:6px 10px;border:1.5px solid var(--line);background:var(--paper);font-weight:600;font-size:14px;text-align:left}
+.sug[aria-selected="true"]{border-color:var(--sel);background:var(--sel-soft);color:var(--ink)}
+.sug mark{background:transparent;color:var(--sel);font-weight:800}
+.typerow{display:flex;gap:8px;min-width:0}
+.typerow input{flex:1;min-width:0;font:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--ink);background:var(--paper);color:var(--ink)}
+.typerow button{border:2px solid var(--ink);background:var(--card);font-weight:700;padding:8px 12px;white-space:nowrap}
+.overview{position:relative;width:100%;max-width:560px;height:400px;margin-inline:auto;background:var(--card);border:1.5px solid var(--ink)}
+.overview svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.overview path{fill:none;stroke:var(--line);stroke-width:2.5;vector-effect:non-scaling-stroke}
+.onode{position:absolute;transform:translate(-50%,-50%);max-width:44%;padding:6px 10px;border:2px solid var(--h);background:var(--card);border-radius:999px;font-weight:700;font-size:13px;line-height:1.2;text-align:center;color:var(--ink)}
+.onode:hover{background:var(--hsoft)}
+.ocap{margin:-12px 0 0;text-align:center;font-size:13px;color:var(--muted)}
+.hubs{display:grid;gap:18px}
+.hub{background:var(--card);border:1.5px solid var(--line);border-top:6px solid var(--h);padding:14px;display:grid;gap:10px;scroll-margin-top:90px;min-width:0}
+.hubname{font-size:28px;text-transform:uppercase;color:var(--h)}
+.hubsub{margin:-6px 0 0;color:var(--muted);font-size:13px}
+.route{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-block:6px;border-top:1px solid var(--grid);min-width:0}
+.route .dir{font-family:var(--f-mono);font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+.route .dir.go{color:var(--h)}
+.route.from{color:var(--muted);font-size:13px}
+.hublink{border:2px solid var(--ink);background:var(--paper);border-radius:999px;padding:4px 10px;font-weight:700;font-size:14px}
+.hublink:hover{background:var(--sel-soft)}
+.slot.voie,.tag.voie{font-family:var(--f-mono);font-size:12px}
+.bossworld .world-head h2{color:var(--ink)}
+.lvl.bosscard{border:2.5px solid var(--ink);background:var(--card);box-shadow:6px 6px 0 var(--ink)}
+.lvl.bosscard:hover{border-color:var(--ink)}
+.lvl.bosscard h3{font-size:30px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div id="app"></div>
+
+<script>
+/* ============ CONTENU (poly UE 3.3) ============ */
+const WORLDS = {
+  glu:{name:"Glucides", c:"var(--glu)", s:"var(--glu-soft)"},
+  lip:{name:"Lipides", c:"var(--lip)", s:"var(--lip-soft)"},
+  nrj:{name:"Énergie", c:"var(--nrj)", s:"var(--nrj-soft)"},
+  azo:{name:"Azote", c:"var(--azo)", s:"var(--azo-soft)"},
+  heme:{name:"Hème", c:"var(--heme)", s:"var(--heme-soft)"},
+  lp:{name:"Lipoprotéines", c:"var(--lp)", s:"var(--lp-soft)"},
+  boss:{name:"Boss final", c:"var(--ink)", s:"var(--sel-soft)"}
+};
+const COFS = ["ATP consommé","ATP produit","2 ATP consommés","NADH produit","NADH consommé","NADPH produit","NADPH consommé","FADH₂ produit","GTP consommé","GTP produit","UTP consommé","H₂O ajoutée"];
+const LOCS = ["Cytosol","Mitochondrie"];
+
+const LEVELS = [
+{id:"glyco", w:"glu", t:"Glycolyse", s:"Du glucose au pyruvate, dans le cytosol",
+ chains:[{start:"Glucose", steps:[
+  {e:"Hexokinase / glucokinase", m:"Glucose-6-P", c:"ATP consommé", w:"1ʳᵉ kinase irréversible : glucokinase dans le foie, hexokinase ailleurs."},
+  {e:"Glucose-6-P isomérase", m:"Fructose-6-P", w:"Étape souvent sautée : la PFK1 ne travaille que sur un fructose."},
+  {e:"PFK1", m:"Fructose-1,6-bisP", c:"ATP consommé", w:"Phospho-FRUCTO-kinase 1 : 2ᵉ irréversible, étape clé."},
+  {e:"Aldolase", m:"DHAP + glycéraldéhyde-3-P"},
+  {e:"Triose-P isomérase", m:"2 glycéraldéhyde-3-P", w:"Le DHAP est converti : on continue avec 2 G3P par glucose."},
+  {e:"GAPDH", m:"1,3-bisphosphoglycérate", c:"NADH produit", w:"Après la GAPDH, l'aldéhyde devient un glycérATE. 2 NADH par glucose."},
+  {e:"Phosphoglycérate kinase", m:"3-phosphoglycérate", c:"ATP produit", w:"Cette kinase PRODUIT de l'ATP. Il ne reste qu'un phosphate : 3-PG, pas « 3-BPG »."},
+  {e:"Phosphoglycérate mutase", m:"2-phosphoglycérate", w:"Mutase (déplace le phosphate), pas isomérase."},
+  {e:"Énolase", m:"Phosphoénolpyruvate", w:"L'énolase est une DÉshydratase."},
+  {e:"Pyruvate kinase", m:"Pyruvate", c:"ATP produit", w:"3ᵉ irréversible. Pyruvate KINASE ≠ pyruvate déshydrogénase (mitochondrie)."}
+ ]}],
+ grids:[{cols:["Bilan par glucose","Valeur"], rows:[["ATP investis","2"],["ATP produits","4"],["Gain net","2 ATP"],["NADH produits","2 NADH"]]}],
+ traps:["Pyruvate déshydrogénase","Phosphoglycérate isomérase","Fructose-1,6-bisphosphatase","3-bisphosphoglycérate","Glucose-6-phosphatase","Lactate déshydrogénase","Pyruvate carboxylase","4 ATP"],
+ tip:"Les 3 irréversibles sont les 3 kinases qui touchent au glucose, au fructose et au PEP."},
+
+{id:"neo", w:"glu", t:"Néoglucogenèse", s:"Du pyruvate au glucose, avec la navette malate",
+ chains:[{start:"Pyruvate", steps:[
+  {e:"Pyruvate carboxylase", m:"Oxaloacétate", c:"ATP consommé", l:"Mitochondrie", w:"On AJOUTE un CO₂ (biotine). Ni pyruvate kinase, ni « carboxykinase »."},
+  {e:"Malate déshydrogénase", m:"Malate", c:"NADH consommé", l:"Mitochondrie", w:"L'OAA ne traverse pas la membrane, le malate oui : c'est la navette malate."},
+  {e:"Malate déshydrogénase", m:"Oxaloacétate (cytosol)", c:"NADH produit", l:"Cytosol"},
+  {e:"PEP carboxykinase (PEPCK)", m:"Phosphoénolpyruvate", c:"GTP consommé", l:"Cytosol", w:"PEPCK : du GTP, pas de l'ATP, et pas de biotine."},
+  {e:"Enzymes réversibles de la glycolyse", m:"Fructose-1,6-bisP", c:"ATP consommé", l:"Cytosol", w:"En remontant : phosphoglycérate kinase (ATP), GAPDH (NADH), aldolase."},
+  {e:"Fructose-1,6-bisphosphatase", m:"Fructose-6-P", l:"Cytosol", w:"Son nom = son substrat. Une phosphatase ne consomme pas d'ATP."},
+  {e:"Glucose-6-P isomérase", m:"Glucose-6-P", l:"Cytosol"},
+  {e:"Glucose-6-phosphatase", m:"Glucose libéré dans le sang", w:"Foie (et rein) uniquement : le muscle n'en a pas."}
+ ]}],
+ grids:[
+  {cols:["Bilan pour 1 glucose","Valeur"], rows:[["Pyruvates","2 pyruvates"],["ATP","4 ATP"],["GTP","2 GTP"],["NADH","2 NADH"]]},
+  {cols:["Substrat","Entre comme"], rows:[["Lactate","Pyruvate (LDH)"],["Alanine","Pyruvate (ALAT)"],["Glycérol","DHAP (via glycérol-3-P)"],["Acides gras","Impossible : PDH irréversible"]]}
+ ],
+ traps:["Pyruvate kinase","Malate carboxykinase","Pyruvate déshydrogénase","Phosphofructokinase-1","Fructose-1-phosphatase","Hexokinase","2 ATP","Acétyl-CoA"],
+ tip:"Pyruvate CARBOXYLASE puis PEPCK : deux enzymes, l'OAA au milieu."},
+
+{id:"glycogene", w:"glu", t:"Glycogène", s:"Stocker puis puiser",
+ chains:[{start:"Glucose", steps:[
+  {e:"Hexokinase / glucokinase", m:"Glucose-6-P", c:"ATP consommé"},
+  {e:"Phosphoglucomutase", m:"Glucose-1-P"},
+  {e:"UDP-glucose pyrophosphorylase", m:"UDP-glucose", c:"UTP consommé", w:"C'est de l'UTP (pas de l'UDP) qui active le glucose."},
+  {e:"Glycogène synthase", m:"Glycogène (n + 1)", w:"Synthase = Stocke. Active quand elle est déphosphorylée."},
+  {e:"Glycogène phosphorylase", m:"Glucose-1-P", w:"Phosphorylase = Puise. La seule active phosphorylée."},
+  {e:"Phosphoglucomutase", m:"Glucose-6-P"},
+  {e:"Glucose-6-phosphatase", m:"Glucose (foie seulement)", w:"Le muscle garde son G6P pour sa propre glycolyse."}
+ ]}],
+ grids:[{cols:["Situation","Glycogène synthase","Glycogène phosphorylase"], rows:[
+  ["Après un repas (insuline)","Active","Inactive"],
+  ["À jeun (glucagon)","Inactive","Active"],
+  ["Effort (adrénaline + Ca²⁺)","Inactive","Active"]]}],
+ traps:["Glycogène synthétase","Glucose-6-P isomérase","Tyrosine synthase","Glycogène phosphatase","UDP consommé","Glucokinase seule"],
+ tip:"Méthode en 2 temps : l'hormone (glucagon phosphoryle, insuline déphosphoryle), puis l'enzyme (seule la phosphorylase est active phosphorylée)."},
+
+{id:"glucagon", w:"glu", t:"Cascade glucagon", s:"Glucagon ou adrénaline jusqu'aux 3 cibles de la PKA",
+ chains:[{start:"Glucagon ou adrénaline", steps:[
+  {m:"RCPG (protéine Gαs)", w:"L'adrénaline passe aussi par un RCPG. Le récepteur tyrosine kinase, c'est uniquement l'insuline."},
+  {m:"Adénylate cyclase"},
+  {m:"AMPc"},
+  {m:"PKA", w:"L'AMPc libère les sous-unités catalytiques de la PKA."}
+ ]}],
+ grids:[{cols:["Cible de la PKA","Devient","Conséquence"], rows:[
+  ["Glycogène synthase","Inactive","Plus de stockage"],
+  ["Phosphorylase kinase","Active","Phosphorylase activée, glycogène dégradé"],
+  ["Inhibiteur-1","Actif","Phosphatase bloquée : les phosphates restent"]],
+  whys:[null,null,"La GSK3 n'est PAS une cible de la PKA : c'est l'inhibiteur-1 qui verrouille la phosphatase."]}],
+ traps:["Récepteur tyrosine kinase","GSK3","AKT","PI3K","Guanylate cyclase","GMPc","PKC"],
+ tip:"Ne saute jamais le milieu : RCPG, adénylate cyclase, AMPc, PKA."},
+
+{id:"insuline", w:"glu", t:"Cascade insuline", s:"Comment l'insuline allume la glycogène synthase",
+ chains:[{start:"Insuline", steps:[
+  {m:"Récepteur tyrosine kinase", w:"Dimérisation puis autophosphorylation."},
+  {m:"PI3K"},
+  {m:"PIP3"},
+  {m:"AKT (PKB)"},
+  {m:"GSK3 inhibée", w:"La GSK3 éteint la synthase ; AKT éteint la GSK3, donc la synthase reste active."},
+  {m:"Glycogène synthase active"}
+ ]}],
+ grids:[{cols:["Action de l'insuline","Effet"], rows:[
+  ["AKT inhibe la GSK3","La synthase n'est plus phosphorylée"],
+  ["Active la phosphatase","Déphosphoryle la synthase : active"],
+  ["Active la phosphatase ","Déphosphoryle la phosphorylase : inactive"],
+  ["Dégrade l'AMPc","PKA éteinte"]]}],
+ traps:["RCPG (protéine Gαs)","PKA","Inhibiteur-1","PTEN","GSK3 activée","Glycogène synthase inactive","PKA activée"],
+ tip:"Le camp insuline, ce sont les noms en K : PI3K, AKT, GSK3."},
+
+{id:"f26bp", w:"glu", t:"Fructose-2,6-bisP", s:"Le régulateur qui choisit glycolyse ou néoglucogenèse",
+ chains:[{start:"Glucagon (foie)", steps:[
+  {m:"AMPc puis PKA"},
+  {m:"PFK2 éteinte, FBPase-2 allumée", w:"Une seule enzyme bifonctionnelle : la PKA éteint la kinase et allume la phosphatase."},
+  {m:"Fructose-2,6-bisP ↓"},
+  {m:"PFK1 freinée, F1,6-bisphosphatase libérée", w:"Le F2,6BP a DEUX cibles : il active la PFK1 et inhibe la F1,6-bisphosphatase."},
+  {m:"Néoglucogenèse"}
+ ]}],
+ grids:[{cols:["Effecteur","Cible","Effet"], rows:[
+  ["Fructose-2,6-bisP","PFK1","Active"],
+  ["Fructose-2,6-bisP ","F1,6-bisphosphatase","Inhibe"],
+  ["ATP","PFK1 ","Inhibe "],
+  ["AMP","PFK1  ","Active "],
+  ["Citrate","PFK2","Inhibe  "],
+  ["Fructose-6-P","PFK2 ","Active  "]]}],
+ traps:["Fructose-2,6-bisP ↑","Glycolyse","Hexokinase","Glucose-6-phosphatase","Pyruvate kinase"],
+ tip:"Le F2,6BP l'emporte sur l'ATP pour activer la PFK1."},
+
+{id:"pentoses", w:"glu", t:"Voie des pentoses", s:"Phase oxydative : NADPH et ribose",
+ chains:[{start:"Glucose-6-P", steps:[
+  {e:"G6PDH", m:"6-phosphogluconolactone", c:"NADPH produit", w:"Enzyme limitante. C'est le NADP⁺ (pas le NAD) qui est réduit."},
+  {e:"Lactonase", m:"6-phosphogluconate"},
+  {e:"6-phosphogluconate déshydrogénase", m:"Ribulose-5-P + CO₂", c:"NADPH produit", w:"Décarboxylation oxydative : 2ᵉ NADPH."},
+  {e:"Isomérase", m:"Ribose-5-P"}
+ ]}],
+ grids:[{cols:["Élément","Rôle"], rows:[
+  ["NADPH","Synthèse des acides gras"],
+  ["NADPH ","Synthèse du cholestérol"],
+  ["NADPH  ","Régénère le glutathion réduit"],
+  ["Ribose-5-P","Synthèse des nucléotides"],
+  ["Inhibiteur de la G6PDH","Palmitoyl-CoA"]]}],
+ traps:["Glucose-6-phosphatase","Phosphoglucomutase","Malonyl-CoA","Hexokinase","Production d'ATP","Désoxyribose"],
+ tip:"Pas de but énergétique : la voie fabrique du NADPH et des pentoses."},
+
+{id:"betaox", w:"lip", t:"β-oxydation", s:"De l'acide gras à l'acétyl-CoA",
+ chains:[{start:"Acide gras", steps:[
+  {e:"Acyl-CoA synthétase", m:"Acyl-CoA", c:"ATP consommé", l:"Cytosol", w:"1 ATP part en AMP : compte −2 ATP au bilan."},
+  {e:"CPT1", m:"Acylcarnitine", w:"La CPT1 remplace le CoA par une carnitine. Étape limitante, inhibée par le malonyl-CoA."},
+  {e:"Translocase", m:"Acylcarnitine dans la matrice"},
+  {e:"CPT2", m:"Acyl-CoA dans la matrice"},
+  {e:"Acyl-CoA déshydrogénase", m:"Δ2-énoyl-CoA", c:"FADH₂ produit", l:"Mitochondrie"},
+  {e:"Énoyl-CoA hydratase", m:"3-hydroxyacyl-CoA", c:"H₂O ajoutée", l:"Mitochondrie", w:"HYDRATATION (ajout d'eau), jamais « hydrogénation »."},
+  {e:"3-hydroxyacyl-CoA déshydrogénase", m:"3-cétoacyl-CoA", c:"NADH produit", l:"Mitochondrie"},
+  {e:"Thiolase", m:"Acyl-CoA (n − 2) + acétyl-CoA", l:"Mitochondrie"}
+ ]}],
+ grids:[{cols:["Règle","Réponse"], rows:[
+  ["Acétyl-CoA pour n carbones","n/2"],
+  ["Nombre de tours","(n/2) − 1"],
+  ["Bilan net d'un C10","64 ATP"],
+  ["AG mono-insaturé","+ isomérase"],
+  ["AG poly-insaturé","+ isomérase + réductase (NADPH)"]]}],
+ traps:["Hydrogénase","Carnitine synthase","Acétyl-CoA carboxylase","(n/2) + 1","78 ATP","NADPH produit","+ réductase seule"],
+ tip:"Ordre d'un tour : oxydation (FAD), hydratation, oxydation (NAD), thiolyse."},
+
+{id:"ceto", w:"lip", t:"Cétogenèse", s:"Les carburants de secours fabriqués par le foie",
+ chains:[{start:"2 acétyl-CoA", steps:[
+  {e:"Thiolase", m:"Acétoacétyl-CoA", l:"Mitochondrie"},
+  {e:"HMG-CoA synthase", m:"HMG-CoA", l:"Mitochondrie", w:"+ 1 acétyl-CoA. 1ʳᵉ étape irréversible."},
+  {e:"HMG-CoA lyase", m:"Acétoacétate", l:"Mitochondrie", w:"Lyase = couper : on retire un acétyl-CoA."},
+  {e:"3-hydroxybutyrate déshydrogénase", m:"3-hydroxybutyrate", c:"NADH consommé", l:"Mitochondrie"}
+ ]}],
+ grids:[{cols:["Question","Réponse"], rows:[
+  ["Déclencheur","Manque d'oxaloacétate (parti en néoglucogenèse)"],
+  ["Situations","Jeûne et diabète de type 1"],
+  ["Formé spontanément","Acétone, éliminée par les poumons"],
+  ["Organe producteur","Foie uniquement"],
+  ["Principal utilisateur","Cerveau"]]}],
+ traps:["HMG-CoA réductase","Citrate synthase","Excès d'oxaloacétate","Muscle uniquement","Mévalonate","Repas riche en glucides"],
+ tip:"La cétogenèse est un anabolisme : les corps cétoniques sont des carburants, pas des déchets."},
+
+{id:"navette", w:"lip", t:"Navette citrate", s:"Sortir l'acétyl-CoA vers le cytosol",
+ chains:[{start:"Acétyl-CoA + OAA (mitochondrie)", steps:[
+  {e:"Citrate synthase", m:"Citrate", l:"Mitochondrie", w:"Synthase (sans ATP) : elle fabrique le citrate. C'est le citrate qui sort, pas l'acétyl-CoA."},
+  {e:"ATP-citrate lyase", m:"Acétyl-CoA + OAA (cytosol)", c:"ATP consommé", l:"Cytosol", w:"Lyase = couper. Ni « citrate thiolase », ni citrate synthase."},
+  {e:"Malate déshydrogénase", m:"Malate", c:"NADH consommé", l:"Cytosol"},
+  {e:"Enzyme malique", m:"Pyruvate", c:"NADPH produit", l:"Cytosol", w:"Elle fournit le NADPH de la lipogenèse (le poly écrit NADH à un endroit : c'est une coquille)."},
+  {e:"Pyruvate carboxylase", m:"OAA (mitochondrie)", c:"ATP consommé", l:"Mitochondrie", w:"Le pyruvate rentre dans la mitochondrie et redevient de l'OAA."}
+ ]}],
+ grids:[{cols:["Navette","Ce qui traverse","But"], rows:[
+  ["Citrate (lipogenèse)","Citrate","Sortir l'acétyl-CoA"],
+  ["Malate (néoglucogenèse)","Malate","Sortir l'oxaloacétate"]]}],
+ traps:["Citrate thiolase","Citrate synthétase","PEP carboxykinase (PEPCK)","Pyruvate kinase","Acétyl-CoA","Pyruvate déshydrogénase"],
+ tip:"Citrate : l'acétyl-CoA sort, le pyruvate revient, on gagne du NADPH."},
+
+{id:"lipogenese", w:"lip", t:"ACC et acide gras synthase", s:"Construire le palmitate, 2 carbones à la fois",
+ chains:[{start:"Acétyl-CoA (cytosol)", steps:[
+  {e:"Acétyl-CoA carboxylase (ACC)", m:"Malonyl-CoA", c:"ATP consommé", w:"Étape limitante, avec biotine et HCO₃⁻."},
+  {e:"Cétoacyl synthase", m:"3-cétoacyl-ACP + CO₂", w:"Condensation du malonyl sur l'amorce : le CO₂ repart."},
+  {e:"Cétoacyl réductase", m:"3-hydroxyacyl-ACP", c:"NADPH consommé"},
+  {e:"Déshydratase", m:"Δ2-énoyl-ACP", w:"Ordre : condensation, réduction, déshydratation, réduction."},
+  {e:"Énoyl réductase", m:"Acyl-ACP (+ 2 C)", c:"NADPH consommé"},
+  {e:"Thioestérase", m:"Palmitate (C16)", w:"Après 7 tours, la thioestérase libère le palmitate."}
+ ]}],
+ grids:[
+  {cols:["Pour 1 palmitate","Réponse"], rows:[["Tours de cycle","7"],["Malonyl-CoA","7 "],["ATP","7  "],["NADPH","14"]]},
+  {cols:["Signal","État de l'ACC"], rows:[
+   ["Insuline","Déphosphorylée, active"],
+   ["Glucagon (PKA)","Phosphorylée, inactive"],
+   ["AMPK (peu d'énergie)","Phosphorylée, inactive "],
+   ["Citrate abondant","Polymérisée, active"],
+   ["Palmitoyl-CoA","Dépolymérisée, inactive"]]}
+ ],
+ traps:["Acyl-CoA déshydrogénase","Hydratase","NADH consommé","8","16","Phosphorylée, active"],
+ tip:"Synthèse = NADPH (P comme Production)."},
+
+{id:"tg", w:"lip", t:"Triglycérides et lipases", s:"Voie du phosphatidate dans l'adipocyte",
+ chains:[{start:"DHAP (glycolyse)", steps:[
+  {e:"Glycérol-3-P déshydrogénase", m:"Glycérol-3-P", c:"NADH consommé", w:"L'adipocyte n'a pas de glycérol kinase : il passe par la DHAP, donc il a besoin de glucose."},
+  {e:"Acyltransférase", m:"Acide lysophosphatidique"},
+  {e:"Acyltransférase", m:"Acide phosphatidique"},
+  {e:"Phosphatase", m:"Diacylglycérol", w:"On retire le phosphate pour aller vers le TG."},
+  {e:"Acyltransférase", m:"Triglycéride"}
+ ]}],
+ grids:[{cols:["Lipase","Où","Régulation"], rows:[
+  ["Lipase pancréatique","Lumière intestinale","Colipase + sels biliaires"],
+  ["Lipoprotéine lipase (LPL)","Endothélium vasculaire","ApoC-II active, ApoC-III inhibe"],
+  ["Lipase hormonosensible (LHS)","Adipocyte (intracellulaire)","Glucagon et adrénaline l'activent, insuline l'inhibe"]],
+  whys:[null,"LPL (enzyme, sur l'endothélium) ≠ LDL (lipoprotéine).",null]}],
+ traps:["Glycérol kinase","Glucose kinase","Plasma (libre)","Insuline l'active, glucagon l'inhibe","ApoB100 active","Kinase"],
+ tip:"Les lipases coupent en 1 et 3 et laissent un 2-monoglycéride."},
+
+{id:"phospho", w:"lip", t:"Phospholipides", s:"Qui active quoi, et qui coupe où",
+ chains:[],
+ grids:[
+  {cols:["Phospholipide","Molécule activée","Forme activée","Greffée sur"], rows:[
+   ["Phosphatidylinositol (PI)","Phosphatidate","CDP-diacylglycérol","Inositol"],
+   ["Phosphatidylcholine (PC)","Choline","CDP-choline","Diacylglycérol"],
+   ["Phosphatidyléthanolamine (PE)","Éthanolamine","CDP-éthanolamine","Diacylglycérol "]],
+   whys:["PI : on active le phosphatidate.","PC/PE : on active la tête, puis on la greffe sur un DAG.",null]},
+  {cols:["Phospholipase","Coupe"], rows:[
+   ["PLA1","L'AG en position 1"],
+   ["PLA2","L'AG en position 2 (souvent l'acide arachidonique)"],
+   ["PLC","Avant le phosphate : donne DAG + IP3"],
+   ["PLD","Après le phosphate"]],
+   whys:[null,"L'acide arachidonique est le PRÉCURSEUR des prostaglandines, libéré par la PLA2.",null,null]}
+ ],
+ traps:["UDP-choline","Sérine","Glycérol-3-P","CDP-sérine","L'AG en position 3"],
+ tip:"Glycérophospholipide = liaison ester ; sphingolipide = liaison amide."},
+
+{id:"pip2", w:"lip", t:"PIP2", s:"Deux destins pour un même lipide",
+ chains:[
+  {label:"Voie PLC", start:"PIP2", steps:[
+   {e:"Phospholipase C (PLC)", m:"DAG + IP3", w:"La PLC COUPE le PIP2 et fabrique l'IP3 (l'IP3 n'active pas la PLC)."},
+   {m:"IP3 libère le Ca²⁺ du RE"},
+   {m:"Ca²⁺ + DAG activent la PKC"}]},
+  {label:"Voie PI3K", start:"PIP2", steps:[
+   {e:"PI3K", m:"PIP3"},
+   {m:"AKT (PKB) activée", w:"AKT est en aval du récepteur à l'insuline."},
+   {m:"Prolifération, survie"}]},
+  {label:"Le frein", start:"PIP3", steps:[
+   {e:"PTEN (phosphatase)", m:"PIP2", w:"PTEN est une phosphatase. Mutée, elle laisse AKT s'emballer (cancers)."}]}
+ ],
+ grids:[],
+ traps:["IP3K","PIP3K","ATK","Phospholipase A2","PKA activée","IP3 active la PLC"],
+ tip:"PI3K fait du PIP3, PTEN freine, la PLC coupe."},
+
+{id:"sphingo", w:"lip", t:"Sphingolipides", s:"Du céramide aux sphingolipidoses",
+ chains:[{start:"Sérine + palmitoyl-CoA", steps:[
+  {e:"Sérine palmitoyltransférase", m:"3-cétosphinganine", w:"Céramide = sérine + palmitoyl-CoA (« S-P-hingo »)."},
+  {e:"Réductase", m:"Sphinganine", c:"NADPH consommé"},
+  {e:"Acyltransférase", m:"Dihydrocéramide", w:"L'acide gras est fixé par une liaison AMIDE."},
+  {e:"Désaturase", m:"Céramide", c:"FADH₂ produit"},
+  {e:"Sphingomyéline synthase", m:"Sphingomyéline", w:"Elle transfère une phosphocholine (venue de la PC ou de la CDP-choline)."}
+ ]}],
+ grids:[
+  {cols:["Maladie","Enzyme déficiente","S'accumule"], rows:[
+   ["Niemann-Pick","Sphingomyélinase","Sphingomyéline"],
+   ["Tay-Sachs","Enzyme GM2 → GM3","Ganglioside GM2"]]},
+  {cols:["Lipide","Liaison de l'acide gras"], rows:[
+   ["Sphingolipide (céramide)","Amide"],["Glycérophospholipide","Ester"],["Plasmalogène","Éther"]]}
+ ],
+ traps:["Glycérol + palmitoyl-CoA","Glucocérébrosidase","Ganglioside GM3","Thioester","Sphingosine kinase"],
+ tip:"Les sphingolipidoses s'accumulent dans les lysosomes du tissu nerveux."},
+
+{id:"chol", w:"lip", t:"Cholestérol", s:"De l'acétyl-CoA au C27",
+ chains:[{start:"2 acétyl-CoA (cytosol)", steps:[
+  {e:"Thiolase", m:"Acétoacétyl-CoA"},
+  {e:"HMG-CoA synthase", m:"HMG-CoA", w:"Même début que la cétogenèse, mais dans le CYTOSOL."},
+  {e:"HMG-CoA réductase", m:"Mévalonate", c:"NADPH consommé", w:"Étape limitante, cible des statines, freinée par le cholestérol."},
+  {e:"3 kinases + décarboxylase", m:"Isopentényl-PP (isoprène activé)", c:"ATP consommé"},
+  {m:"Géranyl-PP (C10)"},
+  {m:"Farnésyl-PP (C15)", w:"Carrefour : ubiquinone, dolichol, prénylation. D'où les myalgies sous statine."},
+  {e:"Squalène synthase", m:"Squalène (C30)", c:"NADPH consommé"},
+  {e:"Squalène époxydase + cyclase", m:"Lanostérol (C30)"},
+  {e:"19 étapes (dont Δ7-réductase)", m:"Cholestérol (C27)"}
+ ]}],
+ grids:[{cols:["Enzyme","Donneur d'AG","Où","But"], rows:[
+  ["ACAT","Acyl-CoA","Intracellulaire","Stocker le cholestérol"],
+  ["LCAT","Lécithine (PC)","Plasma, dans les HDL","Ramener le cholestérol au foie"]],
+  whys:["ACAT = ACYL-CoA, pas acétyl-CoA.",null]}],
+ traps:["HMG-CoA lyase","Acétyl-CoA","Lanostérol (C27)","Mitochondrie","Squalène (C15)"],
+ tip:"Le rétrocontrôle porte sur l'HMG-CoA RÉDUCTASE."},
+
+{id:"statines", w:"lip", t:"SREBP et statines", s:"Pourquoi une statine fait baisser le LDL",
+ chains:[{start:"Statine", steps:[
+  {m:"HMG-CoA réductase inhibée", w:"Réductase, pas synthase."},
+  {m:"Cholestérol ↓ dans l'hépatocyte"},
+  {m:"SREBP quitte le RE, escorté par SCAP"},
+  {m:"Golgi : SREBP coupé par S1P puis S2P", w:"SCAP escorte, S1P et S2P coupent. Ordre : RE, Golgi, noyau."},
+  {m:"Fragment actif dans le noyau, fixé sur les SRE"},
+  {m:"↑ récepteurs aux LDL"},
+  {m:"LDL sanguin ↓", w:"La statine ne détruit pas le LDL : elle pousse le foie à le capter."}
+ ]}],
+ grids:[{cols:["Question","Réponse"], rows:[
+  ["Effet indésirable","Myalgies"],
+  ["Cause","↓ synthèse d'ubiquinone"],
+  ["HMG-CoA réductase + AMPK","Phosphorylée, inactive"],
+  ["HMG-CoA réductase + insuline","Déphosphorylée, active"]]}],
+ traps:["HMG-CoA synthase inhibée","SREBP coupé par SCAP","LDL détruit dans le sang","Cholestérol ↑ dans l'hépatocyte","↓ récepteurs aux LDL","Ubiquinone inhibée"],
+ tip:"RE → Golgi → noyau : l'escorte (SCAP) n'est pas les ciseaux (S1P, S2P)."},
+{id:"krebs", w:"nrj", t:"Cycle de Krebs", s:"L'acétyl-CoA oxydé jusqu'au bout",
+ chains:[{start:"Acétyl-CoA + oxaloacétate", steps:[
+  {e:"Citrate synthase", m:"Citrate", w:"1ʳᵉ irréversible, freinée par l'ATP, le NADH et le citrate."},
+  {e:"Aconitase", m:"Isocitrate", w:"Simple isomérisation du citrate."},
+  {e:"Isocitrate déshydrogénase", m:"α-cétoglutarate + CO₂", c:"NADH produit", w:"2ᵉ irréversible : 1ʳᵉ décarboxylation oxydative."},
+  {e:"α-cétoglutarate déshydrogénase", m:"Succinyl-CoA + CO₂", c:"NADH produit", w:"3ᵉ irréversible : 2ᵉ décarboxylation oxydative."},
+  {e:"Succinyl-CoA synthétase", m:"Succinate", c:"GTP produit", w:"Réversible : le GTP sera converti en ATP."},
+  {e:"Succinate déshydrogénase", m:"Fumarate", c:"FADH₂ produit", w:"La SDH est aussi le complexe II : le lien physique entre Krebs et la chaîne respiratoire."},
+  {e:"Fumarase", m:"Malate", c:"H₂O ajoutée", w:"C'est une HYDRATATION (le poly écrit « déshydratation » : coquille)."},
+  {e:"Malate déshydrogénase", m:"Oxaloacétate", c:"NADH produit"}
+ ]}],
+ grids:[
+  {cols:["Bilan par acétyl-CoA","Valeur"], rows:[["NADH","3 NADH"],["FADH₂","1 FADH₂"],["GTP","1 GTP"],["CO₂","2 CO₂"],["ATP au total","10 ATP"]]},
+  {cols:["Intermédiaire","Sert à fabriquer"], rows:[
+   ["Citrate","Acides gras (si en excès)"],["Succinyl-CoA","Hème"],["Malate et oxaloacétate","Glucose (foie, rein)"],["α-cétoglutarate","Glutamate et autres acides aminés"]]}
+ ],
+ traps:["Citrate lyase","Pyruvate carboxylase","Pyruvate déshydrogénase","NADPH produit","12 ATP","Glutamate déshydrogénase","Isocitrate isomérase","Corps cétoniques"],
+ tip:"3 irréversibles : citrate synthase, isocitrate DH, α-cétoglutarate DH."},
+
+{id:"oxphos", w:"nrj", t:"Chaîne respiratoire", s:"Des électrons à l'O₂, des protons à l'ATP",
+ chains:[
+  {label:"Électrons du NADH", start:"NADH", steps:[
+   {m:"Complexe I (pompe 4 H⁺)"},
+   {m:"Coenzyme Q (ubiquinone)", w:"Transporteur mobile et lipophile, dans la membrane."},
+   {m:"Complexe III (pompe 4 H⁺)"},
+   {m:"Cytochrome c", w:"2ᵉ transporteur mobile, côté espace intermembranaire."},
+   {m:"Complexe IV (pompe 2 H⁺)"},
+   {m:"O₂ réduit en H₂O"}]},
+  {label:"Électrons du FADH₂", start:"FADH₂ (succinate)", steps:[
+   {m:"Complexe II (ne pompe pas)", w:"Le complexe II ne traverse pas la membrane : aucun proton pompé."},
+   {m:"Coenzyme Q, puis complexes III et IV"}]}
+ ],
+ grids:[{cols:["Question","Réponse"], rows:[
+  ["Protons pompés par NADH","10 H⁺"],["Protons pompés par FADH₂","6 H⁺"],["ATP par NADH","2,5 ATP"],["ATP par FADH₂","1,5 ATP"],
+  ["Complexe V","ATP synthase"],["Échange ADP contre ATP","ATP/ADP translocase"]]}],
+ traps:["Complexe II (pompe 4 H⁺)","NADPH","O₂ réduit en H₂O₂","3 ATP","8 H⁺","Créatine kinase","Cytochrome P450"],
+ tip:"Les complexes I, III et IV pompent, le II non : d'où 2,5 ATP par NADH contre 1,5 par FADH₂."},
+
+{id:"transam", w:"azo", t:"Transamination", s:"Où part le NH₂ des acides aminés",
+ chains:[
+  {label:"ALAT", start:"Alanine + α-cétoglutarate", steps:[
+   {e:"ALAT (alanine aminotransférase)", m:"Pyruvate + glutamate", w:"Coenzyme : phosphate de pyridoxal. Le pyruvate part en néoglucogenèse."}]},
+  {label:"ASAT", start:"Aspartate + α-cétoglutarate", steps:[
+   {e:"ASAT (aspartate aminotransférase)", m:"Oxaloacétate + glutamate"}]},
+  {label:"Désamination oxydative", start:"Glutamate", steps:[
+   {e:"Glutamate déshydrogénase (GDH)", m:"α-cétoglutarate + NH₄⁺", w:"Régénère l'α-cétoglutarate, capteur des NH₂."}]},
+  {label:"Transport de l'azote", start:"Glutamate + NH₃", steps:[
+   {e:"Glutamine synthétase", m:"Glutamine", c:"ATP consommé", w:"La glutamine porte 2 NH₂ : c'est LE transporteur d'azote."},
+   {e:"Glutaminase", m:"Glutamate + NH₃", w:"Réaction inverse, sans ATP."}]}
+ ],
+ grids:[{cols:["Question","Réponse"], rows:[
+  ["Coenzyme des transaminases","Phosphate de pyridoxal"],["Capteur commun des NH₂","α-cétoglutarate"],
+  ["Acide aminé le plus glucoformateur","Alanine"],["Principal transporteur d'azote","Glutamine"]]}],
+ traps:["Lactate + glutamate","Glutamate décarboxylase","Biotine","Acétyl-CoA + glutamate","Urée","Pyruvate kinase","Asparagine"],
+ tip:"Transamination = échange du NH₂ ; désamination (GDH) = libération de NH₄⁺."},
+
+{id:"decarb", w:"azo", t:"Décarboxylations", s:"Des acides aminés aux neurotransmetteurs",
+ chains:[
+  {label:"Glutamate", start:"Glutamate", steps:[{e:"Décarboxylase", m:"GABA", w:"Un excitateur devient le principal inhibiteur du SNC."}]},
+  {label:"Histidine", start:"Histidine", steps:[{e:"Décarboxylase", m:"Histamine"}]},
+  {label:"Tyrosine", start:"Tyrosine", steps:[
+   {e:"Hydroxylase", m:"DOPA"},
+   {e:"Décarboxylase", m:"Dopamine", w:"Précurseur de l'adrénaline et de la mélanine."}]},
+  {label:"Tryptophane", start:"Tryptophane", steps:[
+   {e:"Hydroxylase", m:"5-hydroxytryptophane"},
+   {e:"Décarboxylase", m:"Sérotonine"}]}
+ ],
+ grids:[
+  {cols:["Molécule","Rôle"], rows:[
+   ["GABA","Neurotransmetteur inhibiteur"],["Histamine","Allergie, inflammation"],["Dopamine","Récompense, motricité (Parkinson)"],["Sérotonine","Humeur (dépression)"]]},
+  {cols:["Molécule","Précurseurs"], rows:[
+   ["Monoxyde d'azote (NO)","Arginine (NO synthase)"],["Glutathion","Glutamate, cystéine, glycine"],["Hème","Glycine + succinyl-CoA"]]}
+ ],
+ traps:["Transaminase","Acétylcholine","Mélatonine","Adrénaline","Neurotransmetteur excitateur","Désaminase"],
+ tip:"Décarboxylation : on retire le COOH, il reste une amine biologiquement active."},
+
+{id:"uree", w:"azo", t:"Cycle de l'urée", s:"Éliminer 2 azotes sous une forme non toxique",
+ chains:[{start:"NH₃ + HCO₃⁻", steps:[
+  {e:"Carbamyl-phosphate synthétase I (CPS1)", m:"Carbamyl-phosphate", c:"2 ATP consommés", l:"Mitochondrie", w:"Enzyme clé, activée par le N-acétylglutamate."},
+  {e:"Ornithine carbamyl transférase (OCT)", m:"Citrulline", l:"Mitochondrie", w:"Avec l'ornithine. La citrulline sort ensuite vers le cytosol."},
+  {e:"Argininosuccinate synthétase", m:"Argininosuccinate", c:"ATP consommé", l:"Cytosol", w:"L'aspartate apporte le 2ᵉ azote."},
+  {e:"Argininosuccinate lyase", m:"Arginine + fumarate", l:"Cytosol", w:"Le fumarate repart vers le cycle de Krebs."},
+  {e:"Arginase", m:"Urée + ornithine", c:"H₂O ajoutée", l:"Cytosol", w:"L'ornithine retourne dans la mitochondrie : le cycle est bouclé."}
+ ]}],
+ grids:[{cols:["Question","Réponse"], rows:[
+  ["Activateur de la CPS1","N-acétylglutamate"],["Activateur de la NAG synthétase","Arginine"],
+  ["Origine du 1ᵉʳ azote","NH₃ (glutamine, glutaminase)"],["Origine du 2ᵉ azote","Aspartate"],["Seul organe qui fabrique l'urée","Foie"]]}],
+ traps:["Carbamyl-phosphate synthétase II","Ornithine décarboxylase","Rein","Créatinine","Glutamine synthétase","Acide urique","Argininosuccinate déshydrogénase"],
+ tip:"Les 2 premières étapes dans la mitochondrie, les 3 suivantes dans le cytosol."},
+
+{id:"ammonio", w:"azo", t:"Ammoniogenèse", s:"Le rein élimine l'azote et tamponne le pH",
+ chains:[{start:"Glutamine (tube proximal du rein)", steps:[
+  {e:"Glutaminase", m:"Glutamate + NH₄⁺"},
+  {e:"Glutamate déshydrogénase", m:"α-cétoglutarate + NH₄⁺", w:"2 NH₄⁺ éliminés par glutamine."},
+  {m:"2 HCO₃⁻ régénérés", w:"L'α-cétoglutarate donne 2 bicarbonates, réabsorbés : c'est un tampon."}
+ ]}],
+ grids:[{cols:["Critère","Uréogenèse","Ammoniogenèse"], rows:[
+  ["Organe","Foie","Rein"],["Produit éliminé","Urée","NH₄⁺ libre"],["Part de l'azote éliminé","90 %","10 %"],["En cas d'acidose","Freinée","Favorisée"]]}],
+ traps:["Glutamine synthétase","Arginase","H⁺ réabsorbés","Intestin","50 %","Acide urique"],
+ tip:"Acidose : on freine l'urée et on envoie la glutamine au rein, qui élimine du NH₄⁺ et récupère du HCO₃⁻."},
+
+{id:"purines", w:"azo", t:"Purines et acide urique", s:"La dégradation des bases puriques",
+ chains:[
+  {label:"Adénine", start:"AMP", steps:[
+   {m:"Adénosine", w:"AMP déphosphorylée puis désaminée (ou l'inverse, via l'IMP)."},
+   {m:"Inosine"},
+   {e:"Purine nucléoside phosphorylase (PNP)", m:"Hypoxanthine"},
+   {m:"Xanthine", w:"Carrefour : toutes les bases puriques passent par la xanthine."},
+   {e:"Xanthine oxydase", m:"Acide urique", w:"Son accumulation donne la goutte."}]},
+  {label:"Guanine", start:"GMP", steps:[
+   {m:"Guanosine"},
+   {m:"Guanine"},
+   {m:"Xanthine (perte d'un NH₃)"}]}
+ ],
+ grids:[{cols:["Question","Réponse"], rows:[
+  ["Accumulation d'acide urique","Goutte"],["Carbones des purines apportés par","Dérivés du folate"],["Principal donneur des pyrimidines","Aspartate"]]}],
+ traps:["Allantoïne","Uracile","Créatinine","Thymine","Urée","Ribose-5-P"],
+ tip:"Toutes les bases puriques convergent vers la xanthine ; la xanthine oxydase fait l'acide urique."},
+
+{id:"hemesyn", w:"heme", t:"Synthèse de l'hème", s:"De la glycine à l'hème b, sans ATP",
+ chains:[{start:"Glycine + succinyl-CoA", steps:[
+  {e:"ALA synthase", m:"δ-aminolévulinate (ALA)", l:"Mitochondrie", w:"Étape limitante, inhibée par l'hème."},
+  {m:"Porphobilinogène (PBG)", l:"Cytosol", w:"2 ALA condensés."},
+  {m:"Uroporphyrinogène III", l:"Cytosol", w:"4 PBG se condensent et se cyclisent."},
+  {m:"Coproporphyrinogène III", l:"Cytosol"},
+  {m:"Protoporphyrinogène IX", l:"Mitochondrie", w:"Retour dans la mitochondrie."},
+  {m:"Protoporphyrine IX", l:"Mitochondrie"},
+  {e:"Ferrochélatase", m:"Hème b", l:"Mitochondrie", w:"Elle incorpore le Fe²⁺."}
+ ]}],
+ grids:[{cols:["Question","Réponse"], rows:[
+  ["Lieux de synthèse","Moelle (85 %) et foie (15 %)"],["ATP consommé","Aucun"],["Rétrocontrôle","L'hème inhibe l'ALA synthase"],["Défaut d'une enzyme","Porphyrie"]]}],
+ traps:["Hème oxygénase","Biliverdine","Glutamate","Acétyl-CoA","Bilirubine","Fe³⁺ incorporé"],
+ tip:"Début et fin dans la mitochondrie, milieu dans le cytosol."},
+
+{id:"hemecat", w:"heme", t:"Catabolisme de l'hème", s:"Rouge, vert, jaune, puis éliminé",
+ chains:[{start:"Hème (macrophages de la rate, de la moelle, du foie)", steps:[
+  {e:"Hème oxygénase", m:"Biliverdine (vert)", c:"NADPH consommé", w:"Ouvre le cycle tétrapyrrolique et libère le fer."},
+  {e:"Biliverdine réductase", m:"Bilirubine (jaune)", w:"Très hydrophobe et toxique pour le cerveau."},
+  {m:"Bilirubine liée à l'albumine", w:"Transportée jusqu'au foie."},
+  {m:"Bilirubine conjuguée (acide glucuronique)", w:"Glucuronoconjuguée dans le foie : soluble, éliminée dans la bile."},
+  {m:"Stercobilinogène + urobilinogène (incolores)", w:"Les bactéries intestinales déconjuguent et réduisent."},
+  {m:"Stercobiline (selles) + urobiline (urines)", w:"Réoxydées, elles colorent les selles et les urines."}
+ ]}],
+ grids:[{cols:["Question","Réponse"], rows:[
+  ["Ecchymose rouge","Hémoglobine"],["Ecchymose bleu-vert","Biliverdine"],["Ecchymose jaune","Bilirubine"],
+  ["Transporteur de l'hémoglobine libre","Haptoglobine"],["Jaunisse du nourrisson","Hyperbilirubinémie"]]}],
+ traps:["Ferrochélatase","Transferrine","Ferritine","Acide urique","Créatinine","ALA synthase"],
+ tip:"Rouge, vert, jaune : hémoglobine, biliverdine, bilirubine."},
+
+{id:"lpexo", w:"lp", t:"Chylomicrons", s:"La voie exogène des lipides alimentaires",
+ chains:[{start:"TG alimentaires (entérocyte)", steps:[
+  {m:"Chylomicron (ApoB48)", w:"Synthétisé par l'intestin."},
+  {m:"Chylomicron enrichi en ApoC-II et ApoE (reçues des HDL)"},
+  {e:"Lipoprotéine lipase (LPL)", m:"AG libres captés par les tissus", w:"La LPL, accrochée à l'endothélium, est activée par l'ApoC-II."},
+  {m:"Remnant de chylomicron"},
+  {e:"Lipase hépatique", m:"Remnant capté par le foie (LRP, via l'ApoE)"}
+ ]}],
+ grids:[
+  {cols:["Apolipoprotéine","Rôle"], rows:[
+   ["ApoB48","Chylomicrons uniquement"],["ApoB100","VLDL, IDL et LDL"],["ApoC-II","Active la LPL"],["ApoC-III","Inhibe la LPL"],
+   ["ApoE","Élimination rapide (absente des LDL)"],["ApoA1","HDL, active la LCAT"]]},
+  {cols:["Lipoprotéine","Demi-vie"], rows:[["Chylomicrons","20 min"],["VLDL","4 h"],["LDL","3 à 4 jours"]]}
+ ],
+ traps:["Lipase hormonosensible","Récepteur aux LDL","Lipase pancréatique","12 h","ApoA2","VLDL (ApoB48)"],
+ tip:"Chylomicrons = ApoB48 (intestin) ; tout ce qui vient du foie porte l'ApoB100."},
+
+{id:"lpendo", w:"lp", t:"VLDL, LDL et athérome", s:"La voie endogène, du foie aux tissus",
+ chains:[
+  {label:"Voie endogène", start:"Foie", steps:[
+   {m:"VLDL (ApoB100, riches en TG)"},
+   {e:"Lipoprotéine lipase (LPL)", m:"IDL (50 % TG, 50 % CE)"},
+   {e:"Lipase hépatique", m:"LDL (ApoB100 seule)", w:"Les IDL riches en ApoE, elles, sont vite captées par le foie."},
+   {m:"LDL captées par le récepteur aux LDL (70 % foie)"},
+   {m:"Cholestérol libre ↑ dans la cellule"},
+   {m:"↓ HMG-CoA réductase, ↓ récepteurs LDL, ↑ ACAT", w:"Rétrocontrôle : moins de synthèse, moins de capture, plus de stockage."}]},
+  {label:"LDL oxydées", start:"LDL à longue demi-vie", steps:[
+   {m:"AG polyinsaturés peroxydés (MDA)"},
+   {m:"ApoB100 oxydée, plus reconnue"},
+   {m:"Captées par les macrophages (récepteur scavenger)", w:"Pas de rétrocontrôle dans les macrophages : ils se gavent."},
+   {m:"Macrophages spumeux"},
+   {m:"Inflammation, plaque d'athérome"}]}
+ ],
+ grids:[{cols:["Récepteur","Reconnaît"], rows:[
+  ["Récepteur aux LDL","ApoB100 et ApoE"],["LRP","ApoE seule"],["SR-BI","ApoA1 des HDL"],["SR-A (macrophages)","LDL oxydées"],["ABCA1","Fait sortir le cholestérol vers les HDL"]]}],
+ traps:["VLDL (ApoB48)","↑ HMG-CoA réductase","Lipase hormonosensible","Cholestérol libre ↓ dans la cellule","Chylomicron","ApoC-III"],
+ tip:"Sans ApoE, les LDL restent longtemps dans le sang, s'oxydent et deviennent athérogènes."},
+
+{id:"hdl", w:"lp", t:"HDL", s:"Le transport inverse du cholestérol",
+ chains:[{start:"HDL natives discoïdales (ApoA1, LCAT, phospholipides)", steps:[
+  {m:"Fixées à l'ABCA1 des tissus chargés en cholestérol"},
+  {e:"LCAT (activée par l'ApoA1)", m:"Cholestérol estérifié dans les HDL", w:"L'acide gras vient d'une lécithine membranaire."},
+  {m:"HDL3 (arrondies)"},
+  {m:"HDL2"},
+  {e:"CETP", m:"HDL2 cèdent du CE, reçoivent des TG", w:"Échanges avec les VLDL et les chylomicrons."},
+  {m:"Captées par le SR-BI (foie, tissus stéroïdogènes)", w:"Le foie dégrade les TG restants avec la lipase hépatique."},
+  {m:"Retour à l'état de HDL3", w:"Les HDL ne sont jamais vraiment dégradées."}
+ ]}],
+ grids:[{cols:["Anomalie","Conséquence"], rows:[
+  ["Maladie de Tangier","ABCA1 muté, cholestérol bloqué dans les cellules"],["ApoC-II mutée","Hypertriglycéridémie"],
+  ["LP(a) élevée","Pro-athérogène et prothrombotique"]]}],
+ traps:["ACAT","Lipoprotéine lipase (LPL)","HDL1","Récepteur aux LDL","Retour à l'état de LDL","Lipase hormonosensible"],
+ tip:"Seules les HDL font le transport inverse du cholestérol, des tissus vers le foie."},
+{id:"carrefour", w:"boss", boss:true, t:"Le Carrefour", s:"Toutes les directions de chaque molécule clé",
+ chains:[],
+ map:{
+  hubs:[
+   {id:"g6p", t:"Glucose-6-P", w:"glu", x:50, y:7, s:"Le premier carrefour du glucose"},
+   {id:"tri", t:"Trioses-P (DHAP, G3P)", w:"glu", x:50, y:27, s:"Là où glucides et lipides se rejoignent"},
+   {id:"pyr", t:"Pyruvate", w:"glu", x:50, y:47, s:"Tout le monde passe par lui"},
+   {id:"acoa", t:"Acétyl-CoA", w:"lip", x:50, y:66, s:"Point de non-retour : plus jamais de glucose"},
+   {id:"oaa", t:"Oxaloacétate", w:"nrj", x:16, y:82, s:"La porte de sortie vers la néoglucogenèse"},
+   {id:"akg", t:"α-cétoglutarate", w:"azo", x:84, y:82, s:"Là où l'azote entre et sort"},
+   {id:"suc", t:"Succinyl-CoA", w:"heme", x:50, y:94, s:"Krebs fournit l'hème"}
+  ],
+  leaves:{
+   glc:"Glucose", glcs:"Glucose sanguin", glyg:"Glycogène", rib:"Ribose-5-P + NADPH",
+   glyc:"Glycérol (des TG)", g3p:"Glycérol-3-P (squelette des TG)", lac:"Lactate", ala:"Alanine",
+   ag:"Acides gras (des TG)", mal:"Malonyl-CoA, puis acides gras", cc:"Corps cétoniques", mev:"Mévalonate, puis cholestérol",
+   asp:"Aspartate (2ᵉ azote de l'urée)", glu:"Glutamate", heme:"Hème"
+  },
+  edges:[
+   {from:"glc", to:"g6p", e:"Hexokinase / glucokinase", v:"Glycolyse"},
+   {from:"g6p", to:"glcs", e:"Glucose-6-phosphatase", v:"Néoglucogenèse", w:"Foie (et rein) seulement : le muscle garde son G6P."},
+   {from:"g6p", to:"glyg", e:"Glycogène synthase", v:"Glycogénogenèse", w:"Via le glucose-1-P et l'UDP-glucose."},
+   {from:"glyg", to:"g6p", e:"Glycogène phosphorylase", v:"Glycogénolyse"},
+   {from:"g6p", to:"rib", e:"G6PDH", v:"Voie des pentoses"},
+   {from:"g6p", to:"tri", e:"PFK1", v:"Glycolyse", w:"Après l'isomérase ; puis l'aldolase coupe en deux trioses."},
+   {from:"tri", to:"g6p", e:"Fructose-1,6-bisphosphatase", v:"Néoglucogenèse"},
+   {from:"glyc", to:"tri", e:"Glycérol kinase", v:"Néoglucogenèse", w:"Le glycérol des TG est glucoformateur (foie). Les acides gras, eux, ne le sont pas."},
+   {from:"tri", to:"g3p", e:"Glycérol-3-P déshydrogénase", v:"Synthèse des TG", w:"L'adipocyte n'a pas de glycérol kinase : il passe par la DHAP."},
+   {from:"tri", to:"pyr", e:"Pyruvate kinase", v:"Glycolyse", w:"GAPDH, phosphoglycérate kinase, mutase, énolase, puis pyruvate kinase."},
+   {from:"pyr", to:"lac", both:true, e:"Lactate déshydrogénase", v:"Glycolyse anaérobie", w:"Le lactate régénère le NAD⁺ ; le foie le retransforme en pyruvate."},
+   {from:"pyr", to:"ala", both:true, e:"ALAT", v:"Métabolisme de l'azote", w:"L'alanine des muscles est le 1ᵉʳ substrat glucoformateur."},
+   {from:"pyr", to:"acoa", e:"Pyruvate déshydrogénase (PDH)", v:"Oxydation du pyruvate", w:"IRRÉVERSIBLE : l'acétyl-CoA ne redonne jamais de pyruvate, donc jamais de glucose."},
+   {from:"pyr", to:"oaa", e:"Pyruvate carboxylase", v:"Néoglucogenèse"},
+   {from:"oaa", to:"tri", e:"PEPCK", v:"Néoglucogenèse", w:"OAA → PEP (GTP), puis on remonte la glycolyse jusqu'aux trioses."},
+   {from:"ag", to:"acoa", e:"CPT1", v:"β-oxydation", w:"CPT1 = étape limitante, freinée par le malonyl-CoA."},
+   {from:"acoa", to:"mal", e:"Acétyl-CoA carboxylase (ACC)", v:"Lipogenèse", w:"L'acétyl-CoA sort d'abord de la mitochondrie par la navette citrate."},
+   {from:"acoa", to:"cc", e:"HMG-CoA lyase", v:"Cétogenèse", w:"Foie uniquement, quand l'oxaloacétate manque."},
+   {from:"acoa", to:"mev", e:"HMG-CoA réductase", v:"Synthèse du cholestérol"},
+   {from:"acoa", to:"akg", e:"Citrate synthase", v:"Cycle de Krebs", w:"Avec l'oxaloacétate : citrate, isocitrate, puis α-cétoglutarate."},
+   {from:"akg", to:"suc", e:"α-cétoglutarate déshydrogénase", v:"Cycle de Krebs"},
+   {from:"suc", to:"oaa", e:"Succinate déshydrogénase", v:"Cycle de Krebs", w:"Puis fumarase et malate déshydrogénase."},
+   {from:"suc", to:"heme", e:"ALA synthase", v:"Synthèse de l'hème"},
+   {from:"akg", to:"glu", both:true, e:"Glutamate déshydrogénase (GDH)", v:"Métabolisme de l'azote", w:"Le glutamate capte les NH₂ ; la GDH libère le NH₄⁺ vers l'urée."},
+   {from:"oaa", to:"asp", both:true, e:"ASAT", v:"Métabolisme de l'azote"}
+  ],
+  voieTraps:["Uréogenèse","Ammoniogenèse","Lipolyse"]
+ },
+ grids:[{cols:["Trajet","Possible ?","Par où ?"], rows:[
+  ["Acétyl-CoA → glucose","Non","PDH irréversible"],
+  ["Acides gras → glucose","Non","Ils ne donnent que de l'acétyl-CoA"],
+  ["Glycérol des TG → glucose","Oui","Glycérol kinase puis DHAP (foie)"],
+  ["Glucose → acides gras","Oui","Acétyl-CoA, navette citrate, ACC"],
+  ["Alanine → glucose","Oui","ALAT puis pyruvate carboxylase"],
+  ["Acides gras → corps cétoniques","Oui","β-oxydation puis cétogenèse (foie)"],
+  ["Corps cétoniques → glucose","Non","Ils redonnent de l'acétyl-CoA"]]}],
+ traps:["Glucose (depuis les acides gras)","Citrate thiolase","HMG-CoA synthase","Glycogène phosphatase","Glutamine synthétase","Pyruvate (depuis l'acétyl-CoA)","Malate carboxykinase","Glucose kinase"],
+ tip:"Tout ce qui passe par l'acétyl-CoA ne peut plus devenir du glucose. Le glycérol des TG, lui, le peut."}
+
+];
+
+/* ============ ÉTAT ============ */
+const MODES = {
+  a:{n:"Apprenti", x:1, d:"Les molécules sont données : place les enzymes."},
+  i:{n:"Interne", x:2, d:"Tout est vide sauf le point de départ."},
+  m:{n:"Major", x:3, d:"Comme Interne, plus cofacteurs, compartiments et chrono."}
+};
+const LS = k => { try { return JSON.parse(localStorage.getItem("mp_"+k)); } catch(e){ return null; } };
+const LSset = (k,v) => { try { localStorage.setItem("mp_"+k, JSON.stringify(v)); } catch(e){} };
+const S = {
+  mode: LS("mode") || "a",
+  input: LS("input") || "pieces",
+  pseudo: LS("pseudo") || "",
+  best: LS("best") || {},
+  screen: "home",
+  lb: null, lbState: "loading", readOnly: false, uid: null
+};
+let db = null, P = null, timerId = null;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const norm = s => String(s).trim();
+const GREEK = {"α":" alpha ","β":" beta ","γ":" gamma ","δ":" delta ","Δ":" delta "};
+const SUPS = {"⁺":"+","⁻":"-","¹":"1","²":"2","³":"3","ᵉ":"e","ʳ":"r"};
+const nrm = t => String(t)
+  .replace(/[αβγδΔ]/g, c => GREEK[c])
+  .replace(/[₀-₉]/g, c => String(c.charCodeAt(0)-0x2080))
+  .replace(/[⁺⁻¹²³ᵉʳ]/g, c => SUPS[c])
+  .normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()
+  .replace(/[^a-z0-9+]+/g," ").trim();
+function lev(a,b){ const m=a.length,n=b.length; if(!m) return n; if(!n) return m;
+  let prev=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){ const cur=[i]; for(let j=1;j<=n;j++) cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1)); prev=cur; }
+  return prev[n]; }
+let BANK = null, BANKN = null;
+function bank(){
+  if (BANK) return BANK;
+  const set = new Set();
+  LEVELS.forEach(L => { const b = build(L,"m"); b.chips.forEach(c=>set.add(c.t)); b.slots.forEach(x=>set.add(x.ans)); });
+  COFS.concat(LOCS).forEach(t=>set.add(t));
+  BANK = [...set].sort((a,b)=>a.localeCompare(b,"fr")); BANKN = BANK.map(nrm);
+  return BANK;
+}
+function suggest(q){
+  bank(); const nq = nrm(q); if (!nq) return [];
+  const out = [];
+  BANK.forEach((t,i) => {
+    const nt = BANKN[i]; let sc = -1;
+    if (nt.startsWith(nq)) sc = 0;
+    else if (nt.includes(" "+nq)) sc = 1;
+    else if (nt.includes(nq)) sc = 2;
+    else if (nq.length >= 4){
+      const words = nt.split(" ");
+      for (let k=0;k<words.length && sc<0;k++){
+        const tail = words.slice(k).join(" ");
+        if (lev(nq, tail.slice(0,nq.length))<=1 || lev(nq, tail.slice(0,nq.length+1))<=1 || (nq.length>=7 && lev(nq, tail.slice(0,nq.length))<=2)) sc = 3;
+      }
+    }
+    if (sc>=0) out.push([sc, t.length, t]);
+  });
+  return out.sort((a,b)=>a[0]-b[0]||a[1]-b[1]).slice(0,6).map(x=>x[2]);
+}
+
+function levelBest(id){ const b=S.best[id]||{}; let mx=0; for(const k in b) mx=Math.max(mx,b[k]||0); return mx; }
+function total(){ return LEVELS.reduce((t,l)=>t+levelBest(l.id),0); }
+function doneCount(){ return LEVELS.filter(l=>levelBest(l.id)>0).length; }
+
+/* ============ CONSTRUCTION D'UN PUZZLE ============ */
+function build(level, mode){
+  const slots=[], parts=[];
+  const mk = (ans, kind, blank, why, ctx) => blank ? (slots.push({id:slots.length, ans:norm(ans), kind, val:null, why, ctx}), slots[slots.length-1]) : {fixed:true, ans, kind};
+  level.chains.forEach(ch => {
+    const steps = ch.steps.map((st,i) => {
+      const ctx = (ch.label ? ch.label+", " : "") + "étape " + (i+1);
+      const blankE = !!st.e;
+      const blankM = mode==="a" ? (!st.e && i%2===0) : true;
+      return {
+        e: st.e ? mk(st.e,"enz",blankE,st.w,ctx) : null,
+        c: st.c ? mk(st.c,"cof",mode==="m",st.w,ctx) : null,
+        l: st.l ? mk(st.l,"loc",mode==="m",st.w,ctx) : null,
+        m: mk(st.m,"mol",blankM,st.w,ctx)
+      };
+    });
+    parts.push({type:"chain", label:ch.label, start:ch.start, steps});
+  });
+  if (level.map){
+    const M = level.map, hubIds = new Set(M.hubs.map(h=>h.id));
+    const name = id => hubIds.has(id) ? M.hubs.find(h=>h.id===id).t : M.leaves[id];
+    const rows = {}; M.hubs.forEach(h=>rows[h.id]=[]);
+    M.edges.forEach(ed => {
+      const fromHub = hubIds.has(ed.from);
+      let home, partner, dir;
+      if (ed.both){ home = fromHub?ed.from:ed.to; partner = fromHub?ed.to:ed.from; dir="both"; }
+      else if (fromHub){ home=ed.from; partner=ed.to; dir="out"; }
+      else { home=ed.to; partner=ed.from; dir="in"; }
+      const ctx = name(home)+(dir==="in"?" ← ":dir==="both"?" ⇄ ":" → ")+name(partner);
+      const pHub = hubIds.has(partner);
+      rows[home].push({dir,
+        p: pHub ? {hub:partner, t:name(partner)} : mk(name(partner),"mol",mode!=="a",ed.w,ctx),
+        e: mk(ed.e,"enz",true,ed.w,ctx),
+        v: mk(ed.v,"voie",mode==="m",ed.w,ctx)});
+      if (dir==="out" && pHub) rows[partner].push({dir:"from", hub:home, t:name(home)});
+    });
+    parts.push({type:"map", hubs:M.hubs, edges:M.edges, hubIds, rows});
+  }
+  level.grids.forEach(g => {
+    const rows = g.rows.map((r,ri) => r.map((cell,ci) => {
+      if (ci===0) return {fixed:true, ans:cell};
+      const blank = mode==="a" ? ci===r.length-1 : true;
+      return mk(cell,"cell",blank,(g.whys||[])[ri],norm(r[0]));
+    }));
+    parts.push({type:"grid", cols:g.cols, rows});
+  });
+  let pool = slots.map(s=>s.ans);
+  const nTrap = mode==="a" ? 4 : mode==="i" ? 6 : 99;
+  const traps = shuffle(level.traps.slice()).slice(0,nTrap).filter(t=>!pool.includes(norm(t)));
+  let extra = [];
+  if (mode==="m"){
+    extra = shuffle(COFS.filter(c=>!pool.includes(c))).slice(0,2);
+    if (slots.some(s=>s.kind==="loc")) extra = extra.concat(LOCS.filter(c=>!pool.includes(c)));
+    if (level.map) extra = (level.map.voieTraps||[]).filter(c=>!pool.includes(c));
+  }
+  const chips = shuffle(pool.concat(traps.map(norm), extra)).map((t,i)=>({id:i, t, used:false}));
+  return {level, mode, slots, parts, chips, selChip:null, selSlot:null, checked:false, t0:Date.now(), secs:0,
+    typing: S.input==="clavier", cur:null, sugs:[], sugIdx:-1};
+}
+
+/* ============ RENDU ============ */
+const app = document.getElementById("app");
+const PH = {enz:"enzyme", mol:"molécule", cof:"cofacteur", loc:"compartiment", voie:"voie", cell:"?"};
+
+function slotText(x){ return P.typing ? (x.txt||null) : (x.val!==null ? P.chips[x.val].t : null); }
+/* Quantités : "2" vaut "2 ATP" et inversement, si l'unité ajoutée est celle attendue ou celle de la ligne */
+function qty(t){
+  const m = nrm(t).match(/^(\d+(?: \d+)?)(?: (.+))?$/); if (!m) return null;
+  const u = m[2] ? m[2].split(" ").map(w=>w.replace(/s$/,"")) : [];
+  if (u.some(w=>/^\d+$/.test(w))) return null;
+  return {n:m[1], u};
+}
+function qtyMatch(t, x){
+  const a = qty(x.ans), b = qty(t); if (!a || !b || a.n!==b.n) return false;
+  const ok = new Set(a.u.concat(nrm(x.ctx||"").split(" ").map(w=>w.replace(/s$/,""))));
+  return b.u.every(w=>ok.has(w));
+}
+function isRight(x){ const t = slotText(x); if (t===null) return false; return P.typing ? (nrm(t)===nrm(x.ans) || qtyMatch(t,x)) : norm(t)===x.ans; }
+
+function cell(x, extra=""){
+  if (!x) return "";
+  if (x.fixed){
+    if (x.kind==="enz") return `<span class="enz">${esc(x.ans)}</span>`;
+    if (x.kind==="cof"||x.kind==="loc"||x.kind==="voie") return `<span class="tag ${x.kind}">${esc(x.ans)}</span>`;
+    if (x.kind==="mol") return `<span class="mol fx">${esc(x.ans)}</span>`;
+    return esc(norm(x.ans));
+  }
+  const txt = slotText(x);
+  const filled = txt!==null;
+  let cls = "slot "+x.kind+" "+extra;
+  let inner;
+  if (P.checked){
+    const ok = isRight(x);
+    cls += ok ? " ok" : " bad";
+    inner = ok ? esc(txt)
+      : (filled ? `<span class="was">${esc(txt)}</span>` : `<span class="ph">vide</span>`) + `<span class="fix">${esc(x.ans)}</span>`;
+  } else {
+    if (filled) cls += " filled";
+    if ((P.typing ? P.cur : P.selSlot)===x.id) cls += " want";
+    inner = filled ? esc(txt) : `<span class="ph">${PH[x.kind]}</span>`;
+  }
+  return `<button class="${cls}" data-s="${x.id}" ${P.checked?"disabled":""} aria-label="${filled?esc(txt):"Case vide : "+PH[x.kind]}">${inner}</button>`;
+}
+
+function renderBoard(){
+  const L = P.level, W = WORLDS[L.w];
+  let h = "";
+  P.parts.forEach(p => {
+    if (p.type==="chain"){
+      h += `<div class="chain">${p.label?`<div class="clabel">${esc(p.label)}</div>`:""}<span class="mol fx">${esc(p.start)}</span>`;
+      p.steps.forEach(st => {
+        const tags = [cell(st.e), cell(st.c), cell(st.l)].filter(Boolean).join("");
+        h += `<div class="step"><div class="rail"></div><div class="tags">${tags}</div></div>${cell(st.m)}`;
+      });
+      h += `</div>`;
+    } else if (p.type==="map"){
+      h += renderMap(p);
+    } else {
+      h += `<div class="gridwrap"><table><thead><tr>${p.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+      p.rows.forEach(r => { h += `<tr>${r.map(c=>`<td>${cell(c)}</td>`).join("")}</tr>`; });
+      h += `</tbody></table></div>`;
+    }
+  });
+  document.getElementById("board").innerHTML = h;
+}
+
+const hubColor = h => `--h:${WORLDS[h.w].c};--hsoft:${WORLDS[h.w].s}`;
+const hubLink = (id,t) => `<button class="hublink" data-hub="${id}">${esc(t)} ↗</button>`;
+function renderMap(p){
+  const pos = {}; p.hubs.forEach(h=>pos[h.id]=h);
+  const seen = new Set(); let paths = "";
+  p.edges.forEach(ed => {
+    if (!p.hubIds.has(ed.from) || !p.hubIds.has(ed.to)) return;
+    const k = [ed.from,ed.to].sort().join("-"); if (seen.has(k)) return; seen.add(k);
+    const a = pos[ed.from], b = pos[ed.to];
+    const bend = (ed.from==="oaa" && ed.to==="tri") ? ` Q 4 32 ${b.x} ${b.y}` : ` L ${b.x} ${b.y}`;
+    paths += `<path d="M ${a.x} ${a.y}${bend}"/>`;
+  });
+  let h = `<div class="overview" aria-label="Carte des carrefours"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}</svg>
+    ${p.hubs.map(hb=>`<button class="onode" data-hub="${hb.id}" style="left:${hb.x}%;top:${hb.y}%;${hubColor(hb)}">${esc(hb.t)}</button>`).join("")}
+    </div><p class="ocap">Touche un carrefour pour sauter à sa fiche.</p><div class="hubs">`;
+  p.hubs.forEach(hb => {
+    h += `<section class="hub" id="hub-${hb.id}" style="${hubColor(hb)}"><h3 class="hubname">${esc(hb.t)}</h3><p class="hubsub">${esc(hb.s)}</p>`;
+    p.rows[hb.id].forEach(r => {
+      if (r.dir==="from"){ h += `<div class="route from"><span class="dir">← arrive de</span>${hubLink(r.hub,r.t)}</div>`; return; }
+      const lead = r.dir==="out" ? "→ part vers" : r.dir==="in" ? "← arrive de" : "⇄ échange avec";
+      const partner = r.p.hub ? hubLink(r.p.hub, r.p.t) : cell(r.p);
+      h += `<div class="route"><span class="dir go">${lead}</span>${partner}<span class="dir">par</span>${cell(r.e)}${cell(r.v)}</div>`;
+    });
+    h += `</section>`;
+  });
+  return h + `</div>`;
+}
+
+function domOrder(){
+  const d = [...document.querySelectorAll("#board [data-s]")].map(b=>+b.dataset.s);
+  return d.length ? d : P.slots.map(s=>s.id);
+}
+function nextEmpty(from){
+  const ids = domOrder(), i = from==null ? -1 : ids.indexOf(from);
+  const after = ids.slice(i+1).concat(ids.slice(0, i+1));
+  const id = after.find(k => !P.slots[k].txt);
+  return id===undefined ? null : id;
+}
+function sugHTML(){
+  const q = nrm((document.getElementById("ans")||{}).value||"");
+  if (!P.sugs.length) return q ? `<span class="hint">Aucun terme du jeu ne ressemble à ça. Tu peux quand même valider ta réponse.</span>` : `<span class="hint">Commence à écrire : les suggestions viennent de tous les termes du jeu, pièges compris.</span>`;
+  return P.sugs.map((t,i)=>`<button class="sug" data-sug="${i}" aria-selected="${i===P.sugIdx}">${esc(t)}</button>`).join("");
+}
+function renderTyper(){
+  const tray = document.getElementById("trayin");
+  const left = P.slots.filter(s=>!s.txt).length;
+  const x = P.cur!==null ? P.slots[P.cur] : null;
+  P.sugs = []; P.sugIdx = -1;
+  tray.innerHTML = `<div class="typer">
+    ${x ? `<p class="typectx">Case : <b>${PH[x.kind]}</b>${x.ctx?" · "+esc(x.ctx):""}</p>
+    <div class="sugs" id="sugs">${sugHTML()}</div>
+    <div class="typerow"><input id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Écris ta réponse" aria-label="Réponse pour la case sélectionnée" value="${esc(x.txt||"")}"><button id="commit">OK</button></div>`
+    : `<p class="typectx">Toutes les cases sont remplies. Touche une case pour la modifier, ou vérifie.</p>`}
+    <div class="trayfoot"><span class="hint">${left ? left+" case"+(left>1?"s":"")+" vide"+(left>1?"s":"") : "Tout est rempli."}</span>
+    <button class="cta" id="check">Vérifier</button></div></div>`;
+  if (x && x.txt) refreshSugs();
+}
+function refreshSugs(){
+  const inp = document.getElementById("ans"); if (!inp) return;
+  P.sugs = suggest(inp.value); P.sugIdx = -1;
+  const box = document.getElementById("sugs"); if (box) box.innerHTML = sugHTML();
+}
+function commit(text){
+  if (P.cur===null) return;
+  const t = String(text||"").trim();
+  P.slots[P.cur].txt = t || null;
+  const was = P.cur;
+  P.cur = t ? nextEmpty(was) : was;
+  renderBoard(); renderTyper();
+  const inp = document.getElementById("ans"); if (inp) inp.focus({preventScroll:true});
+  const el = P.cur!==null && document.querySelector(`#board [data-s="${P.cur}"]`);
+  if (el && el.scrollIntoView) el.scrollIntoView({block:"center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+}
+
+function renderTray(){
+  const tray = document.getElementById("trayin");
+  if (P.checked){ tray.parentElement.hidden = true; return; }
+  if (P.typing) return renderTyper();
+  const left = P.slots.filter(s=>s.val===null).length;
+  tray.innerHTML = `<div class="eyebrow">Pièces · touche une pièce puis une case</div>
+  <div class="chips">${P.chips.filter(c=>!c.used).map(c=>`<button class="chip" data-c="${c.id}" aria-pressed="${P.selChip===c.id}">${esc(c.t)}</button>`).join("")}</div>
+  <div class="trayfoot"><span class="hint">${left ? left+" case"+(left>1?"s":"")+" vide"+(left>1?"s":"") : "Tout est placé."}</span>
+  <button class="cta" id="check">Vérifier</button></div>`;
+}
+
+function renderPlay(){
+  const L = P.level, W = WORLDS[L.w];
+  const idx = LEVELS.indexOf(L);
+  app.innerHTML = `<div style="--w:${W.c};--wsoft:${W.s}">
+  <div class="playbar"><div class="in">
+    <button class="back" id="home">← Niveaux</button>
+    <h1>${esc(L.t)}</h1>
+    <span class="badge">${MODES[P.mode].n} ×${MODES[P.mode].x}</span>${P.typing?`<span class="badge">Clavier ×1,5</span>`:""}
+    ${P.mode==="m"?`<span class="timer" id="timer">0:00</span>`:""}
+  </div></div>
+  <main class="play">
+    <p class="intro"><span class="eyebrow">${esc(W.name)} · niveau ${idx+1}</span><br>${esc(L.s)}</p>
+    <div id="board" style="display:grid;gap:26px"></div>
+    <section id="result" hidden></section>
+  </main>
+  <div class="tray"><div class="in" id="trayin"></div></div>
+  </div>`;
+  renderBoard();
+  if (P.typing){ P.cur = nextEmpty(null); renderBoard(); }
+  renderTray();
+  clearInterval(timerId);
+  if (P.mode==="m"){
+    timerId = setInterval(()=>{
+      if (P.checked) return;
+      P.secs = Math.floor((Date.now()-P.t0)/1000);
+      const el = document.getElementById("timer");
+      if (el) el.textContent = Math.floor(P.secs/60)+":"+String(P.secs%60).padStart(2,"0");
+    }, 500);
+  }
+  window.scrollTo(0,0);
+}
+
+function place(chipId, slotId){
+  const s = P.slots[slotId];
+  if (s.val!==null) P.chips[s.val].used = false;
+  s.val = chipId; P.chips[chipId].used = true;
+  P.selChip = null; P.selSlot = null;
+}
+
+function onPlayClick(e){
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id==="home"){ goHome(); return; }
+  if (b.id==="check"){ check(); return; }
+  if (b.dataset.act){ return resultAct(b.dataset.act); }
+  if (b.dataset.hub){ const t=document.getElementById("hub-"+b.dataset.hub); if (t) t.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"start"}); return; }
+  if (P.checked) return;
+  if (P.typing){
+    if (b.id==="commit"){ const inp=document.getElementById("ans"); commit(P.sugIdx>=0 ? P.sugs[P.sugIdx] : inp.value); return; }
+    if (b.dataset.sug!==undefined){ commit(P.sugs[+b.dataset.sug]); return; }
+    if (b.dataset.s!==undefined){
+      P.cur = +b.dataset.s; renderBoard(); renderTyper();
+      const inp=document.getElementById("ans"); if (inp){ inp.focus({preventScroll:true}); inp.select(); }
+    }
+    return;
+  }
+  if (b.dataset.c!==undefined){
+    const c = +b.dataset.c;
+    if (P.selSlot!==null){ place(c, P.selSlot); }
+    else P.selChip = P.selChip===c ? null : c;
+  } else if (b.dataset.s!==undefined){
+    const s = P.slots[+b.dataset.s];
+    if (P.selChip!==null){ place(P.selChip, s.id); }
+    else if (s.val!==null){ P.chips[s.val].used=false; s.val=null; P.selSlot=null; }
+    else P.selSlot = P.selSlot===s.id ? null : s.id;
+  } else return;
+  renderBoard(); renderTray();
+}
+
+function check(){
+  P.checked = true;
+  P.secs = Math.floor((Date.now()-P.t0)/1000);
+  clearInterval(timerId);
+  const n = P.slots.length;
+  const wrong = P.slots.filter(s => !isRight(s));
+  const good = n - wrong.length;
+  const base = Math.round(100*good/n);
+  const perfect = wrong.length===0;
+  const timeBonus = P.mode==="m" && base>=50 ? Math.max(0, 30-Math.floor(P.secs/10)) : 0;
+  const bossX = P.level.boss ? 2 : 1;
+  const typeX = P.typing ? 1.5 : 1;
+  const pts = Math.round((base + (perfect?20:0) + timeBonus) * MODES[P.mode].x * bossX * typeX);
+  const id = P.level.id;
+  const prev = (S.best[id]||{})[P.mode]||0;
+  const record = pts > prev;
+  if (record){ S.best[id] = Object.assign({}, S.best[id], {[P.mode]:pts}); LSset("best", S.best); saveRemote(); }
+
+  const whys = []; const seen = new Set();
+  wrong.forEach(s => { if (s.why && !seen.has(s.why)){ seen.add(s.why); whys.push(`<li><b>${esc(s.ctx)}</b> : ${esc(s.why)}</li>`); } });
+  const idx = LEVELS.indexOf(P.level);
+  let next = LEVELS[idx+1];
+  if (next && next.boss && !bossUnlocked()) next = null;
+  const r = document.getElementById("result");
+  r.className = "result";
+  r.innerHTML = `<div class="eyebrow">${good} / ${n} cases justes${P.mode==="m"?" · "+Math.floor(P.secs/60)+" min "+String(P.secs%60).padStart(2,"0")+" s":""}</div>
+   <div class="score mono">${pts} pts</div>
+   <p class="hint">${base} de base${perfect?" + 20 sans faute":""}${timeBonus?" + "+timeBonus+" de temps":""}, ×${MODES[P.mode].x} en ${MODES[P.mode].n}${bossX>1?", ×2 pour le boss":""}${P.typing?", ×1,5 au clavier":""}. ${record?"Nouveau record sur ce niveau.":"Ton record ici : "+prev+" pts."}</p>
+   ${whys.length?`<div><div class="eyebrow">À retenir</div><ul>${whys.join("")}</ul></div>`:""}
+   <p class="tip">${esc(P.level.tip)}</p>
+   <div class="acts"><button class="cta" data-act="again">Rejouer</button>${next?`<button class="cta alt" data-act="next">Niveau suivant</button>`:""}<button class="cta alt" data-act="home">Tous les niveaux</button></div>`;
+  r.hidden = false;
+  renderBoard(); renderTray();
+  r.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"start"});
+}
+
+function resultAct(a){
+  const idx = LEVELS.indexOf(P.level);
+  if (a==="again") startLevel(P.level.id);
+  else if (a==="next") startLevel(LEVELS[idx+1].id);
+  else goHome();
+}
+
+const MAIN_WORLDS = ["glu","lip","nrj","azo","heme","lp"];
+function worldsStarted(){ return MAIN_WORLDS.filter(w => LEVELS.some(l=>l.w===w && levelBest(l.id)>0)).length; }
+function bossUnlocked(){ return worldsStarted() >= MAIN_WORLDS.length; }
+function startLevel(id){
+  const L = LEVELS.find(l=>l.id===id);
+  if (!L || (L.boss && !bossUnlocked())) return;
+  S.screen = "play";
+  P = build(L, S.mode);
+  renderPlay();
+}
+
+/* ---------- accueil ---------- */
+function renderHome(){
+  clearInterval(timerId);
+  let worlds = "";
+  let n = 0;
+  for (const wk in WORLDS){
+    if (wk==="boss") continue;
+    const W = WORLDS[wk];
+    const lv = LEVELS.filter(l=>l.w===wk);
+    worlds += `<section class="world" style="--w:${W.c}">
+      <div class="world-head"><h2>${esc(W.name)}</h2><span class="eyebrow">${lv.filter(l=>levelBest(l.id)>0).length} / ${lv.length} niveaux joués</span></div>
+      <div class="levels">${lv.map(l => { n++; const b=S.best[l.id]||{};
+        return `<button class="lvl" data-l="${l.id}"><span class="num">N° ${String(n).padStart(2,"0")}</span><h3>${esc(l.t)}</h3><p class="sub">${esc(l.s)}</p>
+        <div class="pills">${["a","i","m"].map(m=>`<span class="pill ${b[m]?"done":""}">${MODES[m].n.slice(0,3)} ${b[m]?b[m]:"—"}</span>`).join("")}</div></button>`; }).join("")}</div>
+    </section>`;
+  }
+  app.innerHTML = `<div class="wrap">
+   <header class="hero">
+     <span class="eyebrow">UE 3.3 · biochimie métabolique</span>
+     <h1>Métabo <span class="arrow">→</span> Puzzle</h1>
+     <p>Reconstruis les 29 voies de l'UE, molécule par molécule et enzyme par enzyme, puis affronte le Carrefour. Les fausses pièces sont les pièges classiques de l'examen.</p>
+   </header>
+   <div class="home">
+    <div style="display:grid;gap:28px;min-width:0">
+     <section class="setup">
+       <label for="pseudo">Ton pseudo pour le classement
+         <input id="pseudo" maxlength="20" autocomplete="nickname" placeholder="ex. Enzyme_Malique" value="${esc(S.pseudo)}">
+       </label>
+       <p class="hint">2 à 20 caractères. Il s'affiche à côté de ton score.</p>
+       <div class="eyebrow">Difficulté</div>
+       <div class="modes">${Object.entries(MODES).map(([k,m])=>`<button class="mode" data-m="${k}" aria-pressed="${S.mode===k}"><b>${m.n} ×${m.x}</b><span>${m.d}</span></button>`).join("")}</div>
+       <div class="eyebrow">Saisie</div>
+       <div class="modes">
+         <button class="mode" data-in="pieces" aria-pressed="${S.input==="pieces"}"><b>Pièces</b><span>Tu choisis parmi les pièces du niveau.</span></button>
+         <button class="mode" data-in="clavier" aria-pressed="${S.input==="clavier"}"><b>Clavier ×1,5</b><span>Tu écris la réponse. Les suggestions viennent de tous les termes du jeu, pièges compris.</span></button>
+       </div>
+     </section>
+     ${worlds}
+     ${bossSection()}
+    </div>
+    <aside class="board-aside" id="lbbox"></aside>
+   </div></div>`;
+  renderLB();
+}
+
+function bossSection(){
+  const B = LEVELS.find(l=>l.boss), st = worldsStarted(), b = S.best[B.id]||{};
+  const body = bossUnlocked()
+    ? `<button class="lvl bosscard" data-l="${B.id}"><span class="num">Boss · points ×2</span><h3>${esc(B.t)}</h3><p class="sub">${esc(B.s)} : 7 carrefours, toutes leurs entrées et toutes leurs sorties.</p>
+       <div class="pills">${["a","i","m"].map(m=>`<span class="pill ${b[m]?"done":""}">${MODES[m].n.slice(0,3)} ${b[m]?b[m]:"—"}</span>`).join("")}</div></button>`
+    : `<div class="lockcard"><b>${esc(B.t)}</b><span>Joue au moins un niveau dans chacun des 6 mondes pour le débloquer.</span></div>`;
+  return `<section class="world bossworld"><div class="world-head"><h2>Boss final</h2><span class="eyebrow">${bossUnlocked()?"débloqué":"verrouillé · "+st+" / 6 mondes entamés"}</span></div><div class="levels">${body}</div></section>`;
+}
+
+function renderLB(){
+  const box = document.getElementById("lbbox"); if (!box) return;
+  let body = "";
+  if (S.lbState==="loading") body = `<p class="note">Chargement du classement…</p>`;
+  else if (S.lbState==="off") body = `<p class="note">Classement indisponible ici. Ouvre le jeu depuis claude.ai en étant connecté pour voir celui de la promo. Tes scores restent enregistrés sur cet appareil.</p>`;
+  else if (!S.lb || !S.lb.length) body = `<p class="note">Personne n'a encore de score. Choisis un pseudo et termine un niveau pour ouvrir le classement.</p>`;
+  else body = `<ol class="lb">${S.lb.map((r,i)=>`<li class="${r.id===S.uid?"me":""}"><span class="rk">${i+1}</span><span class="who" data-who="${i}"></span><span class="pts">${r.total}</span></li>`).join("")}</ol>`;
+  box.innerHTML = `<h2>Classement</h2><span class="eyebrow">points cumulés · meilleur score par niveau</span>${body}
+   ${S.readOnly?`<p class="note warn">Tu peux voir le classement mais pas y publier ton score avec ton niveau d'accès actuel. Tes points restent sur cet appareil.</p>`:""}
+   ${!S.pseudo && S.lbState==="on"?`<p class="note">Ajoute un pseudo pour apparaître dans le classement.</p>`:""}
+   <div class="mytotal"><span>Ton total</span><span class="big mono">${total()}</span></div>
+   <p class="note">${doneCount()} niveau${doneCount()>1?"x":""} joué${doneCount()>1?"s":""} sur ${LEVELS.length}. Maximum en Major sans faute : 450 pts par niveau, 900 pour le boss, et ×1,5 au clavier.</p>`;
+  if (S.lb) box.querySelectorAll("[data-who]").forEach(el => { el.textContent = S.lb[+el.dataset.who].pseudo || "Anonyme"; });
+}
+
+function goHome(){ S.screen="home"; P=null; renderHome(); }
+
+app.addEventListener("click", e => {
+  if (S.screen==="play") return onPlayClick(e);
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.l) startLevel(b.dataset.l);
+  else if (b.dataset.m){ S.mode=b.dataset.m; LSset("mode",S.mode); document.querySelectorAll(".mode[data-m]").forEach(x=>x.setAttribute("aria-pressed", x.dataset.m===S.mode)); }
+  else if (b.dataset.in){ S.input=b.dataset.in; LSset("input",S.input); document.querySelectorAll(".mode[data-in]").forEach(x=>x.setAttribute("aria-pressed", x.dataset.in===S.input)); }
+});
+app.addEventListener("input", e => { if (e.target.id==="ans" && P && P.typing) refreshSugs(); });
+app.addEventListener("keydown", e => {
+  if (e.target.id!=="ans" || !P || !P.typing) return;
+  const box = document.getElementById("sugs");
+  if (e.key==="ArrowDown" || e.key==="ArrowUp"){
+    if (!P.sugs.length) return; e.preventDefault();
+    const n = P.sugs.length;
+    P.sugIdx = e.key==="ArrowDown" ? (P.sugIdx+1)%n : (P.sugIdx<=0 ? n-1 : P.sugIdx-1);
+    if (box) box.innerHTML = sugHTML();
+  } else if (e.key==="Enter"){
+    e.preventDefault(); commit(P.sugIdx>=0 ? P.sugs[P.sugIdx] : e.target.value);
+  } else if (e.key==="Escape"){ e.target.value=""; refreshSugs(); }
+});
+let pseudoTimer=null;
+app.addEventListener("input", e => {
+  if (e.target.id!=="pseudo") return;
+  const v = e.target.value.trim();
+  clearTimeout(pseudoTimer);
+  pseudoTimer = setTimeout(()=>{
+    if (v.length>=2 && v.length<=20 && v!==S.pseudo){ S.pseudo=v; LSset("pseudo",v); if (total()>0) saveRemote(); renderLB(); }
+  }, 800);
+});
+
+/* ============ CLASSEMENT PARTAGÉ (db) ============ */
+let saving = Promise.resolve();
+function saveRemote(){
+  if (!db || !S.uid || !S.pseudo || S.readOnly) return;
+  const body = {pseudo:S.pseudo, total:total(), levels:doneCount(), best:S.best, updatedAt:Date.now()};
+  saving = saving.then(()=>db.doc("scores/"+S.uid).set(body)).catch(err => {
+    if (err && err.code==="invalid_argument"){ S.readOnly = true; if (S.screen==="home") renderLB(); }
+  });
+}
+
+(async () => {
+  try {
+    if (!window.claude || !window.claude.use){ S.lbState="off"; if (S.screen==="home") renderLB(); return; }
+    const [u, d] = await Promise.all([window.claude.use("user"), window.claude.use("db")]);
+    if (!d){ S.lbState="off"; if (S.screen==="home") renderLB(); return; }
+    db = d;
+    S.uid = u ? await u.id() : null;
+    if (u){ const can = await u.can("data.write"); if (can===false) S.readOnly = true; }
+    if (!S.uid) S.readOnly = true;
+    if (S.uid){
+      try {
+        const mine = await db.doc("scores/"+S.uid).get();
+        if (mine.exists){
+          const m = mine.data();
+          if (!S.pseudo && m.pseudo){ S.pseudo = m.pseudo; LSset("pseudo", S.pseudo); const inp=document.getElementById("pseudo"); if (inp) inp.value=S.pseudo; }
+          const rb = m.best || {};
+          for (const id in rb) for (const k in rb[id]) {
+            const cur = (S.best[id]||{})[k]||0;
+            if (rb[id][k] > cur) S.best[id] = Object.assign({}, S.best[id], {[k]: rb[id][k]});
+          }
+          LSset("best", S.best);
+          if (S.screen==="home") renderHome();
+        }
+      } catch(e){}
+    }
+    db.collection("scores").orderBy("total","desc").limit(30).onSnapshot(snap => {
+      S.lb = snap.docs.map(x => ({id:x.id, pseudo:String(x.data().pseudo||"").slice(0,20), total:Math.round(+x.data().total||0)}));
+      S.lbState = "on";
+      if (S.screen==="home") renderLB();
+    }, () => { S.lbState="off"; if (S.screen==="home") renderLB(); });
+  } catch(e){ S.lbState="off"; if (S.screen==="home") renderLB(); }
+})();
+
+renderHome();
+</script>
+
+</body></html>

@@ -1,0 +1,614 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Dōjō Gungi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: plateau à gauche, panneau de leçon / partie à droite ; une colonne sur mobile */
+:root{
+  --bg:#f3f4f2; --surface:#ffffff; --board:#e4e8e2; --line:#c3cbc2; --ink:#1c2125; --muted:#5d666b;
+  --accent:#2d4f9a; --accent-soft:#dfe6f4; --cap:#c4462e; --betray:#7a4bb0; --ok:#2f7a4f; --okbg:#e2f1e7; --warn:#a76a12;
+  --white-pc:#fbfaf6; --white-ink:#1c2125; --black-pc:#262b31; --black-ink:#f2f1ec; --stack:#9aa59b; --mark:#e8b23a;
+  --f-k:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-b:"Zen Kaku Gothic New","Hiragino Sans","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14171a; --surface:#1c2024; --board:#262c30; --line:#3b4348; --ink:#e7e9e6; --muted:#9aa3a7;
+  --accent:#8fa9e8; --accent-soft:#25304a; --cap:#ec7a62; --betray:#b896e6; --ok:#7fcf9c; --okbg:#1e3327; --warn:#e6b25a;
+  --white-pc:#f1efe7; --white-ink:#1c2125; --black-pc:#0b0d0f; --black-ink:#e9e8e2; --stack:#59645d; --mark:#e8b23a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14171a; --surface:#1c2024; --board:#262c30; --line:#3b4348; --ink:#e7e9e6; --muted:#9aa3a7;
+  --accent:#8fa9e8; --accent-soft:#25304a; --cap:#ec7a62; --betray:#b896e6; --ok:#7fcf9c; --okbg:#1e3327; --warn:#e6b25a;
+  --white-pc:#f1efe7; --white-ink:#1c2125; --black-pc:#0b0d0f; --black-ink:#e9e8e2; --stack:#59645d; --mark:#e8b23a; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-b);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand .k{font-family:var(--f-k);font-weight:800;font-size:44px;line-height:1;letter-spacing:.02em}
+.brand h1{margin:0;font-size:18px;font-weight:700;letter-spacing:.01em}
+.brand p{margin:0;color:var(--muted);font-size:13px}
+nav{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
+nav button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:500;padding:7px 16px;border-radius:999px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}
+h2{font-size:22px;margin:0 0 6px;text-wrap:balance;line-height:1.25}
+h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 8px;font-weight:700}
+p{margin:0 0 10px;max-width:62ch}
+.kj{font-family:var(--f-k);font-weight:800}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+/* ---- Plateau ---- */
+.boardbox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.bgrid{display:grid;grid-template-columns:repeat(9,minmax(0,1fr)) 20px;grid-template-rows:18px;gap:0;width:100%;user-select:none}
+.lab{font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.lab.r{font-family:var(--f-k)}
+.cell{position:relative;aspect-ratio:1;border:0;padding:0;background:var(--board);cursor:pointer;
+  box-shadow:inset -1px -1px 0 var(--line);display:flex;align-items:center;justify-content:center;min-width:0}
+.cell.c0{box-shadow:inset 1px 0 0 var(--line),inset -1px -1px 0 var(--line)}
+.cell.r0{box-shadow:inset 0 1px 0 var(--line),inset -1px -1px 0 var(--line)}
+.cell.r0.c0{box-shadow:inset 1px 1px 0 var(--line),inset -1px -1px 0 var(--line)}
+.cell.zone{background:color-mix(in srgb,var(--board) 88%,var(--accent) 12%)}
+.cell.last{background:color-mix(in srgb,var(--board) 75%,var(--mark) 25%)}
+.cell.sel{background:color-mix(in srgb,var(--board) 55%,var(--accent) 45%)}
+.cell.mark::after{content:"";position:absolute;inset:8%;border:2px dashed var(--mark);border-radius:6px;pointer-events:none}
+.pc{position:relative;width:78%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-k);font-weight:800;font-size:clamp(13px,3.4vw,24px);line-height:1;transition:transform .12s}
+.pc.w{background:var(--white-pc);color:var(--white-ink);box-shadow:0 0 0 1px rgba(0,0,0,.18),0 1px 2px rgba(0,0,0,.2)}
+.pc.b{background:var(--black-pc);color:var(--black-ink);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 1px 2px rgba(0,0,0,.35)}
+.pc.b .k{transform:rotate(180deg)}
+.pc.t2{box-shadow:0 0 0 1px rgba(0,0,0,.2),0 3px 0 0 var(--stack),0 4px 3px rgba(0,0,0,.25)}
+.pc.t3{box-shadow:0 0 0 1px rgba(0,0,0,.2),0 3px 0 0 var(--stack),0 6px 0 0 var(--stack),0 7px 4px rgba(0,0,0,.3)}
+.pc.t2,.pc.t3{transform:translateY(-3px)}
+.tier{position:absolute;right:-6%;bottom:-6%;font-family:var(--f-b);font-size:10px;font-weight:700;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);color:var(--surface);display:flex;align-items:center;justify-content:center}
+.stk{position:absolute;left:3px;bottom:3px;display:flex;flex-direction:column-reverse;gap:1px}
+.stk i{display:block;width:6px;height:4px;border-radius:1px}
+.stk i.w{background:var(--white-pc);box-shadow:0 0 0 1px var(--muted)}
+.stk i.b{background:var(--black-pc);box-shadow:0 0 0 1px var(--muted)}
+.tg{position:absolute;pointer-events:none;z-index:2}
+.tg.route,.tg.arata{width:26%;aspect-ratio:1;border-radius:50%;background:var(--accent);opacity:.75}
+.tg.capture{inset:7%;border-radius:50%;border:3px solid var(--cap)}
+.tg.tsuke{inset:7%;border-radius:50%;border:3px solid var(--accent)}
+.tg.betray{inset:7%;border-radius:50%;border:3px dashed var(--betray)}
+.tg.multi{inset:7%;border-radius:50%;border:3px solid var(--cap);outline:3px solid var(--accent);outline-offset:-9px}
+.hand{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:36px}
+.hand .who{font-size:12px;color:var(--muted);margin-right:4px;min-width:64px}
+.chip{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:3px 9px 3px 4px;cursor:pointer;font-size:12px}
+.chip .d{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--f-k);font-weight:800;font-size:15px}
+.chip.w .d{background:var(--white-pc);color:var(--white-ink);box-shadow:0 0 0 1px rgba(0,0,0,.2)}
+.chip.b .d{background:var(--black-pc);color:var(--black-ink)}
+.chip.b{cursor:default}
+.chip.on{border-color:var(--accent);background:var(--accent-soft)}
+.chip:disabled{opacity:.5;cursor:default}
+.choices{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.choices:empty{display:none}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:7px 13px;cursor:pointer;font-size:14px;font-weight:500}
+.btn:hover{border-color:var(--ink)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn.cap{border-color:var(--cap);color:var(--cap)} .btn.tsu{border-color:var(--accent);color:var(--accent)} .btn.bet{border-color:var(--betray);color:var(--betray)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.info{font-size:13px;color:var(--muted);min-height:20px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%}
+
+/* ---- Leçons ---- */
+.lessons{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+.lessons button{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;min-width:32px;height:32px;cursor:pointer;font-weight:700;font-variant-numeric:tabular-nums}
+.lessons button.done{background:var(--okbg);color:var(--ok);border-color:transparent}
+.lessons button[aria-current="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.body p b{font-weight:700}
+.task{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--accent-soft);display:flex;flex-direction:column;gap:6px}
+.task .t{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.task.ok{background:var(--okbg)} .task.ok .t{color:var(--ok)}
+.feedback{font-size:14px;min-height:22px}
+.feedback.bad{color:var(--cap)} .feedback.good{color:var(--ok);font-weight:500}
+.hint{font-size:13px;color:var(--muted);border-left:2px solid var(--line);padding-left:10px}
+.navrow{display:flex;justify-content:space-between;gap:8px;margin-top:16px;flex-wrap:wrap}
+
+/* ---- Catalogue ---- */
+.cat{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.card{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px;display:flex;gap:10px;align-items:center;cursor:pointer;text-align:left;color:var(--ink)}
+.card[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.card .d{width:38px;height:38px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--white-pc);color:var(--white-ink);font-family:var(--f-k);font-weight:800;font-size:21px;box-shadow:0 0 0 1px rgba(0,0,0,.2)}
+.card .n{font-weight:700;font-size:14px;line-height:1.2}
+.card .r{font-size:12px;color:var(--muted)}
+.tiers{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.tiers button{border:0;background:transparent;color:var(--muted);border-radius:999px;padding:4px 12px;cursor:pointer;font-weight:500}
+.tiers button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+.big{display:flex;gap:14px;align-items:center;margin-bottom:10px}
+.big .d{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--white-pc);color:var(--white-ink);font-family:var(--f-k);font-weight:800;font-size:36px;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 2px 4px rgba(0,0,0,.15)}
+table.comp{border-collapse:collapse;font-size:13px;width:100%}
+table.comp td,table.comp th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
+table.comp td.n{text-align:right;font-variant-numeric:tabular-nums}
+.tblwrap{overflow-x:auto}
+
+/* ---- Partie ---- */
+.status{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px var(--muted)}
+.dot.w{background:var(--white-pc)} .dot.b{background:var(--black-pc)}
+.check{color:var(--cap)}
+.log{max-height:220px;overflow:auto;font-size:13px;font-variant-numeric:tabular-nums;border-top:1px solid var(--line);padding-top:8px;margin-top:10px}
+.log ol{margin:0;padding-left:28px}
+.log li{padding:1px 0}
+select{max-width:100%;font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+label.ck{display:inline-flex;gap:6px;align-items:center;font-size:14px;cursor:pointer}
+.banner{padding:12px 14px;border-radius:10px;background:var(--accent-soft);font-weight:500}
+.banner.win{background:var(--okbg);color:var(--ok)}
+.banner.lose{background:color-mix(in srgb,var(--cap) 15%,var(--surface));color:var(--cap)}
+.thinking{animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.4}}
+@media (prefers-reduced-motion:reduce){.thinking{animation:none}.pc{transition:none}}
+.symsw{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.symsw .tiers button{font-size:13px}
+:root:not([data-sym="kanji"]) .pc.b .k{transform:none}
+:root[data-sym="icons"] .pc .k,:root[data-sym="icons"] .chip .d,:root[data-sym="icons"] .card .d,:root[data-sym="icons"] .big .d,:root[data-sym="icons"] .kj{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",var(--f-b);font-weight:400}
+:root[data-sym="letters"] .pc .k,:root[data-sym="letters"] .chip .d,:root[data-sym="letters"] .card .d,:root[data-sym="letters"] .big .d,:root[data-sym="letters"] .kj,:root[data-sym="letters"] .lab.r{font-family:var(--f-b);font-weight:700;letter-spacing:-.02em}
+:root[data-sym="letters"] .pc{font-size:clamp(11px,2.9vw,19px)}
+:root[data-sym="letters"] .chip .d{font-size:11px}
+:root[data-sym="letters"] .card .d{font-size:16px}
+:root[data-sym="letters"] .big .d{font-size:26px}
+footer{font-size:12px;color:var(--muted);max-width:80ch}
+footer a{color:var(--muted)}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="brand"><span class="k" aria-hidden="true">軍儀</span><div><h1>Dōjō Gungi</h1><p>Apprendre le Gungi, pièce par pièce, puis jouer contre l'ordinateur</p></div></div>
+  <nav role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-learn" aria-selected="true" data-tab="learn">Apprendre</button>
+    <button role="tab" id="tab-pieces" aria-selected="false" data-tab="pieces">Pièces</button>
+    <button role="tab" id="tab-play" aria-selected="false" data-tab="play">Jouer</button>
+  </nav>
+  <div class="symsw"><span id="symlab">Affichage des pièces</span><div class="tiers" id="symsw" role="group" aria-labelledby="symlab">
+    <button data-s="kanji">Kanji</button><button data-s="icons">Icônes</button><button data-s="letters">Lettres</button></div></div>
+</header>
+
+<!-- APPRENDRE -->
+<section id="learn" class="grid2">
+  <div class="boardbox">
+    <div class="hand" id="L-handB"></div>
+    <div id="L-board"></div>
+    <div class="hand" id="L-handW"></div>
+    <div class="choices" id="L-choices"></div>
+    <div class="info" id="L-info"></div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>déplacement</span><span><i style="border:2px solid var(--cap)"></i>capture 取</span><span><i style="border:2px solid var(--accent)"></i>empiler 付</span><span><i style="border:2px dashed var(--betray)"></i>trahison 返</span></div>
+  </div>
+  <div class="panel">
+    <div class="lessons" id="lessonNav"></div>
+    <div class="body" id="lessonBody"></div>
+    <div class="task" id="task"><span class="t">Exercice</span><div id="taskText"></div><div class="feedback" id="feedback"></div><div class="hint" id="hint" hidden></div>
+      <div class="row"><button class="btn" id="hintBtn">Indice</button><button class="btn" id="resetBtn">Recommencer</button></div></div>
+    <div class="navrow"><button class="btn" id="prevBtn">← Précédente</button><button class="btn pri" id="nextBtn">Leçon suivante →</button></div>
+  </div>
+</section>
+
+<!-- PIÈCES -->
+<section id="pieces" class="grid2" hidden>
+  <div class="boardbox">
+    <div id="P-board"></div>
+    <div class="row"><span class="small muted">Étage de la pièce :</span><div class="tiers" id="tiers"></div></div>
+    <p class="small muted">La pièce blanche est au centre ; « en avant » = vers le haut. Les points bleus montrent les cases atteignables sur un plateau vide.</p>
+  </div>
+  <div class="panel">
+    <div id="pDetail"></div>
+    <h3 style="margin-top:16px">Les 14 pièces</h3>
+    <div class="cat" id="cat"></div>
+    <h3 style="margin-top:18px">Composition d'une armée (mode avancé)</h3>
+    <div class="tblwrap"><table class="comp" id="comp"></table></div>
+  </div>
+</section>
+
+<!-- JOUER -->
+<section id="play" class="grid2" hidden>
+  <div class="boardbox">
+    <div class="hand" id="G-handB"></div>
+    <div id="G-board"></div>
+    <div class="hand" id="G-handW"></div>
+    <div class="choices" id="G-choices"></div>
+    <div class="info" id="G-info"></div>
+  </div>
+  <div class="panel" style="display:flex;flex-direction:column;gap:12px">
+    <div class="row">
+      <label for="mode" class="small muted">Mode</label>
+      <select id="mode">
+        <option value="0">Initiation : position fixe, 2 étages</option>
+        <option value="1">Débutant : position fixe, plus de pièces</option>
+        <option value="2">Intermédiaire : placement libre, 2 étages</option>
+        <option value="3">Avancé : placement libre, 3 étages</option>
+      </select>
+      <button class="btn pri" id="newGame">Nouvelle partie</button>
+    </div>
+    <div class="status" id="status"></div>
+    <div id="banner" hidden></div>
+    <div id="draftBox" class="row" hidden>
+      <label class="ck"><input type="checkbox" id="finishDraft"> Ce placement est le dernier (終)</label>
+      <button class="btn" id="autoDraft">Placer pour moi</button>
+    </div>
+    <div class="row">
+      <button class="btn" id="undo">Annuler mon coup</button>
+      <label class="ck"><input type="checkbox" id="showLegal" checked> Montrer les coups possibles</label>
+    </div>
+    <p class="small muted" id="playHelp">Clique une de tes pièces (blanches, en bas), puis une case surlignée. Pour parachuter, clique une pièce de ta réserve sous le plateau.</p>
+    <div class="log"><h3>Coups</h3><ol id="log"></ol></div>
+  </div>
+</section>
+
+<footer>Règles officielles de l'édition Universal Music Japan (2022), telles qu'implémentées par la bibliothèque libre <a href="https://github.com/jwyce/gungi.js" target="_blank" rel="noopener">gungi.js</a> (MIT, Jared Wyce), intégrée à cette page. Notation des cases : rang-colonne, comme au shōgi (colonnes 9 → 1 de gauche à droite, rangs 一 → 九 de haut en bas). Avec l'affichage Icônes ou Lettres, les rangs deviennent a → i et les actions s'écrivent ✕ capture, ▲ empiler, + poser, ⇄ trahison.</footer>
+</div>
+
+<script>var GungiLib=(()=>{var ce=Object.create;var I=Object.defineProperty;var fe=Object.getOwnPropertyDescriptor;var he=Object.getOwnPropertyNames;var pe=Object.getPrototypeOf,de=Object.prototype.hasOwnProperty;var me=(e,r)=>()=>(r||e((r={exports:{}}).exports,r),r.exports),ge=(e,r)=>{for(var t in r)I(e,t,{get:r[t],enumerable:!0})},_=(e,r,t,o)=>{if(r&&typeof r=="object"||typeof r=="function")for(let n of he(r))!de.call(e,n)&&n!==t&&I(e,n,{get:()=>r[n],enumerable:!(o=fe(r,n))||o.enumerable});return e};var be=(e,r,t)=>(t=e!=null?ce(pe(e)):{},_(r||!e||!e.__esModule?I(t,"default",{value:e,enumerable:!0}):t,e)),ye=e=>_(I({},"__esModule",{value:!0}),e);var K=me((mt,O)=>{var m=String,J=function(){return{isColorSupported:!1,reset:m,bold:m,dim:m,italic:m,underline:m,inverse:m,hidden:m,strikethrough:m,black:m,red:m,green:m,yellow:m,blue:m,magenta:m,cyan:m,white:m,gray:m,bgBlack:m,bgRed:m,bgGreen:m,bgYellow:m,bgBlue:m,bgMagenta:m,bgCyan:m,bgWhite:m,blackBright:m,redBright:m,greenBright:m,yellowBright:m,blueBright:m,magentaBright:m,cyanBright:m,whiteBright:m,bgBlackBright:m,bgRedBright:m,bgGreenBright:m,bgYellowBright:m,bgBlueBright:m,bgMagentaBright:m,bgCyanBright:m,bgWhiteBright:m}};O.exports=J();O.exports.createColors=J});var pt={};ge(pt,{ADVANCED_POSITION:()=>j,ARATA:()=>Ee,ARCHER:()=>Te,BEGINNER_POSITION:()=>Ue,BETRAY:()=>Ne,BLACK:()=>ve,CANNON:()=>qe,CANONICAL_NAMES:()=>Pe,ENGLISH_NAMES:()=>Le,FEN_CODES:()=>_e,FORTRESS:()=>Oe,GENERAL:()=>De,Gungi:()=>ht,INTERMEDIATE_POSITION:()=>He,INTRO_POSITION:()=>Q,LANCER:()=>Me,LIEUTENANT_GENERAL:()=>Ae,MAJOR_GENERAL:()=>Se,MARSHAL:()=>ke,MUSKETEER:()=>je,RIDER:()=>Ie,SOLDIER:()=>xe,SPY:()=>Re,SQUARES:()=>D,TACTICIAN:()=>Ge,TAKE:()=>we,TSUKE:()=>Ce,WARRIOR:()=>Be,WHITE:()=>Fe,isSquareAttacked:()=>re,validateFen:()=>P});var S=be(K(),1),W=e=>Object.entries(e).reduce((r,[t,o])=>({...r,[o]:t}),{}),M={intro:0,beginner:1,intermediate:2,advanced:3},$e=W(M),Fe="w",ve="b",Ce="\u4ED8",we="\u53D6",Ne="\u8FD4",Ee="\u65B0",ke="\u5E25",De="\u5927",Ae="\u4E2D",Se="\u5C0F",Be="\u4F8D",Me="\u69CD",Ie="\u99AC",Re="\u5FCD",Oe="\u7826",xe="\u5175",qe="\u7832",Te="\u5F13",je="\u7B52",Ge="\u8B00",D=Array.from({length:9},(e,r)=>r+1).flatMap(e=>Array.from({length:9},(r,t)=>`${e}-${9-t}`)),$={marshal:"\u5E25",general:"\u5927",lieutenant_general:"\u4E2D",major_general:"\u5C0F",warrior:"\u4F8D",lancer:"\u69CD",rider:"\u99AC",spy:"\u5FCD",fortress:"\u7826",soldier:"\u5175",cannon:"\u7832",archer:"\u5F13",musketeer:"\u7B52",tactician:"\u8B00"},B=W($),k={marshal:"m",general:"g",lieutenant_general:"i",major_general:"j",warrior:"w",lancer:"n",rider:"r",spy:"s",fortress:"f",soldier:"d",cannon:"c",archer:"a",musketeer:"k",tactician:"t"},z=W(k),U=(e,[r,t,o])=>{let n=e===e.toLowerCase()?"b":"w",i=z[e.toLowerCase()];return{square:`${r}-${t}`,tier:o,type:$[i],color:n}},We=(e,r)=>{let t=e===e.toLowerCase()?"b":"w",o=z[e.toLowerCase()];return{type:$[o],count:r,color:t}},Pe={\u5E25:"sui",\u5927:"taishou",\u4E2D:"chuujou",\u5C0F:"shoushou",\u4F8D:"samurai",\u69CD:"yari",\u99AC:"kiba",\u5FCD:"shinobi",\u7826:"toride",\u5175:"hyou",\u7832:"oodzutsu",\u5F13:"yumi",\u7B52:"tsutsu",\u8B00:"boushou"},Le={\u5E25:"marshal",\u5927:"general",\u4E2D:"lieutenant general",\u5C0F:"major general",\u4F8D:"warrior",\u69CD:"lancer",\u99AC:"rider",\u5FCD:"spy",\u7826:"fortress",\u5175:"soldier",\u7832:"cannon",\u5F13:"archer",\u7B52:"musketeer",\u8B00:"tactician"},_e={\u5E25:"m",\u5927:"g",\u4E2D:"i",\u5C0F:"j",\u4F8D:"w",\u69CD:"n",\u99AC:"r",\u5FCD:"s",\u7826:"f",\u5175:"d",\u7832:"c",\u5F13:"a",\u7B52:"k",\u8B00:"t"};function x(e,r,t=!1){return e.forEach(o=>{let n=t?o.color==="b"?"w":"b":o.color,i=r.find(a=>a.type===o.type&&a.color===n),l=r.findIndex(a=>a.type===o.type&&a.color===n);i&&(i.count--,i.count===0&&r.splice(l,1))}),r}function H(e,r,t){let[o,n]=e.split("-").map(Number),i=N(e,t);i&&(t[o-1][9-n]=i.map(l=>(r.find(a=>JSON.stringify(a)===JSON.stringify(l))&&(l.color=l.color==="b"?"w":"b"),l)))}function Je(e,r,t){let[o,n]=e.split("-").map(Number),i=N(e,t);if(!i)return;let l=i.filter(a=>!r.some(u=>JSON.stringify(u)===JSON.stringify(a)));l.length===0?t[o-1][9-n]=[null]:t[o-1][9-n]=l}function q(e,r){let[t,o]=e.split("-").map(Number),n=N(e,r);n&&(n.pop(),n.length===0&&(r[t-1][9-o]=[null]))}function Ke(e,r){let[t,o]=e.square.split("-").map(Number);r[t-1][9-o][0]?r[t-1][9-o].push(e):r[t-1][9-o]=[e]}function v(e,r){let t=N(e,r);return t?t.at(-1):void 0}function N(e,r){let[t,o]=e.split("-").map(Number);if(t<1||t>9||o<1||o>9)return;let n=r[t-1][9-o];if(n[0])return n}function T(e){return e.flat().flat().filter(r=>r?.type==="\u5E25").length!==2}var Q="3img3/1s2n2s1/d1fwdwf1d/9/9/9/D1FWDWF1D/1S2N2S1/3GMI3 J2N2R2D1/j2n2r2d1 w 0 - 1",Ue="3img3/1ra1n1as1/d1fwdwf1d/9/9/9/D1FWDWF1D/1SA1N1AR1/3GMI3 J2N2S1R1D1/j2n2s1r1d1 w 1 - 1",He="9/9/9/9/9/9/9/9/9 M1G1I1J2W2N3R2S2F2D4C1A2K1T1/m1g1i1j2w2n3r2s2f2d4c1a2k1t1 w 2 wb 1",j="9/9/9/9/9/9/9/9/9 M1G1I1J2W2N3R2S2F2D4C1A2K1T1/m1g1i1j2w2n3r2s2f2d4c1a2k1t1 w 3 wb 1";function A(e){let r=P(e);if(!r.ok)throw new Error(`Invalid FEN: ${r.error}`);let[t,o,n,i,l,a]=e.split(" "),u=t.split("/").map((c,f)=>c.split("|").reduce((h,d)=>{if(d.includes(":")){let p=d.split(":").map((g,b)=>U(g,[f+1,9-h.length,b+1]));h.push(p)}else{let p=d.split("").reduce((g,b)=>(Number.isInteger(+b)?g=g.concat(Array(+b).fill(null)):g.push(U(b,[f+1,9-h.length-g.length,1])),g),[]).map(g=>[g]);h=h.concat(p)}return h},[])),s=o.split("/").flatMap(c=>{let f=[];if(c!=="-")for(let h=0;h<c.length;h+=2){let d=c[h],p=+c[h+1];f.push(We(d,p))}return f});return{board:u,hand:s,turn:n,mode:$e[+i],drafting:{w:l.includes("w"),b:l.includes("b")},moveNumber:+a}}function V(e){let r="",t=0;for(let a=0;a<9;a++){for(let u=0;u<9;u++){let s=e.board[a][u];if(!s[0]){t++;continue}if(t&&(r+=t,t=0),s.length>1)r+="|"+s.map(c=>{if(!c)return null;let f=k[B[c.type]];return c.color==="w"?f.toUpperCase():f}).join(":")+"|";else{let{type:c,color:f}=s[0],h=k[B[c]];r+=f==="w"?h.toUpperCase():h}}r+=t?`${t}/`:"/",t=0}let o="",n=e.hand.filter(a=>a.color==="w"),i=e.hand.filter(a=>a.color==="b");n.forEach(a=>{let u=k[B[a.type]];o+=`${a.color==="w"?u.toUpperCase():u}${a.count}`}),o+=n.length>0?"/":"-/",i.forEach(a=>{let u=k[B[a.type]];o+=`${a.color==="w"?u.toUpperCase():u}${a.count}`}),o+=i.length>0?"":"-";let l=Object.keys(e.drafting).filter(a=>e.drafting[a]);return`${r.slice(0,-1)} ${o} ${e.turn} ${M[e.mode]} ${l.length>0?l.join(""):"-"} ${e.moveNumber}`}function P(e){let r=e.split(" ");if(r.length!==6)return{ok:!1,error:`expected 6 fields, received ${r.length}`};let[t,o,n,i,l,a]=r,u=t.split("/");if(u.length!==9)return{ok:!1,error:`1st field (piece positions) is invalid [expected 9 ranks, received ${u.length}]`};for(let h=0;h<u.length;h++){let d=u[h].split("|"),p=0;for(let g=0;g<d.length;g++){let b=d[g];if(b.includes(":")){p++;let y=b.split(":");if(y.length>3)return{ok:!1,error:`1st field (piece positions) is invalid [tower size] @(${h+1}-${p})`};if(!y.every(C=>"mgijwnrsfdcaktMGIJWNRSFDCAKT".includes(C)))return{ok:!1,error:`1st field (piece positions) is invalid [invalid piece] @(${h+1}-${p})`}}else{let y=b.split("");for(let C=0;C<y.length;C++){let F=y[C];if(Number.isInteger(+F))p+=+F;else if(p++,!"mgijwnrsfdcaktMGIJWNRSFDCAKT".includes(F))return{ok:!1,error:`1st field (piece positions) is invalid [invalid piece] @(${h+1}-${p})`}}}}if(p!==9)return{ok:!1,error:`1st field (piece positions) is invalid [expected 9 squares, received ${p}] in rank: ${h+1}`}}let s=o.split("/");if(s.length!==2)return{ok:!1,error:`2nd field (hand pieces) is invalid [expected 2 hands, received ${s.length}]`};let[c,f]=s;if(c.length===1&&c!=="-"||f.length===1&&f!=="-")return{ok:!1,error:"2nd field (hand pieces) is invalid [invalid piece]"};if(c.length>1&&c.length%2!==0||f.length>1&&f.length%2!==0)return{ok:!1,error:"2nd field (hand pieces) is invalid [invalid piece count]"};if(c.length>1)for(let h=0;h<c.length;h+=2){if(!"MGIJWNRSFDCAKT".includes(c[h]))return{ok:!1,error:"2nd field (hand pieces) is invalid [invalid piece]"};if(!Number.isInteger(+c[h+1]))return{ok:!1,error:"2nd field (hand pieces) is invalid [invalid count]"}}if(f.length>1)for(let h=0;h<f.length;h+=2){if(!"mgijwnrsfdcakt".includes(f[h]))return{ok:!1,error:"2nd field (hand pieces) is invalid [invalid piece]"};if(!Number.isInteger(+f[h+1]))return{ok:!1,error:"2nd field (hand pieces) is invalid [invalid count]"}}return n!=="w"&&n!=="b"?{ok:!1,error:`3rd field (active player) is invalid [expected 'w' or 'b', received ${n}]`}:i.length!==1||!"0123".includes(i)?{ok:!1,error:`4th field (setup mode) is invalid [expected '0', '1', '2', or '3', received ${i}]`}:l!=="-"&&!"wb".includes(l)?{ok:!1,error:`5th field (drafting availability) is invalid [expected '-', 'w', 'b', or 'wb', received ${l}]`}:Number.isInteger(+a)?{ok:!0}:{ok:!1,error:`6th field (full move number) is invalid [expected an integer, received ${a}]`}}var X=[[-1,1],[-1,0],[-1,-1],[0,1],[0,-1],[1,1],[1,0],[1,-1]],Z={\u5E25:[1,1,1,1,1,1,1,1],\u5927:[1,1/0,1,1/0,1/0,1,1/0,1],\u4E2D:[1/0,1,1/0,1,1,1/0,1,1/0],\u5C0F:[1,1,1,1,1,0,1,0],\u4F8D:[1,1,1,0,0,0,1,0],\u69CD:[1,[1,2],1,0,0,0,1,0],\u99AC:[0,[1,2],0,1,1,0,[1,2],0],\u5FCD:[[1,2],0,[1,2],0,0,[1,2],0,[1,2]],\u7826:[0,1,0,1,1,1,0,1],\u5175:[0,1,0,0,0,0,1,0],\u7832:[0,3,0,1,1,0,1,0],\u5F13:[2,2,2,0,0,0,1,0],\u7B52:[0,2,0,0,0,1,0,1],\u8B00:[1,0,1,0,0,0,1,0]};function ee(e,r,t,o,n){let[i,l]=r,[a,u]=t,[s,c]=e,f=v(`${a}-${u}`,n);if(f.type===$.archer&&Math.abs(s)===1&&Math.abs(c)===1){let b=v(`${a+s}-${u+c}`,n);if(b&&b.tier>f.tier)return[]}let h=[],d={x:l,y:i};for(;d.x!==u||d.y!==a;){d.x-=c,d.y-=s;let b=v(`${d.y}-${d.x}`,n);if(b&&b.tier>f.tier)return[];let y=f.color==="b"?-1:1,C=v(`${d.y+y}-${d.x}`,n);if(C&&C.square===`${a}-${u}`)break}let p={x:l,y:i},g=0;for(;g<o&&!(p.x<1||p.x>9||p.y<1||p.y>9);){let b=v(`${p.y}-${p.x}`,n);if(b&&b.tier>f.tier)break;h.push(`${p.y}-${p.x}`);let y=[$.cannon,$.musketeer,$.archer];if(b&&(!y.includes(f.type)||!(f.color==="w"?s<0:s>0)))break;p.x+=c,p.y+=s,g++}return h}function R(e,r){let{board:t,turn:o,mode:n,hand:i}=A(r),l=v(e,t);if(!l||o!==l.color)return[];let[a,u]=e.split("-").map(Number);return Z[l.type].flatMap((s,c)=>{let f=typeof s=="number"?s:s[0],h=typeof s=="number"?1:s[1];if(f<1)return[];let[d,p]=X[c];l.color==="b"&&(d*=-1,p*=-1);let[g,b]=f===1/0?[a+d,u+p]:[a+f*d,u+p],y=f===1/0?1/0:l.tier+h-1;return ee([d,p],[g,b],[a,u],y,t)}).reduce((s,c)=>{let f=v(c,t),h=N(c,t),d=n==="advanced"?3:2,p=["advanced","intermediate"].includes(n);if(!f||!h)s.push(w(l,`${c}-1`,r,"route"));else{if(f.tier<d&&f.type!==$.marshal&&((l.type!==$.marshal||p)&&s.push(w(l,`${c}-${f.tier+1}`,r,"tsuke")),l.type===$.tactician&&h.some(g=>g.color!==l.color))){let g=te(h,i,l.color);s.push(...g.map(b=>w(l,`${c}-${f.tier+1}`,r,"betray",b)))}if(f.color!==l.color){let g=h.filter(y=>y.color===l.color).length+1,b=h.filter(y=>y.color!==l.color);s.push(w(l,`${c}-${g}`,r,"capture",b))}}return s},[])}function E(e,r){let{board:t,turn:o,mode:n,hand:i,drafting:l}=A(r);if(!e||o!==e.color)return[];if(i.some(f=>f.type===$.marshal&&f.color===e.color)&&e.type!==$.marshal)return[];let a=l.b||l.w,u=n==="advanced"?3:2,s=[],c=[];if(a)s=e.color==="w"?[7,8,9]:[1,2,3];else{let f=e.color==="b"?1:9,h=e.color==="b"?9:1,d=e.color==="b"?1:-1;for(let p=f;e.color==="b"?p<=h:p>=h;p+=d)Array.from({length:9}).map((g,b)=>v(`${p}-${b+1}`,t)).some(g=>g&&g.color===e.color)?(s.push(...c,p),c=[]):c.push(p)}return s.flatMap(f=>Array.from({length:9},(h,d)=>`${f}-${d+1}`)).reduce((f,h)=>{let d=v(h,t),p={type:e.type,color:e.color,square:h,tier:0};if(!d||d.color===p.color&&d.tier<u&&d.type!==$.marshal){let g=(d?.tier??0)+1,b=N(h,t),y=e.type===$.tactician&&b?te(b,i,e.color):[],C=i.filter(F=>F.color===e.color).reduce((F,se)=>F+se.count,0)===1;l[e.color]?(C||(f.push(w(p,`${h}-${g}`,r,"arata")),f.push(...y.map(F=>w(p,`${h}-${g}`,r,"arata",F)))),f.push(w(p,`${h}-${g}`,r,"arata",[],!0)),f.push(...y.map(F=>w(p,`${h}-${g}`,r,"arata",F,!0)))):(f.push(w(p,`${h}-${g}`,r,"arata")),f.push(...y.map(F=>w(p,`${h}-${g}`,r,"arata",F))))}return f},[])}function w(e,r,t,o,n,i){let l=e.tier!==0?`(${e.square}-${e.tier})`:"",a=+(r.split("-").at(-1)??0),u=o==="arata"?"\u65B0":"",s=o==="capture"?"\u53D6":"",c=o==="tsuke"||a!==1&&a-e.tier>0?"\u4ED8":"",f=o==="betray"||o==="arata"&&n&&n.length>0?`\u8FD4${n?.map(b=>b.type).join("")}`:"",h=i?"\u7D42":"",d={piece:e.type,color:e.color,from:l.slice(1,-1),to:r,type:o,san:`${u}${e.type}${l}${s}(${r})${f||c}${h}`,before:t,after:"",draftFinished:i,captured:n},{after:p,gameOverSAN:g}=Ye(d,d.before);return d.after=p,d.san+=g,d}function Ye(e,r){let{board:t,hand:o,mode:n,turn:i,drafting:l,moveNumber:a}=A(r),[u,s,c]=e.to.split("-"),f={type:e.piece,color:e.color,square:`${u}-${s}`,tier:+c};e.type==="route"||e.type==="tsuke"?q(e.from,t):e.type==="capture"?(q(e.from,t),Je(`${u}-${s}`,e.captured,t)):e.type==="betray"?(q(e.from,t),H(`${u}-${s}`,e.captured,t),x(e.captured,o,!0)):e.type==="arata"&&(x([f],o),e.captured?.length&&(H(`${u}-${s}`,e.captured,t),x(e.captured,o,!0)),e.draftFinished&&(l[e.color]=!1,e.color==="b"&&(l.w=!1))),Ke(f,t),i==="b"&&(l.w||!l.b)&&a++,i==="w"&&!l.b&&!l.w&&e.draftFinished&&a++,l.w===l.b?(!e.draftFinished||i!=="w")&&(i=i==="b"?"w":"b"):!l.b&&i==="b"?i="w":!l.w&&i==="w"&&(i="b");let h="";return e.captured?.some(d=>d.type===$.marshal)&&(h="#"),{after:V({board:t,hand:o,mode:n,turn:i,drafting:l,moveNumber:a}),gameOverSAN:h}}function ze(e){let r=[];function t(o,n){n.length>0&&r.push([...n]);for(let i=o;i<e.length;i++)n.push(e[i]),t(i+1,n),n.pop()}return t(0,[]),r}function te(e,r,t){let o=e.filter(a=>a.color!==t);if(o.length===0)return[];let n=r.filter(a=>a.color===t),i=o.reduce((a,u)=>(a.set(u.type,(a.get(u.type)??0)+1),a),new Map),l=Array.from(i.entries()).filter(([a,u])=>n.some(s=>s.type===a&&s.count>=u)).flatMap(([a])=>o.filter(u=>u.type===a));return ze(l)}function Qe(e,r){let t=v(e,r);if(!t)return[];let[o,n]=e.split("-").map(Number);return Z[t.type].flatMap((i,l)=>{let a=typeof i=="number"?i:i[0],u=typeof i=="number"?1:i[1];if(a<1)return[];let[s,c]=X[l];t.color==="b"&&(s*=-1,c*=-1);let[f,h]=a===1/0?[o+s,n+c]:[o+a*s,n+c],d=a===1/0?1/0:t.tier+u-1;return ee([s,c],[f,h],[o,n],d,r)})}function re(e,r,t){let[o,n]=e.split("-").map(Number),i=`${o}-${n}`;for(let l of D){let a=v(l,t);if(!(!a||a.color!==r)&&Qe(l,t).some(u=>u.startsWith(i)))return!0}return!1}function ie(e,r){let{board:t}=A(r),o=e==="w"?"b":"w";for(let n of D){let i=v(n,t);if(i?.type===$.marshal&&i.color===e)return re(n,o,t)}return!1}function Y(e){return ie(e.color,e.after)}function Ve(e,r){let t=r?.maxWidth??6,o=r?.newline??`
+`,n=r?.withComments??!1,i=r?.comments??new Map,l="",a=0;return e.forEach((u,s)=>{let c=A(u.before);if(c.moveNumber!==a){let f=u.color==="w"?".":"...";l+=`${c.moveNumber}${f} `,a=c.moveNumber}l+=`${u.san} `,n&&i.has(u.after)&&(l+=`{${i.get(u.after)}} `),(s+1)%t===0&&(l+=o)}),l.replaceAll("  "," ").trim()}function Xe(e,r){let t=r?.newline??`
+`,o=new Map,n=[],i=e.split(t).join(" ").replace(/\d+\.+/g,"").trim();for(;i.length>0&&(i=i.trim(),i.length!==0);){if(i.startsWith("{")){let a=i.indexOf("}");if(a!==-1){let u=i.slice(1,a).trim();n.length>0&&u&&o.set(n.length-1,u),i=i.slice(a+1);continue}}let l=i.match(/^(\S+)/);if(l){let a=l[1];a&&!a.startsWith("{")&&n.push(a),i=i.slice(a.length)}else break}return{moves:n,comments:o}}function Ze(e,r,t){let o=A(e);return r?t?tt(o,r,t):ut(o,r):et(o)}function et(e){let r=ue(e),t=M[e.mode],o=ae(r);return Object.entries(o).forEach(([n,i])=>{let[l,a]=n.split("|");ct(i).forEach((u,s)=>{u.id=`${t}-${l}-${a}-${s+1}`})}),r}function tt(e,r,t){let o=ft(e),n=M[e.mode],i=rt(t);return it(o,r,i),ot(o,r,t,n),oe(o,n),o}function rt(e){let r=[],t=[],o,n;switch(e.type){case"route":case"tsuke":if(e.from){let[i,l,a]=e.from.split("-").map(Number);o={square:`${i}-${l}`,tier:a,type:e.piece,color:e.color}}break;case"capture":if(e.from){let[i,l,a]=e.from.split("-").map(Number);o={square:`${i}-${l}`,tier:a,type:e.piece,color:e.color}}e.captured&&e.captured.forEach(i=>{r.push({square:e.to,tier:i.tier,type:i.type,color:i.color})});break;case"arata":t.push({color:e.color,type:e.piece}),n=e.to;break;case"betray":if(e.from){let[i,l,a]=e.from.split("-").map(Number);o={square:`${i}-${l}`,tier:a,type:e.piece,color:e.color}}e.captured&&(e.captured.forEach(i=>{r.push({square:e.to,tier:i.tier,type:i.type,color:i.color})}),e.captured.forEach(i=>{t.push({color:e.color,type:i.type})}));break}return{movingPiece:o,capturedPieces:r,placementSquare:n,handPieceTypes:t}}function it(e,r,t){let o=(n,i,l,a)=>!!(t.movingPiece&&t.movingPiece.square===n&&t.movingPiece.tier===i&&t.movingPiece.type===l&&t.movingPiece.color===a||t.capturedPieces.some(u=>u.square===n&&u.tier===i&&u.type===l&&u.color===a)||t.placementSquare===n);for(let n=0;n<9;n++)for(let i=0;i<9;i++){let l=`${n+1}-${9-i}`,a=e.board[n][i],u=r.board[n][i];for(let s=0;s<Math.min(a.length,u.length);s++){let c=a[s],f=u[s];c&&f&&c.type===f.type&&c.color===f.color&&f.id&&(o(l,s+1,c.type,c.color)||(c.id=f.id))}}e.hand.forEach(n=>{if(!t.handPieceTypes.some(i=>i.color===n.color&&i.type===n.type)){let i=r.hand.find(l=>l.type===n.type&&l.color===n.color);i?.id&&(n.id=i.id)}})}function ot(e,r,t,o){switch(t.type){case"route":case"tsuke":L(e,r,t);break;case"capture":nt(e,r,t);break;case"arata":lt(e,r,t,o);break;case"betray":at(e,r,t,o);break}}function L(e,r,t){if(!t.from)return;let[o,n,i]=t.from.split("-").map(Number),l=`${o}-${n}`,a=G(r.board,l,t.piece,t.color,i);if(!a?.id)return;let[u,s,c]=t.to.split("-").map(Number),f=`${u}-${s}`,h=G(e.board,f,t.piece,t.color,c);h&&(h.id=a.id)}function nt(e,r,t){L(e,r,t)}function lt(e,r,t,o){let n=r.hand.find(f=>f.type===t.piece&&f.color===t.color);if(!n?.id)return;let[i,l,a]=t.to.split("-").map(Number),u=`${i}-${l}`,s=G(e.board,u,t.piece,t.color,a);s&&(s.id=n.id);let c=e.hand.find(f=>f.type===t.piece&&f.color===t.color);if(c){let f=ne(e,o,t.color,t.piece);c.id=f}}function at(e,r,t,o){L(e,r,t),t.captured&&t.captured.forEach(n=>{let i=e.hand.find(l=>l.type===n.type&&l.color===t.color);if(i&&!i.id){let l=ne(e,o,t.color,n.type);i.id=l}})}function ut(e,r){let t=ue(e),o=M[e.mode],n=new Set;for(let i of r.hand){let l=t.hand.find(s=>s.type===i.type&&s.color===i.color),a=i.count,u=l?.count??0;if(a>u&&i.id){let s=st(t.board,r.board,i.type,i.color);s&&(s.id=i.id,n.add(i.id))}}for(let i=0;i<9;i++)for(let l=0;l<9;l++){let a=t.board[i][l],u=r.board[i][l];for(let s=0;s<Math.min(a.length,u.length);s++){let c=a[s],f=u[s];c&&!c.id&&f&&c.type===f.type&&c.color===f.color&&f.id&&(c.id=f.id)}}return t.hand.forEach(i=>{if(i.id)return;let l=r.hand.find(a=>a.type===i.type&&a.color===i.color);l?.id&&!n.has(l.id)&&(i.id=l.id)}),oe(t,o),t}function st(e,r,t,o){for(let n=0;n<9;n++)for(let i=0;i<9;i++){let l=e[n][i],a=r[n][i];for(let u=0;u<l.length;u++){let s=l[u];if(s&&s.type===t&&s.color===o&&!s.id){let c=a[u];if(!c||c.type!==t||c.color!==o)return s}}}return null}function oe(e,r){let t=new Set(le(e)),o=ae(e);Object.entries(o).forEach(([n,i])=>{let[l,a]=n.split("|");i.forEach(u=>{if(!u.id){let s=1,c=`${r}-${l}-${a}-${s}`;for(;t.has(c);)s++,c=`${r}-${l}-${a}-${s}`;u.id=c,t.add(c)}})})}function ne(e,r,t,o){let n=new Set(le(e)),i=1,l=`${r}-${t}-${o}-${i}`;for(;n.has(l);)i++,l=`${r}-${t}-${o}-${i}`;return l}function le(e){let r=[];for(let t of e.board)for(let o of t)for(let n of o)n?.id&&r.push(n.id);for(let t of e.hand)t.id&&r.push(t.id);return r}function ae(e){let r={};for(let t of e.board)for(let o of t)for(let n of o)if(n){let i=`${n.color}|${n.type}`;r[i]||(r[i]=[]),r[i].push(n)}for(let t of e.hand){let o=`${t.color}|${t.type}`;r[o]||(r[o]=[]),r[o].push(t)}return r}function ct(e){return e.sort((r,t)=>{let o="square"in r,n="square"in t;if(o&&!n)return-1;if(!o&&n)return 1;if(o&&n){let i=r,l=t;if(i.square!==l.square){let[a,u]=i.square.split("-").map(Number),[s,c]=l.square.split("-").map(Number);return a!==s?a-s:u-c}return i.tier-l.tier}return 0})}function G(e,r,t,o,n){let[i,l]=r.split("-").map(Number);if(i<1||i>9||l<1||l>9)return null;let a=e[i-1][9-l];for(let u of a)if(u&&(!t||u.type===t)&&(!o||u.color===o)&&(!n||u.tier===n))return u;return null}function ue(e){return{board:e.board.map(r=>r.map(t=>t.map(o=>o&&{...o}))),hand:e.hand.map(r=>({...r})),turn:e.turn,mode:e.mode,drafting:{...e.drafting},moveNumber:e.moveNumber}}function ft(e){return{board:e.board.map(r=>r.map(t=>t.map(o=>o&&{...o,id:void 0}))),hand:e.hand.map(r=>({...r,id:void 0})),turn:e.turn,mode:e.mode,drafting:{...e.drafting},moveNumber:e.moveNumber}}var ht=class{#r;#i;#l;#a;#n;#s;#e=[];#c=null;#t=new Map;#u;#o(e,r){let t=Ze(e,this.#c,r);this.#r=t.board,this.#i=t.hand,this.#l=t.turn,this.#a=t.moveNumber,this.#n=t.drafting,this.#s=t.mode,this.#c=t}constructor(e){this.#u=e??Q,this.#o(this.#u)}ascii(e){let r={1:S.default.yellow,2:S.default.blue,3:S.default.green},t=`\u3000\uFF19\uFF18\uFF17\uFF16\uFF15\uFF14\uFF13\uFF12\uFF11\u3000
+`;t+=`\uFF0B\u30FC\u30FC\u30FC\u30FC\u30FC\u30FC\u30FC\u30FC\u30FC\uFF0B
+`;for(let o=1;o<=9;o++){t+="\uFF5C";for(let n=9;n>0;n--){let i=this.getTop(`${o}-${n}`);if(!i){t+="\u30FB";continue}let l=k[B[i.type]],a=i.color==="w"?l.toUpperCase():l,u=r[i.tier](e?.english?String.fromCharCode(a.charCodeAt(0)+65248):i.type);t+=i.color==="w"?u:S.default.dim(u)}t+=`\uFF5C${String.fromCharCode(o-1+65297)}
+`}return t+=`\uFF0B\u30FC\u30FC\u30FC\u30FC\u30FC\u30FC\u30FC\u30FC\u30FC\uFF0B
+`,t}board(){return this.#r}captured(e){let r=this.#e.flatMap(t=>t.captured??[]).reduce((t,o)=>{let n=t.find(i=>i.type===o.type&&i.color===o.color);return n?n.count++:t.push({type:o.type,color:o.color,count:1}),t},[]);return e?r.filter(t=>t.color===e):r}clear(){this.#o(j),this.#e=[],this.#t.clear()}fen(){return V({board:this.#r,hand:this.#i,turn:this.#l,mode:this.#s,drafting:this.#n,moveNumber:this.#a})}get(e){return N(e,this.#r)}getDraftingRights(e){return e?this.#n[e]:this.#n}getTop(e){return v(e,this.#r)}hand(e){return e?this.#i.filter(r=>r.color===e):this.#i}history(e){return e?.verbose?this.#e:this.#e.map(r=>r.san)}inDraft(){return this.#n.b||this.#n.w}isFourfoldRepetition(){let e=this.#e.map(t=>t.before.split(" ")[0]);e.length&&e.push(this.#e.at(-1).after.split(" ")[0]);let r=e.reduce((t,o)=>(t.set(o,(t.get(o)||0)+1),t),new Map);return Math.max(...r.values())===4}#h(){let e=this.fen();if(this.inDraft())return this.#i.every(r=>E(r,e).length===0);for(let r of D)if(R(r,e).length>0)return!1;for(let r of this.#i)if(E(r,e).length>0)return!1;return!0}#f(){let e=this.fen();for(let r of D){let t=R(r,e);for(let o of t)if(!Y(o))return!0}for(let r of this.#i){let t=E(r,e);for(let o of t)if(!Y(o))return!0}return!1}inCheck(e){let r=e??this.turn();return ie(r,this.fen())}isCheckmate(){return this.inDraft()||T(this.#r)?!1:this.inCheck()&&!this.#f()}isStalemate(){return this.inDraft()||T(this.#r)?!1:!this.inCheck()&&!this.#f()}isInsufficientMaterial(){if(this.inDraft()||this.#i.some(c=>c.type!==$.marshal))return!1;let e=this.#r.flat().flat().filter(c=>c!==null);if(e.filter(c=>c.type!==$.marshal).length>0)return!1;let r=e.filter(c=>c.type===$.marshal);if(r.length!==2)return!1;let[t,o]=r,[n,i]=t.square.split("-").map(Number),[l,a]=o.square.split("-").map(Number),u=Math.abs(n-l),s=Math.abs(i-a);return!(u<=1&&s<=1)}isDraw(){return this.isStalemate()||this.isFourfoldRepetition()||this.isInsufficientMaterial()}isGameOver(){return this.inDraft()?!1:T(this.#r)||this.isFourfoldRepetition()||this.isInsufficientMaterial()?!0:this.isCheckmate()||this.isStalemate()}load(e){this.#o(e)}loadPgn(e,r=j,t){this.#o(r),this.#e=[],this.#t.clear();let o=Xe(e,t);o.moves.forEach((n,i)=>{this.move(n);let l=o.comments.get(i);l&&this.setComment(l)})}move(e){let r=this.moves({verbose:!0}),t=typeof e=="string"?e.replace(/[=#]$/,""):null,o=typeof e=="string"?r.find(n=>n.san===t||n.san===e):r.find(n=>e.piece===n.piece&&e.type===n.type&&e.from===n.from&&e.to===n.to&&e.captured===n.captured&&e.draftFinished===n.draftFinished);if(!o)throw new Error(`Illegal move: ${e}`);return this.#e.push(o),this.#o(o.after,o),this.isCheckmate()?this.#e.at(-1).san+="#":(this.isStalemate()||this.isFourfoldRepetition()||this.isInsufficientMaterial())&&(this.#e.at(-1).san+="="),o}moves(e){if(this.isGameOver())return[];if(e?.square){let r=R(e.square,this.fen());return e.verbose?r:r.map(t=>t.san)}else if(e?.arata){let r=E(e.arata,this.fen());return e.verbose?r:r.map(t=>t.san)}else if(this.inDraft()){let r=this.hand().flatMap(t=>E(t,this.fen()));return e?.verbose?r:r.map(t=>t.san)}else{let r=D.flatMap(n=>R(n,this.fen())),t=this.hand().flatMap(n=>E(n,this.fen())),o=[...r,...t];return e?.verbose?o:o.map(n=>n.san)}}moveNumber(){return this.#a}pgn(e){return Ve(this.#e,{...e,comments:this.#t})}print(e){console.log(this.ascii(e))}reset(){this.#o(this.#u),this.#e=[],this.#t.clear()}turn(){return this.#l}undo(){let e=this.#e.pop();return e?(this.#o(e.before),e):null}setComment(e){this.#t.set(this.fen(),e)}getComment(){return this.#t.get(this.fen())}removeComment(){let e=this.fen(),r=this.#t.get(e);return this.#t.delete(e),r}getComments(){let e=[];for(let[r,t]of this.#t)e.push({fen:r,comment:t});return e}removeComments(){let e=this.getComments();return this.#t.clear(),e}validateFen(e){return P(e)}};return ye(pt);})();
+</script>
+<script>
+const {Gungi,INTRO_POSITION,BEGINNER_POSITION,INTERMEDIATE_POSITION,ADVANCED_POSITION,isSquareAttacked}=GungiLib;
+const NAMES={'帥':['Maréchal','sui'],'大':['Général','taishō'],'中':['Lieutenant-général','chūjō'],'小':['Major-général','shōshō'],'侍':['Samouraï','samurai'],'槍':['Lancier','yari'],'馬':['Cavalier','kiba'],'忍':['Shinobi','shinobi'],'砦':['Forteresse','toride'],'兵':['Soldat','hyō'],'砲':['Canon','ōzutsu'],'弓':['Archer','yumi'],'筒':['Mousquetaire','tsutsu'],'謀':['Tacticien','bōshō']};
+const ORDER=['帥','大','中','小','侍','槍','馬','忍','砦','兵','砲','弓','筒','謀'];
+const COUNT={'帥':1,'大':1,'中':1,'小':2,'侍':2,'槍':3,'馬':2,'忍':2,'砦':2,'兵':4,'砲':1,'弓':2,'筒':1,'謀':1};
+const CODE={'帥':'m','大':'g','中':'i','小':'j','侍':'w','槍':'n','馬':'r','忍':'s','砦':'f','兵':'d','砲':'c','弓':'a','筒':'k','謀':'t'};
+const VAL={'帥':100,'大':9,'中':8,'馬':5,'砲':5,'小':5,'忍':4,'槍':4,'侍':4,'弓':4,'筒':4,'謀':4,'砦':3,'兵':1.5};
+const RANKK=['一','二','三','四','五','六','七','八','九'];
+const DESC={
+'帥':"Le roi du Gungi. Si tu le perds, tu perds la partie. Personne ne peut s'empiler sur lui. En initiation et en débutant, il ne peut pas non plus monter sur une autre pièce.",
+'大':"Glisse aussi loin qu'il veut en ligne droite (avant, arrière, côtés), et d'une case en diagonale. La pièce la plus puissante en ligne droite.",
+'中':"Le pendant du Général : glisse aussi loin qu'il veut en diagonale, et d'une case en ligne droite.",
+'小':"Une case dans six directions : tout sauf les deux diagonales arrière. Solide garde du corps du Maréchal.",
+'侍':"Avance d'une case tout droit ou en diagonale avant, recule d'une case tout droit.",
+'槍':"Comme le Samouraï, mais tout droit vers l'avant il peut aller jusqu'à deux cases dès l'étage 1.",
+'馬':"Avance ou recule jusqu'à deux cases tout droit, se décale d'une case sur les côtés.",
+'忍':"Se déplace uniquement en diagonale, jusqu'à deux cases dès l'étage 1, dans les quatre directions.",
+'砦':"Avance d'une case, se décale sur les côtés, recule en diagonale. Défensive, idéale pour bâtir des tours.",
+'兵':"Une case tout droit, en avant ou en arrière. Faible seul, utile comme socle de tour.",
+'砲':"Pièce sauteuse : vers l'avant, elle atterrit exactement trois cases plus loin en passant par-dessus les pièces. Une case sur les côtés et en arrière.",
+'弓':"Pièce sauteuse : atterrit deux cases devant, tout droit ou en léger biais, par-dessus les pièces. Recule d'une case.",
+'筒':"Pièce sauteuse : atterrit deux cases tout droit devant elle, par-dessus les pièces. Recule en diagonale.",
+'謀':"Avance d'une case en diagonale, recule d'une case. Sa force : la trahison (返), qui retourne des pièces ennemies d'une tour."};
+const JUMPERS=new Set(['砲','弓','筒']);
+
+/* ---------- utilitaires ---------- */
+function fen(pos,hand='-/-',turn='w',mode=3){const rows=[];for(let r=1;r<=9;r++){let s='',e=0;for(let f=9;f>=1;f--){const c=pos[r+'-'+f];if(!c){e++;continue}if(e){s+=e;e=0}s+=c.length>1?'|'+c.split('').join(':')+'|':c}if(e)s+=e;rows.push(s)}return rows.join('/')+` ${hand} ${turn} ${mode} - 1`}
+const rf=s=>s.split('-').slice(0,2).join('-');
+const opp=c=>c==='w'?'b':'w';
+function passTurn(f){const p=f.split(' ');p[2]='w';return p.join(' ')}
+function leavesCheck(m){try{return new Gungi(m.after).inCheck(m.color)}catch(e){return false}}
+function legalFor(g,opts){let ms=g.moves({...opts,verbose:true});if(!g.inDraft())ms=ms.filter(m=>!leavesCheck(m));return ms}
+function fmtSq(s){const [r,f]=s.split('-');return f+RANKK[r-1]}
+function moveText(m){const c=m.color==='w'?'Blanc':'Noir';const pc=`<span class="kj">${m.piece}</span>`;const to=fmtSq(m.to);
+  if(m.type==='arata')return `${c} · 新 ${pc} posé en ${to}${m.captured&&m.captured.length?' 返':''}${m.draftFinished?' · 終':''}`;
+  const t={route:'',capture:' 取',tsuke:' 付',betray:' 返'}[m.type];
+  const cap=m.captured&&m.captured.length?` (${m.captured.map(p=>p.type).join('')})`:'';
+  return `${c} · ${pc} ${fmtSq(m.from)} → ${to}${t}${cap}`}
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- composant plateau ---------- */
+function renderBoard(el,o){
+  // o: {g, sel, targets:Map sq->[types], marks:Set, last:Set, zone:Set, onClick, interactive}
+  let h='<div class="bgrid">';
+  for(let f=9;f>=1;f--)h+=`<div class="lab">${f}</div>`;h+='<div></div>';
+  for(let r=1;r<=9;r++){
+    for(let f=9;f>=1;f--){
+      const sq=r+'-'+f;const tower=o.g.get(sq)||[];const top=tower[tower.length-1];
+      const cls=['cell'];if(f===9)cls.push('c0');if(r===1)cls.push('r0');
+      if(o.zone&&o.zone.has(sq))cls.push('zone');if(o.last&&o.last.has(sq))cls.push('last');
+      if(o.sel===sq)cls.push('sel');if(o.marks&&o.marks.has(sq))cls.push('mark');
+      let inner='';
+      if(top){inner+=`<span class="pc ${top.color} t${top.tier}" title="${NAMES[top.type][0]}"><span class="k">${top.type}</span>${top.tier>1?`<span class="tier">${top.tier}</span>`:''}</span>`;
+        if(tower.length>1)inner+=`<span class="stk">${tower.map(p=>`<i class="${p.color}"></i>`).join('')}</span>`}
+      const tg=o.targets&&o.targets.get(sq);
+      if(tg){const u=[...new Set(tg)];let k=u.length>1?(u.includes('capture')?'multi':u.includes('betray')?'betray':u[0]):u[0];inner+=`<span class="tg ${k}"></span>`}
+      const label=top?`${fmtSq(sq)} : ${NAMES[top.type][0]} ${top.color==='w'?'blanc':'noir'}${tower.length>1?', tour de '+tower.length:''}`:`${fmtSq(sq)} vide`;
+      h+=`<button class="${cls.join(' ')}" data-sq="${sq}" aria-label="${label}"${o.interactive===false?' tabindex="-1"':''}>${inner}</button>`;
+    }
+    h+=`<div class="lab r">${RANKK[r-1]}</div>`;
+  }
+  h+='</div>';el.innerHTML=h;
+  if(o.onClick)el.querySelectorAll('.cell').forEach(b=>b.addEventListener('click',()=>o.onClick(b.dataset.sq)));
+}
+function towerText(g,sq){const t=g.get(sq);if(!t||!t.length)return '';
+  return `Case ${fmtSq(sq)} : `+t.map((p,i)=>`étage ${i+1} <span class="kj">${p.type}</span> ${NAMES[p.type][0]} ${p.color==='w'?'blanc':'noir'}`).join(' · ')}
+function renderHand(el,g,color,o={}){
+  const hp=g.hand(color);const who=color==='w'?'Ta réserve':'Réserve noire';
+  if(!hp.length){el.innerHTML=`<span class="who">${who}</span><span class="small muted">vide</span>`;return}
+  el.innerHTML=`<span class="who">${who}</span>`+hp.map(p=>`<button class="chip ${color}${o.sel===p.type?' on':''}" data-t="${p.type}" ${o.clickable?'':'disabled'} aria-label="${NAMES[p.type][0]}, ${p.count} en réserve"><span class="d" title="${NAMES[p.type][0]}">${p.type}</span>×${p.count}</button>`).join('');
+  if(o.clickable)el.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>o.onPick(b.dataset.t)));
+}
+
+function marshalWhy(g,sq,top,nLegal){
+  const mode=+g.fen().split(' ')[3];const raw=g.moves({square:sq,verbose:true}).length;const [r,f]=sq.split('-').map(Number);
+  let own=0;for(const dr of[-1,0,1])for(const df of[-1,0,1]){if(!dr&&!df)continue;const t=g.getTop(`${r+dr}-${f+df}`);if(t&&t.color===top.color)own++}
+  const notes=[];
+  if(mode<2&&own)notes.push(`${own} case${own>1?'s':''} voisine${own>1?'s':''} occupée${own>1?'s':''} par tes pièces : en Initiation et Débutant, le Maréchal ne peut pas monter sur une pièce`);
+  if(raw>nLegal)notes.push(`${raw-nLegal} case${raw-nLegal>1?'s':''} attaquée${raw-nLegal>1?'s':''} par l'adversaire (interdit d'y aller)`);
+  if(!notes.length)return '';
+  return `<br><span class="small">Le Maréchal avance d'une seule case. ${notes.join(' ; ')}.${nLegal?'':' Libère-lui une case en bougeant une pièce voisine.'}</span>`}
+/* ---------- contrôleur d'interaction partagé ---------- */
+function makeCtl(prefix,cfg){
+  const ctl={g:null,sel:null,selHand:null,moves:[],last:new Set(),marks:new Set(),info:'',locked:false};
+  const $b=document.getElementById(prefix+'-board'),$hw=document.getElementById(prefix+'-handW'),$hb=document.getElementById(prefix+'-handB'),$ch=document.getElementById(prefix+'-choices'),$in=document.getElementById(prefix+'-info');
+  ctl.clearSel=()=>{ctl.sel=null;ctl.selHand=null;ctl.moves=[];$ch.innerHTML=''};
+  ctl.render=()=>{
+    const targets=new Map();if(cfg.showTargets())for(const m of ctl.moves){const k=rf(m.to);if(!targets.has(k))targets.set(k,[]);targets.get(k).push(m.type)}
+    let zone=null;if(ctl.selHand&&ctl.moves.length){zone=new Set(ctl.moves.map(m=>rf(m.to)))}
+    renderBoard($b,{g:ctl.g,sel:ctl.sel,targets,marks:ctl.marks,last:ctl.last,zone,onClick:ctl.click});
+    const canHand=!ctl.locked&&ctl.g.turn()==='w'&&cfg.canAct();
+    renderHand($hw,ctl.g,'w',{clickable:canHand,sel:ctl.selHand,onPick:ctl.pickHand});
+    renderHand($hb,ctl.g,'b',{});
+    $in.innerHTML=ctl.info;
+  };
+  ctl.select=(sq)=>{ctl.clearSel();ctl.sel=sq;ctl.moves=legalFor(ctl.g,{square:sq});ctl.info=towerText(ctl.g,sq)+(ctl.moves.length?'':' — aucun coup possible');
+    const top=ctl.g.getTop(sq);if(top&&top.type==='帥')ctl.info+=marshalWhy(ctl.g,sq,top,ctl.moves.length);cfg.onSelect&&cfg.onSelect(sq)};
+  ctl.pickHand=(t)=>{if(ctl.locked)return;if(ctl.selHand===t){ctl.clearSel();ctl.render();return}
+    ctl.clearSel();ctl.selHand=t;const hp=ctl.g.hand('w').find(p=>p.type===t);let ms=legalFor(ctl.g,{arata:hp});
+    ms=cfg.filterArata?cfg.filterArata(ms):ms;ctl.moves=ms;
+    ctl.info=ms.length?`Parachuter <span class="kj">${t}</span> ${NAMES[t][0]} : cases teintées = zone autorisée`:`Impossible de poser <span class="kj">${t}</span> pour l'instant`+(ctl.g.hand('w').some(p=>p.type==='帥')&&t!=='帥'?' : place d\'abord ton Maréchal 帥.':'.');
+    ctl.render()};
+  ctl.click=(sq)=>{
+    if(ctl.locked)return;
+    const here=ctl.moves.filter(m=>rf(m.to)===sq);
+    if(here.length&&!(ctl.sel===sq)){ if(here.length===1){ctl.play(here[0]);} else {ctl.offer(here,sq)} return}
+    const top=ctl.g.getTop(sq);
+    if(top&&top.color==='w'&&ctl.g.turn()==='w'&&cfg.canAct()&&!ctl.g.inDraft()){ if(ctl.sel===sq){ctl.clearSel();ctl.info=''} else ctl.select(sq); }
+    else {ctl.clearSel();ctl.info=towerText(ctl.g,sq)}
+    ctl.render()};
+  ctl.offer=(ms,sq)=>{
+    const lab=m=>m.type==='capture'?['cap',`Capturer 取${m.captured?' ('+m.captured.map(p=>p.type).join('')+')':''}`]:m.type==='tsuke'?['tsu','Empiler 付 (étage '+m.to.split('-')[2]+')']:m.type==='betray'?['bet','Trahison 返 '+m.captured.map(p=>p.type).join('')]:m.type==='arata'&&m.captured&&m.captured.length?['bet','Poser + trahison 返 '+m.captured.map(p=>p.type).join('')]:['','Poser ici'];
+    $ch.innerHTML=`<span class="small muted">En ${fmtSq(sq)} :</span>`+ms.map((m,i)=>{const [c,t]=lab(m);return `<button class="btn ${c}" data-i="${i}">${t}</button>`}).join('')+`<button class="btn" data-i="x">Annuler</button>`;
+    $ch.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.i==='x'){$ch.innerHTML='';return}ctl.play(ms[+b.dataset.i])}));
+  };
+  ctl.play=(m)=>{const mv=ctl.g.move(m.san);ctl.last=new Set([m.from?rf(m.from):null,rf(m.to)].filter(Boolean));ctl.clearSel();ctl.info='';cfg.onMove(mv);ctl.render()};
+  return ctl;
+}
+
+/* ================= LEÇONS ================= */
+const BASE={"9-1":"M","1-9":"m"};
+const LESSONS=[
+{t:"Le plateau et le but",
+ body:`<p>Le Gungi se joue à deux sur un plateau de <b>9 × 9</b> cases. Tu as les pièces <b>blanches</b>, en bas ; c'est <b>Blanc qui commence</b>. Les pièces noires sont retournées, face à toi.</p>
+ <p>Comme aux échecs, le but est de mettre le <b>Maréchal</b> adverse <span class="kj">帥</span> <b>échec et mat</b> : il est attaqué et ne peut plus s'échapper.</p>
+ <p>Deux idées rendent le Gungi unique : on peut <b>empiler</b> les pièces en tours (jusqu'à 3 étages), et on peut <b>poser</b> de nouvelles pièces depuis sa réserve au lieu de déplacer. Une pièce capturée sort du jeu pour de bon.</p>`,
+ fen:INTRO_POSITION, task:"Clique sur ton Maréchal 帥 (au centre de ta dernière rangée).", hint:"C'est le disque marqué 帥, en 5九.",
+ goal:{select:sq=>sq==='9-5'}, marks:['9-5'], done:"C'est lui qu'il faut protéger à tout prix."},
+{t:"Chaque pièce a son motif",
+ body:`<p>Chaque pièce porte un kanji et se déplace selon un <b>motif fixe</b>. « En avant » veut dire vers l'adversaire, donc vers le haut pour toi.</p>
+ <p>Sélectionne une pièce : les points bleus montrent où elle peut aller. Une pièce ne traverse pas les autres, sauf trois pièces sauteuses que tu verras plus tard.</p>
+ <p>L'onglet <b>Pièces</b> détaille les 14 types avec leurs motifs à chaque étage.</p>`,
+ fen:INTRO_POSITION, task:"Clique sur 3 types de pièces différents pour voir leurs déplacements.", hint:"Essaie 大 (Général), 中 (Lieutenant-général) et 忍 (Shinobi) : leurs motifs sont très différents.",
+ goal:{explore:3}, done:"Tu as vu que chaque pièce a sa géométrie propre."},
+{t:"Se déplacer et capturer (取)",
+ body:`<p>Pour <b>capturer</b>, déplace ta pièce sur une case occupée par une pièce ennemie qu'elle peut atteindre. La pièce ennemie est retirée du plateau : elle ne revient jamais (contrairement au shōgi).</p>
+ <p>Les cibles de capture apparaissent entourées de <b style="color:var(--cap)">rouge</b>. Quand plusieurs actions sont possibles sur une case, des boutons s'affichent sous le plateau.</p>`,
+ fen:fen({...BASE,"7-5":"R","5-5":"d"}), task:"Ton Cavalier 馬 peut avancer jusqu'à deux cases. Capture le Soldat noir 兵.", hint:"Sélectionne 馬 en 5七, puis la case 5五 et choisis « Capturer 取 ».",
+ marks:['5-5'], goal:{move:m=>m.type==='capture'&&rf(m.to)==='5-5'}, done:"Capture réussie : le Soldat noir quitte la partie."},
+{t:"Empiler : la tour (付)",
+ body:`<p>Au lieu de capturer, une pièce peut <b>monter sur</b> une autre pièce, alliée ou ennemie : c'est <span class="kj">付</span> (tsuke). Elles forment une <b>tour</b>.</p>
+ <p>Seule la pièce du <b>dessus</b> peut bouger ; celles du dessous sont figées. Monter <b>allonge la portée</b> : à l'étage 2 ou 3, la plupart des pièces vont plus loin.</p>
+ <p>Hauteur maximale : 2 étages en initiation, débutant et intermédiaire ; 3 étages en avancé. On ne peut jamais monter sur un Maréchal. En initiation et débutant, le Maréchal lui-même ne peut pas monter sur une autre pièce : au départ, entouré de ses pièces, il n'a que deux cases libres, en diagonale devant lui.</p>`,
+ fen:fen({...BASE,"7-5":"N","6-5":"D","3-5":"d"}),
+ steps:[{task:"Fais monter ton Lancier 槍 sur ton propre Soldat 兵, juste devant lui.",hint:"Sélectionne 槍 en 5七, clique 5六 puis « Empiler 付 ».",marks:['6-5'],goal:m=>m.type==='tsuke'&&m.piece==='槍',ok:"Ton Lancier est à l'étage 2 : regarde sa nouvelle portée."},
+        {task:"À l'étage 2, ton Lancier porte jusqu'à 3 cases devant lui. Capture le Soldat noir en 5三.",hint:"Le Lancier en 5六 atteint 5五, 5四 et 5三.",marks:['3-5'],goal:m=>m.type==='capture'&&rf(m.to)==='3-5'}],
+ done:"Une seule pièce, deux fois plus de portée grâce à la tour."},
+{t:"La hauteur protège",
+ body:`<p>Une pièce ne peut ni capturer, ni monter sur, ni traverser une tour <b>plus haute qu'elle</b>. Seules les pièces à un étage égal ou supérieur peuvent l'attaquer.</p>
+ <p>Quand on capture une tour, <b>toutes les pièces ennemies</b> de la tour sont retirées ; tes propres pièces à l'intérieur restent en place, et ta pièce se pose dessus.</p>`,
+ fen:fen({...BASE,"7-5":"R","5-5":"dd","6-4":"DW"}),
+ task:"La tour noire en 5五 fait 2 étages. Ton Cavalier (étage 1) ne peut rien contre elle. Capture-la avec la bonne pièce.",
+ hint:"Ton Samouraï 侍 en 4六 est à l'étage 2, sur un Soldat. Il atteint 5五 en diagonale avant.",
+ marks:['5-5'], goal:{move:m=>m.type==='capture'&&rf(m.to)==='5-5'}, done:"Les deux Soldats noirs disparaissent d'un coup."},
+{t:"Parachuter une pièce (新)",
+ body:`<p>À ton tour, tu peux aussi <b>poser une pièce de ta réserve</b> au lieu de jouer sur le plateau : c'est <span class="kj">新</span> (arata).</p>
+ <p>Zone autorisée : n'importe quelle rangée entre ton camp et ta pièce la <b>plus avancée</b>. On pose sur une case vide ou sur une de ses propres pièces (pas sur un ennemi, pas sur un Maréchal).</p>
+ <p>Clique une pièce de ta réserve : les cases autorisées se teintent.</p>`,
+ fen:fen({...BASE,"5-3":"D"},"R1/-"),
+ task:"Pose ton Cavalier 馬 de la réserve sur la case marquée 5五.",
+ hint:"Ton Soldat en 3五 est ta pièce la plus avancée : tu peux poser jusqu'au rang 五.",
+ marks:['5-5'], goal:{move:m=>m.type==='arata'&&rf(m.to)==='5-5'}, done:"La réserve est une arme : garder des pièces en main crée des surprises."},
+{t:"Les pièces qui sautent",
+ body:`<p>Trois pièces peuvent <b>sauter par-dessus</b> les autres quand elles vont vers l'avant : le Canon <span class="kj">砲</span>, l'Archer <span class="kj">弓</span> et le Mousquetaire <span class="kj">筒</span>.</p>
+ <p>Limite : elles ne sautent pas par-dessus une pièce placée à un étage plus haut qu'elles.</p>`,
+ fen:fen({...BASE,"8-5":"C","7-5":"D","6-5":"d","5-5":"n"}),
+ task:"Ton Canon 砲 atterrit exactement trois cases devant lui. Capture le Lancier noir en 5五 en sautant par-dessus les deux Soldats.",
+ hint:"Sélectionne 砲 en 5八, puis 5五.", marks:['5-5'], goal:{move:m=>m.type==='capture'&&m.piece==='砲'}, done:"Les sauteurs frappent derrière les lignes ennemies."},
+{t:"La trahison (返)",
+ body:`<p>Le Tacticien <span class="kj">謀</span> a un pouvoir unique. Quand il monte sur une tour qui contient des pièces ennemies, tu peux les <b>retourner dans ton camp</b> : c'est <span class="kj">返</span>.</p>
+ <p>Condition : avoir dans ta réserve une pièce du <b>même type</b> pour chaque pièce retournée ; elle est dépensée. Cela marche aussi quand tu poses le Tacticien depuis la réserve sur une tour.</p>`,
+ fen:fen({...BASE,"7-5":"T","6-4":"d"},"D1/-"),
+ task:"Monte ton Tacticien 謀 sur le Soldat noir en 4六 et retourne-le grâce au Soldat de ta réserve.",
+ hint:"Sélectionne 謀 en 5七, clique 4六 puis « Trahison 返 兵 ».", marks:['6-4'], goal:{move:m=>m.type==='betray'}, done:"Le Soldat noir est maintenant blanc, sous ton Tacticien."},
+{t:"Échec et mat",
+ body:`<p>Quand ton Maréchal est attaqué, tu es <b>en échec</b> : tu dois parer tout de suite (fuir, capturer l'attaquant, ou bloquer). Ici, les coups qui laisseraient ton Maréchal en prise sont refusés.</p>
+ <p>Si aucune parade n'existe, c'est <b>échec et mat</b>, la partie est finie. Pense aux tours : monter sur une pièce ennemie la neutralise et donne de la portée.</p>`,
+ fen:fen({"9-5":"M","1-5":"m","2-4":"d","2-6":"d","7-6":"G","2-3":"J"}),
+ task:"Mat en un coup : le Maréchal noir est en 5一, entouré de ses Soldats.",
+ hint:"Ton Général 大 glisse loin en ligne droite. En montant sur le Soldat noir en 6二, il passe à l'étage 2 : il attaque le Maréchal en diagonale, et ton 小 bloque l'autre fuite.",
+ goal:{move:m=>{try{return new Gungi(m.after).isCheckmate()}catch(e){return false}}}, done:"Échec et mat ! Tu connais toutes les règles du combat."},
+{t:"Modes de jeu et placement",
+ body:`<p>Le Gungi officiel propose quatre niveaux de règles :</p>
+ <p><b>Initiation</b> : position de départ fixe, tours de 2 étages, le Maréchal ne monte pas sur les autres pièces.<br><b>Débutant</b> : pareil, avec Archers, Cavalier et Shinobi en jeu.<br><b>Intermédiaire</b> : chacun <b>place ses pièces</b> librement, tours de 2 étages.<br><b>Avancé</b> : placement libre et tours de 3 étages, le Gungi complet.</p>
+ <p>Pendant le placement, les joueurs posent une pièce chacun leur tour dans leurs 3 rangées, en commençant par le Maréchal. Annonce <span class="kj">終</span> (fin) quand tu as fini : les pièces restantes restent en réserve pour être parachutées plus tard.</p>`,
+ fen:INTRO_POSITION, task:"Prêt ? Lance une partie d'initiation contre l'ordinateur.", hint:"Commence par l'Initiation, puis monte de niveau.",
+ goal:{none:true}, done:""}
+];
+const LS={i:0,step:0,done:new Set(store.get('gungi-done')||[]),explored:new Set(),ok:false};
+const L=makeCtl('L',{showTargets:()=>true,canAct:()=>!LS.ok||LESSONS[LS.i].goal&&LESSONS[LS.i].goal.explore,
+  onSelect:sq=>{const les=LESSONS[LS.i];const top=L.g.getTop(sq);
+    if(les.goal&&les.goal.select&&les.goal.select(sq))success();
+    if(les.goal&&les.goal.explore&&top){LS.explored.add(top.type);fb(`Types vus : ${[...LS.explored].join(' ')} (${Math.min(LS.explored.size,3)}/3)`,'');if(LS.explored.size>=3&&!LS.ok)success()}},
+  onMove:mv=>{const les=LESSONS[LS.i];const st=les.steps?les.steps[LS.step]:null;const goal=st?st.goal:(les.goal&&les.goal.move);
+    if(!goal){L.g.load(passTurn(L.g.fen()));return}
+    if(goal(mv)){
+      if(st&&LS.step<les.steps.length-1){LS.step++;L.g.load(passTurn(L.g.fen()));fb(st.ok,'good');setTask();
+        const sq=rf(mv.to);setTimeout(()=>{L.select(sq);L.render()},50);return}
+      success();
+    } else {fb("Ce n'est pas le coup attendu. On remet la position.",'bad');L.locked=true;L.render();setTimeout(()=>loadLesson(LS.i,true),1300)}
+  }});
+function fb(t,c){const e=document.getElementById('feedback');e.textContent=t;e.className='feedback '+(c||'')}
+function setTask(){const les=LESSONS[LS.i];const st=les.steps?les.steps[LS.step]:les;
+  document.getElementById('taskText').textContent=st.task;const h=document.getElementById('hint');h.textContent=st.hint;h.hidden=true;
+  L.marks=new Set(st.marks||[])}
+function success(){const les=LESSONS[LS.i];LS.ok=true;LS.done.add(LS.i);store.set('gungi-done',[...LS.done]);
+  document.getElementById('task').classList.add('ok');document.querySelector('#task .t').textContent='Réussi';fb(les.done||'Bravo !','good');L.marks=new Set();navLessons();L.render()}
+function navLessons(){const n=document.getElementById('lessonNav');
+  n.innerHTML=LESSONS.map((l,i)=>`<button class="${LS.done.has(i)?'done':''}" aria-current="${i===LS.i}" title="${l.t}" data-i="${i}">${i+1}</button>`).join('');
+  n.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>loadLesson(+b.dataset.i)))}
+function loadLesson(i,keepFb){LS.i=i;LS.step=0;LS.ok=false;LS.explored=new Set();L.locked=false;const les=LESSONS[i];
+  L.g=new Gungi(les.fen);L.clearSel();L.last=new Set();L.info='';
+  document.getElementById('lessonBody').innerHTML=`<h3>Leçon ${i+1} sur ${LESSONS.length}</h3><h2>${les.t}</h2>`+les.body;
+  const task=document.getElementById('task');task.classList.remove('ok');document.querySelector('#task .t').textContent='Exercice';
+  setTask();if(!keepFb)fb('','');
+  const isLast=i===LESSONS.length-1;const nb=document.getElementById('nextBtn');nb.textContent=isLast?'Jouer une partie →':'Leçon suivante →';
+  document.getElementById('prevBtn').disabled=i===0;navLessons();L.render();store.set('gungi-lesson',i)}
+document.getElementById('hintBtn').onclick=()=>{document.getElementById('hint').hidden=false};
+document.getElementById('resetBtn').onclick=()=>loadLesson(LS.i);
+document.getElementById('prevBtn').onclick=()=>LS.i>0&&loadLesson(LS.i-1);
+document.getElementById('nextBtn').onclick=()=>{if(LS.i<LESSONS.length-1)loadLesson(LS.i+1);else{LS.done.add(LS.i);store.set('gungi-done',[...LS.done]);showTab('play');document.getElementById('mode').value='0';newGame()}};
+
+/* ================= PIÈCES ================= */
+const PS={type:'大',tier:1};
+function renderPieces(){
+  const pos={"9-8":"M","1-7":"m"};pos['5-5']='D'.repeat(PS.tier-1)+CODE[PS.type].toUpperCase();
+  const g=new Gungi(fen(pos));const ms=g.moves({square:'5-5',verbose:true});
+  const targets=new Map();ms.forEach(m=>{const k=rf(m.to);if(k!=='9-8'&&k!=='1-7')targets.set(k,['route'])});
+  const show=new Gungi(fen({'5-5':pos['5-5']}));
+  renderBoard(document.getElementById('P-board'),{g:show,targets,interactive:false});
+  document.getElementById('tiers').innerHTML=[1,2,3].map(t=>`<button aria-pressed="${t===PS.tier}" data-t="${t}">Étage ${t}</button>`).join('');
+  document.querySelectorAll('#tiers button').forEach(b=>b.onclick=()=>{PS.tier=+b.dataset.t;renderPieces()});
+  const [n,ro]=NAMES[PS.type];
+  document.getElementById('pDetail').innerHTML=`<div class="big"><span class="d">${PS.type}</span><div><h2 style="margin:0">${n}</h2><div class="muted small">${ro} · ${COUNT[PS.type]} par joueur${JUMPERS.has(PS.type)?' · sauteuse':''}</div></div></div><p>${DESC[PS.type]}</p><p class="small muted">À l'étage ${PS.tier} : ${targets.size} cases atteignables sur un plateau vide.</p>`;
+  document.getElementById('cat').innerHTML=ORDER.map(t=>`<button class="card" aria-pressed="${t===PS.type}" data-t="${t}"><span class="d">${t}</span><span><span class="n">${NAMES[t][0]}</span><br><span class="r">${NAMES[t][1]}</span></span></button>`).join('');
+  document.querySelectorAll('#cat .card').forEach(b=>b.onclick=()=>{PS.type=b.dataset.t;renderPieces()});
+}
+document.getElementById('comp').innerHTML='<tr><th>Pièce</th><th></th><th style="text-align:right">Nombre</th></tr>'+ORDER.map(t=>`<tr><td class="kj">${t}</td><td>${NAMES[t][0]}</td><td class="n">${COUNT[t]}</td></tr>`).join('')+'<tr><th colspan="2">Total</th><th style="text-align:right">25</th></tr>';
+
+/* ================= PARTIE ================= */
+const POS=[INTRO_POSITION,BEGINNER_POSITION,INTERMEDIATE_POSITION,ADVANCED_POSITION];
+const GS={over:null,thinking:false,log:[],aiTarget:14};
+const P=makeCtl('G',{showTargets:()=>document.getElementById('showLegal').checked,canAct:()=>!GS.over&&!GS.thinking,
+  filterArata:ms=>{if(!P.g.inDraft())return ms;const fin=document.getElementById('finishDraft').checked;const f=ms.filter(m=>!!m.draftFinished===fin);return f.length?f:ms},
+  onMove:mv=>{afterMove(mv)}});
+function afterMove(mv){GS.log.push(moveText(mv));if(mv.draftFinished)document.getElementById('finishDraft').checked=false;checkOver(mv);updateStatus();P.render();
+  if(!GS.over&&P.g.turn()==='b'){GS.thinking=true;updateStatus();setTimeout(aiTurn,P.g.inDraft()?180:60)}}
+function checkOver(mv){const g=P.g;
+  if(mv&&mv.captured&&mv.captured.some(p=>p.type==='帥')){GS.over=mv.color;return}
+  if(g.inDraft())return;
+  if(g.isCheckmate()){GS.over=opp(g.turn());return}
+  if(g.isDraw()){GS.over='draw';return}
+  const legal=g.moves({verbose:true}).some(m=>!leavesCheck(m));if(!legal){GS.over=g.inCheck()?opp(g.turn()):'draw'}}
+function updateStatus(){const g=P.g;const s=document.getElementById('status');const ban=document.getElementById('banner');
+  const draft=g.inDraft();document.getElementById('draftBox').hidden=!(draft&&g.getDraftingRights('w'));
+  document.getElementById('playHelp').textContent=draft?"Placement : clique une pièce de ta réserve puis une case de tes 3 rangées. Commence par le Maréchal 帥. Coche « dernier (終) » pour finir ton placement.":"Clique une de tes pièces (blanches, en bas), puis une case surlignée. Pour parachuter, clique une pièce de ta réserve sous le plateau.";
+  if(GS.over){s.innerHTML='';ban.hidden=false;
+    ban.className='banner '+(GS.over==='w'?'win':GS.over==='b'?'lose':'');
+    ban.textContent=GS.over==='w'?'Victoire ! Le Maréchal noir est mat.':GS.over==='b'?'Défaite : ton Maréchal est mat. Annule ton coup ou relance une partie.':'Partie nulle.';}
+  else{ban.hidden=true;const t=g.turn();const ck=!draft&&g.inCheck(t);
+    s.innerHTML=`<span class="dot ${t}"></span>${t==='w'?(draft?'À toi de placer':'À toi de jouer'):(draft?'Noir place une pièce':'Noir réfléchit')}${GS.thinking?' <span class="thinking">…</span>':''}${ck?' <span class="check">· échec !</span>':''}`}
+  const log=document.getElementById('log');log.innerHTML=GS.log.map(t=>`<li>${t}</li>`).join('');log.parentElement.scrollTop=1e6;
+  document.getElementById('undo').disabled=GS.thinking||!g.history().length;
+}
+function newGame(){const mode=+document.getElementById('mode').value;P.g=new Gungi(POS[mode]);GS.over=null;GS.thinking=false;GS.log=[];GS.aiTarget=12+Math.floor(Math.random()*5);P.clearSel();P.last=new Set();P.info='';P.locked=false;
+  updateStatus();P.render();store.set('gungi-mode',mode)}
+document.getElementById('newGame').onclick=newGame;
+document.getElementById('showLegal').onchange=()=>P.render();
+document.getElementById('finishDraft').onchange=()=>{if(P.selHand){const t=P.selHand;P.selHand=null;P.pickHand(t)}};
+document.getElementById('undo').onclick=()=>{const g=P.g;if(GS.thinking)return;
+  do{const m=g.undo();if(!m)break;GS.log.pop()}while(g.turn()!=='w'&&g.history().length);
+  GS.over=null;P.clearSel();P.last=new Set();P.info='';updateStatus();P.render()};
+document.getElementById('autoDraft').onclick=()=>{const g=P.g;let guard=0;
+  while(g.inDraft()&&g.getDraftingRights('w')&&guard++<80){
+    const c=g.turn();const ms=g.moves({verbose:true});const placed=25-handCount(g,c);
+    const target=c==='w'?13:GS.aiTarget;const wantFinish=c==='w'?placed+1>=target:(placed+1>=target&&!g.getDraftingRights('w'));
+    const m=draftPick(ms,c,wantFinish);const mv=g.move(m.san);GS.log.push(moveText(mv))}
+  P.clearSel();P.last=new Set();updateStatus();P.render();
+  if(g.turn()==='b'&&!GS.over){GS.thinking=true;updateStatus();setTimeout(aiTurn,150)}};
+
+/* ---------- IA ---------- */
+function handCount(g,c){return g.hand(c).reduce((a,p)=>a+p.count,0)}
+const ROLE={'帥':'back','大':'back','中':'back','弓':'back','砲':'back','筒':'back','兵':'front','砦':'front','槍':'front','馬':'mid','侍':'mid','忍':'mid','謀':'mid','小':'back'};
+const WANT={'帥':9,'大':4,'中':4,'兵':3,'砦':2,'小':2,'槍':2,'馬':2,'侍':1.5,'忍':1.5,'弓':1.5,'砲':1.5,'筒':1,'謀':1};
+function draftPick(ms,c,wantFinish){
+  let cand=ms.filter(m=>m.type==='arata'&&!!m.draftFinished===wantFinish);if(!cand.length)cand=ms;
+  let best=null,bs=-1e9;
+  for(const m of cand){const [r,f,t]=m.to.split('-').map(Number);
+    const depth=c==='w'?9-r:r-1; // 0 = rangée du fond
+    const role=depth===0?'back':depth===1?'mid':'front';
+    let s=WANT[m.piece]+(ROLE[m.piece]===role?2:0)-(t>1?1.5:0)-Math.abs(f-5)*0.25+Math.random()*1.6;
+    if(m.piece==='帥')s+= (depth===0?3:0)-Math.abs(f-5);
+    if(m.captured&&m.captured.length)s-=3;
+    if(s>bs){bs=s;best=m}}
+  return best}
+function findMarshal(b,c){for(const rank of b)for(const file of rank){const t=file[file.length-1];if(t&&t.type==='帥'&&t.color===c)return t.square}return null}
+function aiTurn(){const g=P.g;if(GS.over){GS.thinking=false;return}
+  let m;
+  if(g.inDraft()){const ms=g.moves({verbose:true});const placed=25-handCount(g,'b');m=draftPick(ms,'b',placed+1>=GS.aiTarget&&!g.getDraftingRights('w'))}
+  else m=aiChoose(g);
+  GS.thinking=false;
+  if(!m){GS.over='w';updateStatus();P.render();return}
+  const mv=g.move(m.san);P.last=new Set([m.from?rf(m.from):null,rf(m.to)].filter(Boolean));
+  GS.log.push(moveText(mv));checkOver(mv);updateStatus();P.render();
+  if(!GS.over&&g.turn()==='b'){GS.thinking=true;updateStatus();setTimeout(aiTurn,g.inDraft()?180:60)}}
+function aiChoose(g){const me=g.turn(),op=opp(me);let all=g.moves({verbose:true});
+  const board=all.filter(m=>m.type!=='arata');let drops=all.filter(m=>m.type==='arata');
+  for(let i=drops.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[drops[i],drops[j]]=[drops[j],drops[i]]}
+  drops=drops.slice(0,30);
+  let best=null,bs=-1e9;
+  for(const m of [...board,...drops]){
+    const capV=(m.captured||[]).filter(p=>p.color!==me).reduce((a,p)=>a+VAL[p.type],0);
+    if((m.captured||[]).some(p=>p.type==='帥'&&p.color===op))return m;
+    let h;try{h=new Gungi(m.after)}catch(e){continue}
+    const b=h.board();let s=capV*10;
+    const ms=findMarshal(b,me);if(ms&&isSquareAttacked(ms,op,b))s-=5000;
+    const dest=rf(m.to);const moved=VAL[m.piece]||1;
+    if(m.piece!=='帥'&&isSquareAttacked(dest,op,b)){const def=isSquareAttacked(dest,me,b);s-=moved*(def?5:9)}
+    if(m.type==='betray'||(m.type==='arata'&&m.captured&&m.captured.length))s+=(m.captured||[]).reduce((a,p)=>a+VAL[p.type],0)*8;
+    if(h.inCheck(op)){s+=4;if(h.isCheckmate())s+=1e5}
+    const tier=+m.to.split('-')[2];s+=(tier-1)*0.6;
+    const r=+m.to.split('-')[0];s+=(r-1)*0.12; // avancer vers le bas (Noir)
+    if(m.type==='arata')s+=0.8;
+    s+=Math.random()*0.8;
+    if(s>bs){bs=s;best=m}}
+  return best}
+
+/* ---------- affichage des pièces (kanji / icônes / lettres) ---------- */
+const RANKS_L='abcdefghi';
+const SYMMAP={
+ icons:{'帥':'👑','大':'🦁','中':'🐉','小':'🛡️','侍':'⚔️','槍':'🔱','馬':'🐎','忍':'🥷','砦':'🏯','兵':'🪖','砲':'💣','弓':'🏹','筒':'🎯','謀':'🦊'},
+ letters:{'帥':'Ma','大':'Gé','中':'Lg','小':'Mg','侍':'Sa','槍':'La','馬':'Ca','忍':'Sh','砦':'Fo','兵':'So','砲':'Cn','弓':'Ar','筒':'Mo','謀':'Ta'}};
+const ACT={'取':'✕','付':'▲','返':'⇄','新':'+','終':'fin'};
+let SYM=store.get('gungi-sym')||'kanji';if(!SYMMAP[SYM])SYM='kanji';
+const SYMRE=/[一二三四五六七八九帥大中小侍槍馬忍砦兵砲弓筒謀付取返新終]/g;
+function conv(s){if(SYM==='kanji')return s;const m=SYMMAP[SYM];
+  return s.replace(SYMRE,c=>m[c]??ACT[c]??(RANKK.includes(c)?RANKS_L[RANKK.indexOf(c)]:c))}
+function walk(root){if(root.nodeType===3){fixNode(root);return}
+  const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=tw.nextNode()))fixNode(n)}
+function fixNode(n){if(n._v!==n.nodeValue)n._o=n.nodeValue;const nv=conv(n._o);if(nv!==n.nodeValue)n.nodeValue=nv;n._v=nv}
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1||n.nodeType===3)walk(n)}).observe(document.body,{childList:true,subtree:true});
+function setSym(s){SYM=s;store.set('gungi-sym',s);document.documentElement.dataset.sym=s;
+  document.querySelectorAll('#symsw button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===s));walk(document.body)}
+document.querySelectorAll('#symsw button').forEach(b=>b.onclick=()=>setSym(b.dataset.s));
+setSym(SYM);
+
+/* ---------- onglets ---------- */
+function showTab(id){document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===id));
+  ['learn','pieces','play'].forEach(s=>document.getElementById(s).hidden=s!==id);
+  if(id==='pieces')renderPieces();if(id==='play'&&!P.g)newGame();store.set('gungi-tab',id)}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+const hashTab=(location.hash||'').slice(1);
+const savedMode=store.get('gungi-mode');if(savedMode!=null)document.getElementById('mode').value=String(savedMode);
+loadLesson(Math.min(store.get('gungi-lesson')||0,LESSONS.length-1));
+showTab(['learn','pieces','play'].includes(hashTab)?hashTab:(store.get('gungi-tab')||'learn'));
+</script>
+
+</body></html>
