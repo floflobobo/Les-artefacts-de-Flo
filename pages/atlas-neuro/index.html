@@ -264,6 +264,31 @@ textarea:focus{outline:none;border-color:var(--accent);background:var(--surface)
 .lightbox figure{margin:0;display:flex;flex-direction:column;gap:10px;max-width:min(1400px,100%);max-height:100%}
 .lightbox img{max-width:100%;max-height:calc(100vh - 90px);object-fit:contain;border-radius:8px;background:#fff}
 .lightbox figcaption{color:#E5E9F2;font-size:14px;text-align:center}
+.dg .lobe{fill:var(--surface2);stroke:var(--line);stroke-dasharray:5 5}
+.dg .hemi.rs{stroke:var(--accent2)} .dg .hemi.ri{stroke:var(--ca)}
+.dg .fib2{fill:none;stroke-width:3;stroke-opacity:.2;stroke-linecap:round}
+.dg .fib2.sup{stroke:var(--accent2)} .dg .fib2.inf{stroke:var(--ca)}
+.dg .fib2.on{stroke-opacity:1;stroke-width:5}
+.dg .fib2.cut{stroke-dasharray:4 7;stroke-opacity:.45}
+.dg .halo{paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+.dg .ret{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round}
+.dg .objA,.dg .imgA{stroke:var(--sym);stroke-width:4;fill:none}
+.dg .objH,.dg .imgH{fill:var(--sym)}
+.dg .objDot{fill:var(--accent2);stroke:var(--surface);stroke-width:2}
+.dg .ray{fill:none;stroke:var(--ca);stroke-width:1.8;stroke-opacity:.85}
+.dg .ray.ghost{stroke-dasharray:4 5;stroke-opacity:.6}
+.dg .cross{fill:var(--ca)}
+.dg .lens{fill:var(--para-soft);stroke:var(--para);stroke-width:2}
+.dg .mus2{fill:var(--sym-soft);stroke:var(--sym);stroke-width:1.5}
+.dg .zon{fill:none;stroke:var(--muted);stroke-width:1.6}
+.dg .blur{fill:var(--bad);fill-opacity:.35;stroke:var(--bad);stroke-dasharray:3 3}
+.dg .bad-t{fill:var(--bad)}
+.dg .hemi{fill:none;stroke-width:6;stroke-linecap:round}
+.dg .hemi.nas{stroke:var(--tact)} .dg .hemi.tem{stroke:var(--para)}
+.dg .dobj{fill:var(--accent2)}
+.dg .fib{fill:none;stroke-width:3;stroke-opacity:.18;stroke-linecap:round}
+.dg .fib.nas{stroke:var(--tact)} .dg .fib.tem{stroke:var(--para)}
+.dg .fib.on{stroke-opacity:1;stroke-width:4.5}
 .nadd{display:flex}
 .btn.ghost{border-style:dashed;color:var(--muted);font-weight:700;background:transparent}
 .btn.ghost:hover{color:var(--ink)}
@@ -961,7 +986,7 @@ CH.push({
 id:"vision", title:"Vision", short:"Vision",
 src:"Ronéo 21/11 · diapo Modalités sensorielles",
 weight:"Croise le SNA (pupille, cristallin) et la logique des lésions (voies visuelles).",
-diagrams:["visionLesion"],
+diagrams:["inversion","visionLesion"],
 sections:[
 {h:"L'œil : réglage à l'avant, détection à l'arrière", html:`
 <ul>
@@ -995,7 +1020,7 @@ sections:[
 <li>Noyau du <b>tronc cérébral</b> : réflexes <b>végétatifs</b> (SNA) de la <b>pupille</b> (trop de lumière → myosis ; peu de lumière → mydriase) et de l'<b>accommodation</b> du cristallin (par le contraste, comme l'autofocus d'un appareil photo).</li>
 <li><b>Colliculus supérieur</b> (tectum) → voie <b>tectospinale</b> (extrapyramidale) : mouvements automatiques des yeux et de la tête, <b>poursuite oculaire</b>.</li>
 </ul>`},
-{h:"Voie longue (consciente) vers le cortex occipital", html:`
+{h:"Voie longue (consciente) vers le cortex occipital", dg:"inversion", html:`
 <ol class="chain">
 <li>Le <b>cristallin</b> (lentille biconvexe) <b>inverse</b> l'image : gauche ↔ droite, haut ↔ bas. Un objet du champ visuel gauche se projette sur la <b>rétine nasale gauche</b> et la <b>rétine temporale droite</b>.</li>
 <li><b>Nerfs optiques</b> → <b>chiasma optique</b> : <b>croisement partiel</b>. Seules les fibres de la <b>rétine nasale</b> croisent. Ainsi, un même point de l'espace (vu par les 2 yeux) se retrouve dans <b>un seul</b> hémisphère.</li>
@@ -1003,7 +1028,10 @@ sections:[
 <li><b>Radiations optiques</b> : l'info se sépare puis reconverge. Rétine <b>supérieure</b> → radiations <b>supérieures</b> (passent par le cortex <b>pariétal</b>) ; rétine <b>inférieure</b> → radiations <b>inférieures</b> (cortex <b>temporal</b>).</li>
 <li><b>Cortex strié</b>, lobe <b>occipital</b> : projection <b>topique</b>, « précision photographique », image analysée mais pas encore interprétée.</li>
 </ol>
-<p>Résultat : le champ visuel <b>gauche</b> est traité par l'hémisphère <b>droit</b>. Des lésions localisées donnent des déficits précis (AVC pariétal droit). Le simulateur ci-dessus applique cette logique.</p>`},
+<p>Résultat : le champ visuel <b>gauche</b> est traité par l'hémisphère <b>droit</b>. Des lésions localisées donnent des déficits précis (AVC pariétal droit). Le simulateur de lésions (onglet Schémas) applique cette logique ; le schéma ci-dessous montre l'inversion et la mise au point.</p>
+<p><strong>Faire le lien entre l'inversion haut/bas et les radiations.</strong> Le cristallin inverse aussi le haut et le bas. Un objet situé en <b>haut</b> du champ visuel arrive donc sur la rétine <b>inférieure</b>, et un objet en <b>bas</b> arrive sur la rétine <b>supérieure</b>. Le chiasma ne croise que gauche/droite : le haut et le bas ne sont pas croisés. Ils se séparent seulement après le thalamus, dans les radiations :</p>
+<ul><li>bas du champ → rétine supérieure → radiations <b>supérieures</b>, par le lobe <b>pariétal</b> ;</li><li>haut du champ → rétine inférieure → radiations <b>inférieures</b>, par le lobe <b>temporal</b>.</li></ul>
+<p>Conséquence : une lésion des radiations supérieures (pariétal) fait perdre le <b>bas</b> du champ ; une lésion des radiations inférieures (temporal) fait perdre le <b>haut</b>. Comme on est après le chiasma, c'est du côté <b>opposé</b> à la lésion (AVC pariétal droit : perte en bas à gauche). Vue 3 du schéma ci-dessous.</p>`},
 {h:"Association des informations visuelles", html:`
 <ul>
 <li><b>Courant dorsal</b> → cortex <b>pariétal</b> (aussi somesthésique) : position des objets et de soi dans l'espace, le « <b>où ?</b> ».</li>
@@ -1690,6 +1718,188 @@ render(root){
   root.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;shown.clear();root.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b));draw();});
   draw();
 }};
+// ===== SCHÉMA : inversion par le cristallin et mise au point =====
+DIAG.inversion = {title:"Inversion de l'image et mise au point", kind:"custom",
+render(root){
+  root.innerHTML=`<div class="ctrl"><div class="seg" role="group" aria-label="Vue"><button data-v="profil" class="on">1 · Mise au point (de profil)</button><button data-v="dessus">2 · Gauche / droite (vu de dessus)</button><button data-v="hautbas">3 · Haut / bas (radiations)</button></div></div><div class="invBody"></div>`;
+  const body=root.querySelector('.invBody');
+  root.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{root.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('on',x===b));({profil,dessus,hautbas})[b.dataset.v](body);});
+  profil(body);
+}};
+
+function profil(body){
+  body.innerHTML=`<div class="ctrl">
+   <div class="slider in"><label for="invDist">Distance de l'objet</label><input id="invDist" type="range" min="0" max="100" value="80"><output id="invDistO"></output></div>
+   <div class="seg" role="group" aria-label="Réglage du cristallin"><button data-m="auto" class="on">Réflexe d'accommodation actif</button><button data-m="man">Cristallin bloqué (je règle)</button></div>
+   <div class="slider in" id="invPWrap" hidden><label for="invP">Cristallin</label><input id="invP" type="range" min="0" max="100" value="20"><output id="invPO"></output></div></div>
+  <div class="dgbox"><svg viewBox="0 0 700 330" role="img" aria-label="Œil vu de profil : rayons lumineux, cristallin et image sur la rétine">${DEFS}
+   <line class="mid" x1="10" y1="165" x2="690" y2="165"/>
+   <circle class="b eye" cx="520" cy="165" r="125"/>
+   <path class="ret" d="M 600 69 A 125 125 0 0 1 600 261"/>
+   <text class="sm" x="650" y="60" text-anchor="middle">rétine</text>
+   <text class="sm" x="520" y="312" text-anchor="middle">œil vu de profil</text>
+   <g id="invMus"></g><g id="invObj"></g><g id="invRays"></g><g id="invImg"></g>
+   <text class="sm mut" x="16" y="320">distances non à l'échelle</text>
+  </svg></div>
+  <div class="verdict" id="invV" aria-live="polite"></div>
+  <div class="model sec"><h3 style="font-size:17px">Comprendre en 4 points</h3><ol class="chain" style="margin:0">
+   <li><b>Pourquoi l'image est inversée.</b> Les rayons partis du haut de l'objet passent par le <b>cristallin</b> (lentille biconvexe) et se croisent : ils arrivent en <b>bas</b> de la rétine, et ceux du bas arrivent en haut. Même chose pour gauche et droite. Ce n'est donc pas la rétine qui inverse, c'est le cristallin ; la rétine reçoit l'image déjà retournée.</li>
+   <li><b>Ce que « régler » veut dire.</b> L'inversion ne se règle pas : elle a toujours lieu. Ce qui se règle, c'est la <b>netteté</b>, c'est-à-dire l'endroit où les rayons se rejoignent. Il faut qu'ils se rejoignent pile sur la rétine. Joue avec le mode « cristallin bloqué » pour voir l'image devenir floue.</li>
+   <li><b>Le réglage = l'accommodation</b>, sous contrôle du <b>SNA</b>. De <b>près</b>, le <b>parasympathique</b> contracte le <b>muscle ciliaire</b> : l'anneau se resserre, les <b>fibres zonulaires</b> se détendent, le cristallin élastique se <b>bombe</b> et dévie plus les rayons. De <b>loin</b>, le <b>sympathique</b> relâche le muscle ciliaire : l'anneau s'élargit, tend les zonules et <b>aplatit</b> le cristallin. C'est un <b>réflexe</b> géré par un noyau du tronc cérébral, à partir du <b>contraste</b> de l'image (comme l'autofocus d'un appareil photo).</li>
+   <li><b>Et l'image à l'envers ?</b> Le cerveau ne la « remet » pas à l'endroit comme une photo qu'on retourne. Chaque point de la rétine correspond à une direction de l'espace, et cette carte est projetée point par point sur le cortex (<b>projection topique</b>). Le cortex l'interprète telle quelle. <span class="note">Ce dernier point est une précision pour comprendre, il n'est pas développé dans la ronéo.</span></li>
+  </ol></div>`;
+  const Lx=440, Cy=165, D=200, H=50, UMIN=110, UMAX=400;
+  const Pfar=1/UMAX+1/D, Pnear=1/UMIN+1/D;
+  let mode="auto";
+  const $i=s=>body.querySelector(s);
+  function cm(u){return 10*Math.pow(60,(u-UMIN)/(UMAX-UMIN));}
+  function fmtD(u){const c=cm(u);return c<100?"≈ "+Math.round(c/5)*5+" cm":"≈ "+(c/100).toFixed(c<300?1:0).replace(".",",")+" m";}
+  function draw(){
+    const t=+$i('#invDist').value/100, u=UMIN+t*(UMAX-UMIN);
+    $i('#invDistO').textContent=fmtD(u)+(t<.35?" · près":(t>.7?" · loin":""));
+    let P = mode==="auto" ? 1/u+1/D : Pfar+(+$i('#invP').value/100)*(Pnear-Pfar);
+    const k=(P-Pfar)/(Pnear-Pfar);   // 0 = aplati, 1 = bombé
+    $i('#invPO').textContent = k<.3?"aplati (vision de loin)":(k>.7?"bombé (vision de près)":"intermédiaire");
+    const x0=Lx-u, tipY=Cy-H;
+    // objet
+    $i('#invObj').innerHTML=`<path class="objA" d="M${x0} ${Cy} V ${tipY+8}"/><path class="objH" d="M${x0-9} ${tipY+12} L ${x0} ${tipY} L ${x0+9} ${tipY+12} Z"/><circle class="objDot" cx="${x0}" cy="${tipY}" r="5"/><text class="sm" x="${x0}" y="${Cy+22}" text-anchor="middle">objet</text>`;
+    // cristallin, muscle ciliaire, zonules
+    const rx=7+k*15, ry=58, my=ry+20+(1-k)*12, mr=8+k*6;
+    const zon = y0=>{const y1=Cy+(y0>0?1:-1)*ry*0.92;const ym=Cy+y0;return k>.5?`M${Lx} ${ym} q ${6} ${(y1-ym)/3} 0 ${(y1-ym)/1.5} q ${-6} ${(y1-ym)/6} 0 ${(y1-ym)/3}`:`M${Lx} ${ym} L ${Lx} ${y1}`;};
+    $i('#invMus').innerHTML=`<path class="zon" d="${zon(-my+mr)}"/><path class="zon" d="${zon(my-mr)}"/>
+     <ellipse class="mus2" cx="${Lx}" cy="${Cy-my}" rx="${mr}" ry="${mr}"/><ellipse class="mus2" cx="${Lx}" cy="${Cy+my}" rx="${mr}" ry="${mr}"/>
+     <ellipse class="lens" cx="${Lx}" cy="${Cy}" rx="${rx}" ry="${ry}"/>
+     <text class="sm" x="${Lx}" y="${Cy-my-mr-8}" text-anchor="middle">muscle ciliaire</text>
+     <text class="sm" x="${Lx-rx-6}" y="${Cy+4}" text-anchor="end">cristallin</text>
+     <text class="sm" x="${Lx+16}" y="${Cy+my-mr-4}">zonules</text>`;
+    // rayons depuis la pointe de l'objet
+    const v=1/(P-1/u), Ix=Lx+v, Iy=Cy+H*v/u, R=Lx+D;
+    const hits=[];let rays="";
+    [-0.4,0,0.75].forEach(f=>{
+      const yl = f===-0.4 ? tipY : (f===0 ? Cy : Cy+ry*0.6);
+      const slope=(Iy-yl)/(Ix-Lx), yR=yl+slope*(R-Lx);
+      hits.push(yR);
+      rays+=`<path class="ray" d="M${x0} ${tipY} L ${Lx} ${yl} L ${R} ${yR}"/>`;
+    });
+    if(v<D-6) rays+=`<circle class="cross" cx="${Ix}" cy="${Iy}" r="4"/>`;
+    if(v>D) rays+=`<path class="ray ghost" d="M${R} ${hits[0]} L ${Math.min(Ix,690)} ${Cy+H*Math.min(v,(690-Lx))/u}"/><path class="ray ghost" d="M${R} ${hits[2]} L ${Math.min(Ix,690)} ${Cy+H*Math.min(v,(690-Lx))/u}"/>`;
+    $i('#invRays').innerHTML=rays;
+    const spread=Math.abs(Math.max(...hits)-Math.min(...hits)), net=spread<6;
+    const imgH=H*D/u;
+    $i('#invImg').innerHTML = net
+      ? `<path class="imgA" d="M${R} ${Cy} V ${Cy+imgH-8}"/><path class="imgH" d="M${R-8} ${Cy+imgH-12} L ${R} ${Cy+imgH} L ${R+8} ${Cy+imgH-12} Z"/><circle class="objDot" cx="${R}" cy="${Cy+imgH}" r="5"/><text class="tx acc-t" x="${R-10}" y="${Cy+imgH+22}" text-anchor="end">image nette, à l'envers</text>`
+      : `<rect class="blur" x="${R-6}" y="${Math.min(...hits)}" width="12" height="${spread}" rx="6"/><text class="tx bad-t" x="${R-12}" y="${Math.max(...hits)+22}" text-anchor="end">tache floue</text>`;
+    const where = net ? "pile sur la rétine : <b>image nette</b>" : (v<D ? "<b>devant</b> la rétine : image <b>floue</b> (le cristallin est trop bombé pour cette distance)" : "<b>derrière</b> la rétine : image <b>floue</b> (le cristallin est trop plat pour cette distance)");
+    const sna = k>.5 ? `<span class="pill" style="background:var(--para)">Parasympathique</span> muscle ciliaire <b>contracté</b> → zonules <b>détendues</b> → cristallin <b>bombé</b>` : `<span class="pill" style="background:var(--sym)">Sympathique</span> muscle ciliaire <b>relâché</b> → zonules <b>tendues</b> → cristallin <b>aplati</b>`;
+    $i('#invV').innerHTML=`<div>Les rayons partis de la pointe de l'objet se rejoignent ${where}.</div><div>${sna}</div><p class="note">${mode==="auto"?"Le réflexe ajuste le cristallin à chaque distance : l'image reste nette, et toujours inversée (la pointe en haut de l'objet arrive en bas de la rétine).":"Le cristallin ne bouge plus : rapproche ou éloigne l'objet et regarde où les rayons se croisent. C'est ce que corrige le réflexe d'accommodation."}</p>`;
+  }
+  $i('#invDist').oninput=draw; $i('#invP').oninput=draw;
+  body.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{mode=b.dataset.m;body.querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));
+    if(mode==="man"){const t=+$i('#invDist').value/100,u=UMIN+t*(UMAX-UMIN);$i('#invP').value=Math.round(((1/u+1/D)-Pfar)/(Pnear-Pfar)*100);}
+    $i('#invPWrap').hidden=mode!=="man";draw();});
+  draw();
+}
+
+function dessus(body){
+  body.innerHTML=`<div class="ctrl"><div class="seg" role="group" aria-label="Position de l'objet"><button data-o="L" class="on">Objet dans le champ gauche</button><button data-o="R">Objet dans le champ droit</button></div></div>
+  <div class="dgbox"><svg viewBox="0 0 700 440" role="img" aria-label="Les deux yeux vus de dessus, chiasma et hémisphères">${DEFS}
+   <line class="mid" x1="350" y1="10" x2="350" y2="430"/>
+   <text class="sm mut" x="340" y="22" text-anchor="end">champ visuel gauche</text><text class="sm mut" x="360" y="22">champ visuel droit</text>
+   <g id="dObj"></g>
+   <g id="dEyes"></g><g id="dRays"></g><g id="dFib"></g>
+   <ellipse class="b" cx="350" cy="268" rx="26" ry="11"/><text class="sm" x="384" y="272">chiasma</text>
+   <ellipse class="b" cx="276" cy="338" rx="30" ry="14"/><ellipse class="b" cx="424" cy="338" rx="30" ry="14"/><text class="sm" x="350" y="342" text-anchor="middle">thalamus</text>
+   <rect class="b" x="186" y="392" width="150" height="34" rx="9"/><rect class="b" x="364" y="392" width="150" height="34" rx="9"/>
+   <text class="sm" x="261" y="414" text-anchor="middle">cortex occipital G</text><text class="sm" x="439" y="414" text-anchor="middle">cortex occipital D</text>
+  </svg></div>
+  <div class="legend"><span><i class="sw" style="background:var(--tact)"></i>rétine nasale (côté nez) : ses fibres croisent</span><span><i class="sw" style="background:var(--para)"></i>rétine temporale (côté tempe) : ses fibres restent du même côté</span></div>
+  <div class="verdict" id="dV" aria-live="polite"></div>`;
+  const E=[{x:270,n:1},{x:430,n:-1}], Ey=165, r=48;   // n : direction du nez (+1 = vers la droite)
+  let side="L";
+  const $i=s=>body.querySelector(s);
+  function hit(lx,ly,dx,dy,cx,cy){const fx=lx-cx,fy=ly-cy,a=dx*dx+dy*dy,b=2*(fx*dx+fy*dy),c=fx*fx+fy*fy-r*r,t=(-b+Math.sqrt(b*b-4*a*c))/(2*a);return [lx+t*dx,ly+t*dy];}
+  function draw(){
+    const ox = side==="L"?190:510, oy=34;
+    $i('#dObj').innerHTML=`<circle class="dobj ${side}" cx="${ox}" cy="${oy}" r="17"/><text class="tx" x="${ox}" y="${oy+5}" text-anchor="middle" style="fill:#fff">A</text>`;
+    let eyes="",rays="";
+    E.forEach((e,i)=>{
+      // hémirétines : nasale (côté nez) et temporale
+      const nasX=e.x+e.n*r, temX=e.x-e.n*r;
+      eyes+=`<circle class="b eye" cx="${e.x}" cy="${Ey}" r="${r}"/>
+       <path class="hemi nas" d="M ${e.x} ${Ey+r} A ${r} ${r} 0 0 ${e.n>0?0:1} ${e.x+e.n*r*0.82} ${Ey-r*0.57}"/>
+       <path class="hemi tem" d="M ${e.x} ${Ey+r} A ${r} ${r} 0 0 ${e.n>0?1:0} ${e.x-e.n*r*0.82} ${Ey-r*0.57}"/>
+       <ellipse class="lens" cx="${e.x}" cy="${Ey-r+10}" rx="16" ry="6"/>
+       <text class="sm" x="${e.x}" y="${Ey-r-8}" text-anchor="middle">${i?"œil droit":"œil gauche"}</text>
+       <text class="sm halo" x="${e.x+e.n*38}" y="${Ey+r+20}" text-anchor="middle">nasale</text>
+       <text class="sm" x="${temX-e.n*8}" y="${Ey+18}" text-anchor="${e.n>0?"end":"start"}">temporale</text>`;
+      const lx=e.x, ly=Ey-r+10, dx=lx-ox, dy=ly-oy, p=hit(lx,ly,dx,dy,e.x,Ey);
+      rays+=`<path class="ray" d="M${ox} ${oy} L ${lx} ${ly} L ${p[0]} ${p[1]}"/><circle class="objDot" cx="${p[0]}" cy="${p[1]}" r="5"/>`;
+    });
+    $i('#dEyes').innerHTML=eyes; $i('#dRays').innerHTML=rays;
+    // fibres : LN, LT, RN, RT
+    const F={LT:"M 246 206 C 250 240, 300 250, 336 266 L 284 326", LN:"M 294 206 C 310 236, 330 250, 350 268 L 416 326",
+             RN:"M 406 206 C 390 236, 370 250, 350 268 L 284 326", RT:"M 454 206 C 450 240, 400 250, 364 266 L 416 326"};
+    const act = side==="L"?["LN","RT"]:["LT","RN"];
+    let f="";
+    Object.entries(F).forEach(([k,d])=>{const on=act.includes(k);f+=`<path class="fib ${k[1]==="N"?"nas":"tem"} ${on?"on":""}" d="${d}"/>`;});
+    f+=`<path class="fib tem ${side==="R"?"on":""}" d="M 276 352 L 266 390"/><path class="fib tem ${side==="L"?"on":""}" d="M 424 352 L 434 390"/>`;
+    $i('#dFib').innerHTML=f;
+    $i('#dV').innerHTML = side==="L"
+     ? `<div>L'objet est à <b>gauche</b>. Les rayons traversent le cristallin et se croisent : ils arrivent sur la moitié <b>droite</b> de chaque rétine, c'est-à-dire la rétine <b>nasale de l'œil gauche</b> et la rétine <b>temporale de l'œil droit</b>.</div><div>Au <b>chiasma</b>, seules les fibres <b>nasales croisent</b>. Les deux images du même objet se retrouvent donc dans le même hémisphère : le <b>droit</b>. Champ visuel gauche → cortex occipital droit.</div>`
+     : `<div>L'objet est à <b>droite</b>. Les rayons arrivent sur la moitié <b>gauche</b> de chaque rétine : rétine <b>temporale de l'œil gauche</b> et rétine <b>nasale de l'œil droit</b>.</div><div>Les fibres nasales de l'œil droit croisent au chiasma, les temporales de l'œil gauche restent à gauche : tout arrive dans l'hémisphère <b>gauche</b>. Champ visuel droit → cortex occipital gauche.</div>`;
+  }
+  body.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{side=b.dataset.o;body.querySelectorAll('[data-o]').forEach(x=>x.classList.toggle('on',x===b));draw();});
+  draw();
+}
+
+function hautbas(body){
+  body.innerHTML=`<div class="ctrl"><div class="seg" role="group" aria-label="Position de l'objet"><button data-o="H" class="on">Objet en haut du champ</button><button data-o="B">Objet en bas du champ</button></div>
+   <label class="sel">Lésion <select id="hbLes"><option value="">Aucune</option><option value="sup">Radiations supérieures (pariétal)</option><option value="inf">Radiations inférieures (temporal)</option></select></label></div>
+  <div class="dgbox"><svg viewBox="0 0 720 360" role="img" aria-label="Vue de côté : œil, voies visuelles et radiations optiques supérieures et inférieures">${DEFS}
+   <ellipse class="lobe" cx="470" cy="78" rx="150" ry="58"/><text class="sm mut" x="470" y="40" text-anchor="middle">lobe pariétal</text>
+   <ellipse class="lobe" cx="450" cy="282" rx="140" ry="52"/><text class="sm mut" x="450" y="328" text-anchor="middle">lobe temporal</text>
+   <line class="mid" x1="10" y1="165" x2="250" y2="165"/>
+   <circle class="b eye" cx="170" cy="165" r="55"/>
+   <path class="hemi rs" d="M ${170+55*Math.cos(-1.1)} ${165+55*Math.sin(-1.1)} A 55 55 0 0 1 225 165"/>
+   <path class="hemi ri" d="M 225 165 A 55 55 0 0 1 ${170+55*Math.cos(1.1)} ${165+55*Math.sin(1.1)}"/>
+   <ellipse class="lens" cx="124" cy="165" rx="7" ry="26"/>
+   <text class="sm" x="236" y="122">rétine sup.</text><text class="sm" x="236" y="216">rétine inf.</text>
+   <text class="sm" x="170" y="245" text-anchor="middle">œil (de profil)</text>
+   <g id="hbObj"></g>
+   <ellipse class="b" cx="318" cy="165" rx="20" ry="10"/><text class="sm" x="318" y="146" text-anchor="middle">chiasma</text>
+   <ellipse class="b" cx="400" cy="165" rx="30" ry="15"/><text class="sm halo" x="400" y="194" text-anchor="middle">thalamus (CGL)</text>
+   <rect class="b" x="626" y="112" width="80" height="106" rx="12"/><text class="sm" x="666" y="236" text-anchor="middle">cortex strié</text><text class="sm" x="666" y="252" text-anchor="middle">(occipital)</text>
+   <g id="hbFib"></g><g id="hbX"></g>
+  </svg></div>
+  <div class="vgrid"><div class="verdict" id="hbV" aria-live="polite"></div><div class="fields"><div><svg viewBox="0 0 100 100" id="hbF"></svg><span>Champ visuel (haut / bas)</span></div></div></div>`;
+  let pos="H"; const $i=s=>body.querySelector(s);
+  function draw(){
+    const les=$i('#hbLes').value;
+    const oy = pos==="H"?70:260, ox=34;
+    // rayon par le centre du cristallin jusqu'à la rétine
+    const lx=124, ly=165, dx=lx-ox, dy=ly-oy, fx=lx-170, fy=0, a=dx*dx+dy*dy, b=2*(fx*dx+fy*dy), c=fx*fx-55*55, t=(-b+Math.sqrt(b*b-4*a*c))/(2*a), hx=lx+t*dx, hy=ly+t*dy;
+    $i('#hbObj').innerHTML=`<path class="objA" d="M${ox} 165 V ${oy+(pos==="H"?8:-8)}"/><path class="objH" d="M${ox-8} ${oy+(pos==="H"?12:-12)} L ${ox} ${oy} L ${ox+8} ${oy+(pos==="H"?12:-12)} Z"/><text class="sm" x="${ox+12}" y="${oy+4}">objet ${pos==="H"?"en haut":"en bas"}</text>
+      <path class="ray" d="M${ox} ${oy} L ${lx} ${ly} L ${hx} ${hy}"/><circle class="objDot" cx="${hx}" cy="${hy}" r="5"/>`;
+    const sup = pos==="B";   // objet en bas -> rétine supérieure
+    const P={sup:"M 226 158 L 300 160 L 372 160 C 430 150, 440 70, 520 70 C 580 70, 610 120, 630 140",
+             inf:"M 226 172 L 300 170 L 372 170 C 420 190, 380 290, 470 290 C 560 290, 600 220, 630 192"};
+    let f="";
+    ["sup","inf"].forEach(k=>{const on=(k==="sup")===sup, cut=les===k;f+=`<path class="fib2 ${k} ${on?"on":""} ${on&&cut?"cut":""}" d="${P[k]}"/>`;});
+    f+=`<text class="sm halo" x="520" y="96" text-anchor="middle">radiations supérieures</text><text class="sm halo" x="470" y="276" text-anchor="middle">radiations inférieures</text>`;
+    $i('#hbFib').innerHTML=f;
+    $i('#hbX').innerHTML = les ? `<g class="xmark"><path d="M${les==="sup"?509:459} ${les==="sup"?59:279} l 22 22 M ${les==="sup"?531:481} ${les==="sup"?59:279} l -22 22"/></g>`:"";
+    // champ visuel perdu : radiations sup = rétine sup = bas du champ
+    const lostHalf = les==="sup"?"bas":(les==="inf"?"haut":null);
+    $i('#hbF').innerHTML=`<path class="fq ${lostHalf==="haut"?"lost":""}" d="M8 50 A42 42 0 0 1 92 50 Z"/><path class="fq ${lostHalf==="bas"?"lost":""}" d="M8 50 A42 42 0 0 0 92 50 Z"/><line class="mid" x1="6" y1="50" x2="94" y2="50"/><text class="sm" x="50" y="34" text-anchor="middle">haut</text><text class="sm" x="50" y="74" text-anchor="middle">bas</text>`;
+    const blocked = (les==="sup"&&sup)||(les==="inf"&&!sup);
+    $i('#hbV').innerHTML=`<div>L'objet est en <b>${pos==="H"?"haut":"bas"}</b> du champ. Les rayons se croisent dans le cristallin et arrivent sur la rétine <b>${sup?"supérieure":"inférieure"}</b>.</div>
+      <div>Les fibres de cette rétine passent le chiasma (qui ne croise que <b>gauche/droite</b>) puis le thalamus, et partent dans les radiations <b>${sup?"supérieures, par le lobe pariétal":"inférieures, par le lobe temporal"}</b> jusqu'au cortex strié.</div>
+      ${les?`<div><b>${blocked?"Le message est bloqué":"Ce message passe"}</b> : une lésion des radiations ${les==="sup"?"supérieures (pariétal)":"inférieures (temporal)"} fait perdre le <b>${lostHalf}</b> du champ visuel.</div>`:""}
+      <p class="note">Règle : haut du champ → rétine inférieure → radiations inférieures (temporal). Bas du champ → rétine supérieure → radiations supérieures (pariétal).</p>`;
+  }
+  body.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{pos=b.dataset.o;body.querySelectorAll('[data-o]').forEach(x=>x.classList.toggle('on',x===b));draw();});
+  $i('#hbLes').onchange=draw; draw();
+}
 // ===== APPLICATION =====
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -1807,7 +2017,7 @@ function viewCh(c,tab){
   const tabs=[["cours","Cours"],["schemas","Schémas",c.diagrams.length],["blanche","Page blanche",c.sections.length],["annales","Annales",qs.length],["cartes","Flashcards",due]].filter(t=>t[0]!=="schemas"||t[2]);
   const i=CH.indexOf(c), prev=CH[i-1], next=CH[i+1];
   let body="";
-  if(tab==="cours") body=noteBlock(c.id+"-gen","Mes notes sur ce chapitre",true)+c.sections.map(s=>`<section class="sec" id="${s.id}"><h2>${s.h}</h2>${s.html}${figs(s.id)}${noteBlock(s.id)}</section>`).join("")+(c.diagrams.length?`<div class="row"><button class="btn" data-tab="schemas">Rejouer les schémas</button><button class="btn" data-tab="blanche">Passer à la page blanche</button></div>`:"")+pieges(c);
+  if(tab==="cours") body=noteBlock(c.id+"-gen","Mes notes sur ce chapitre",true)+c.sections.map(s=>`<section class="sec" id="${s.id}"><h2>${s.h}</h2>${s.html}${s.dg?`<div class="dg" data-dg="${s.dg}"><h3>${DIAG[s.dg].title}</h3></div>`:""}${figs(s.id)}${noteBlock(s.id)}</section>`).join("")+(c.diagrams.length?`<div class="row"><button class="btn" data-tab="schemas">Rejouer les schémas</button><button class="btn" data-tab="blanche">Passer à la page blanche</button></div>`:"")+pieges(c);
   if(tab==="schemas") body=c.diagrams.map(d=>`<div class="dg" data-dg="${d}"><h3>${DIAG[d].title}</h3></div>`).join("");
   if(tab==="blanche") body=`<p class="note">Une section à la fois : écris tout ce que tu sais, puis révèle le cours. Les mots-clés en gras du cours sont cherchés dans ta réponse.</p>`+c.sections.map(pbTask).join("");
   if(tab==="annales") body=qs.length?qs.map(q=>qTask(q)).join(""):`<p class="empty">Pas de question d'annale sur ce chapitre : travaille-le en page blanche et en flashcards.</p>`;
